@@ -1,4 +1,4 @@
-# tidyepidemio 1.2.0
+# tidyepidemio (development version)
 
 * `tep_advise()` and `tep_interpret()`: statistical advice and
   plain-language interpretation for epidemiology, which the tidyvisor
@@ -16,6 +16,8 @@
     and STARD where they apply).
   - These results now carry a class naming what they are (`tep_rt`,
     `tep_growth`, `tep_survival`, ...) in front of their tibble classes.
+
+# tidyepidemio 1.2.0
 
 ## Association and regression
 
