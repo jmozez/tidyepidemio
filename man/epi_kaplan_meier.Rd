@@ -4,7 +4,14 @@
 \alias{epi_kaplan_meier}
 \title{Kaplan-Meier survival estimates}
 \usage{
-epi_kaplan_meier(.data, time, event, strata = NULL, conf_level = 0.95)
+epi_kaplan_meier(
+  .data,
+  time,
+  event,
+  strata = NULL,
+  conf_level = 0.95,
+  entry = NULL
+)
 }
 \arguments{
 \item{.data}{An ungrouped data frame with one row per individual.}
@@ -16,6 +23,9 @@ epi_kaplan_meier(.data, time, event, strata = NULL, conf_level = 0.95)
 \item{strata}{Optional group column; defaults to one combined curve.}
 
 \item{conf_level}{Confidence level strictly between zero and one.}
+
+\item{entry}{Optional delayed-entry (left-truncation) time, strictly less
+than \code{time} for every row; defaults to entry at time zero.}
 }
 \value{
 Tibble of stratum, event/censor times, risk set, event and censor
@@ -28,8 +38,10 @@ Estimates survival by product-limit with log-log confidence intervals using
 \code{survival::survfit()}. Each row is an individual with a non-negative observed
 follow-up time and binary event indicator. Censoring must be non-informative
 conditional on group. Events at the same time use the standard Kaplan-Meier
-risk set. This function does not support left truncation, competing risks,
-weights, clustering, covariate adjustment or continuous-time predictions.
+risk set. With \code{entry}, individuals enter the risk set only after their
+delayed-entry time (left truncation); entry must be independent of survival.
+Competing risks, weights, clustering, covariate adjustment and
+continuous-time predictions are not supported.
 Follow-up times and censoring times share the same units.
 }
 \examples{

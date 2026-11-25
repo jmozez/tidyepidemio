@@ -5,3 +5,10 @@ test_that("Kaplan-Meier survival matches risk sets and confidence bounds", {
  groups<-epi_kaplan_meier(d,t,event,strata=group); expect_equal(unique(groups$strata),c("a","b")); expect_equal(groups$estimate,c(.5,.5,.5,.5))
  expect_error(epi_kaplan_meier(data.frame(t=1,event=2),t,event),"0/1")
 })
+test_that("Kaplan-Meier supports delayed entry", {
+ set.seed(5); d <- data.frame(entry = runif(100, 0, 2)); d$time <- d$entry + rexp(100, .4); d$ev <- rbinom(100, 1, .7)
+ km <- epi_kaplan_meier(d, time, ev, entry = entry)
+ ref <- survival::survfit(survival::Surv(entry, time, ev) ~ 1, data = d, conf.type = "log-log")
+ expect_equal(km$estimate, ref$surv); expect_equal(km$n_risk, ref$n.risk); expect_equal(km$conf_low, ref$lower)
+ expect_error(epi_kaplan_meier(transform(d, entry = time + 1), time, ev, entry = entry), "strictly less")
+})

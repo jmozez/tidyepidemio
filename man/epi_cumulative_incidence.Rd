@@ -4,7 +4,15 @@
 \alias{epi_cumulative_incidence}
 \title{Cumulative incidence with competing risks}
 \usage{
-epi_cumulative_incidence(.data, time, status, cause = 1L, strata = NULL)
+epi_cumulative_incidence(
+  .data,
+  time,
+  status,
+  cause = 1L,
+  strata = NULL,
+  conf_level = 0.95,
+  entry = NULL
+)
 }
 \arguments{
 \item{.data}{An ungrouped data frame of independent individuals.}
@@ -17,11 +25,16 @@ positive value denotes a distinct event cause.}
 \item{cause}{Positive integer code identifying the event of interest.}
 
 \item{strata}{Optional complete grouping column; defaults to one curve.}
+
+\item{conf_level}{Confidence level strictly between zero and one.}
+
+\item{entry}{Optional delayed-entry (left-truncation) time, strictly less
+than \code{time} for every row; defaults to entry at time zero.}
 }
 \value{
 A tibble of stratum, observed times, risk set, target and competing
 event counts, censor counts, event-free survival, and target cumulative
-incidence. The pre-event time-zero row is not inserted automatically.
+incidence with confidence limits. The pre-event time-zero row is not inserted automatically.
 }
 \description{
 Uses the Aalen-Johansen product-limit estimator for one event cause.
@@ -31,8 +44,12 @@ survival is then updated for all event causes. Censored individuals at a
 given time remain in the risk set for events at that time.
 }
 \details{
-Assumes independent censoring within strata. No left truncation, adjustment,
-standard errors or confidence intervals are provided. Treating competing
+Confidence limits come from the Aalen-Johansen variance computed by
+\code{survival::survfit()} for a multi-state outcome, on the log scale; they can be
+unreliable with few events. With \code{entry}, individuals join the risk set only
+after their delayed-entry time (left truncation), which must be independent
+of the event processes. Assumes independent censoring within strata; there
+is no covariate adjustment. Treating competing
 events as ordinary censoring in Kaplan-Meier would not estimate this quantity.
 }
 \examples{
