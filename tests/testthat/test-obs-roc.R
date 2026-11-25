@@ -21,5 +21,5 @@ test_that("lower scores can indicate positive and bad inputs are rejected", {
   expect_equal(z$auc[1], .125)
   expect_equal(z$threshold, c(-Inf, .1, .6, .9))
   expect_error(epi_roc_curve(transform(d, y = 0), y, s), "Both outcome levels")
-  expect_error(epi_plot_roc(z[nrow(z):1, ]), "ordered")
+  expect_error(epi_plot_roc(z[rev(seq_len(nrow(z))), ]), "ordered")
 })

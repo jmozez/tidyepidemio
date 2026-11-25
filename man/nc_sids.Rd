@@ -20,7 +20,7 @@ nc_sids
 \description{
 SIDS deaths and live births in the 100 counties of North Carolina for
 1974-78 and 1979-84, with county centroids in projected UTM (zone 17)
-kilometres. The standard benchmark for disease-cluster detection.
+kilometers. The standard benchmark for disease-cluster detection.
 }
 \examples{
 epi_spatial_scan(nc_sids, x_km, y_km, sids_1974, births_1974,

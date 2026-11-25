@@ -25,7 +25,7 @@
 #' Weekly confirmed COVID-19 cases for the 62 counties of New York State over
 #' the 13 weeks ending 8 March to 31 May 2020, with 2019 population and
 #' county centroids. `x_km` and `y_km` are centroids on a local
-#' equirectangular projection in kilometres, suitable for the planar scan
+#' equirectangular projection in kilometers, suitable for the planar scan
 #' statistics at state scale.
 #'
 #' @format A tibble with 62 rows and 20 columns: `county`, `fips`,
@@ -81,7 +81,7 @@
 #'
 #' SIDS deaths and live births in the 100 counties of North Carolina for
 #' 1974-78 and 1979-84, with county centroids in projected UTM (zone 17)
-#' kilometres. The standard benchmark for disease-cluster detection.
+#' kilometers. The standard benchmark for disease-cluster detection.
 #'
 #' @format A tibble with 100 rows and 10 columns: `county`, `x_km`, `y_km`,
 #'   `lon`, `lat`, `births_1974`, `sids_1974`, `births_1979`, `sids_1979`,

@@ -104,7 +104,11 @@ adjusted_glm <- function(.data, y, e, selected, used, family, measure, conf_leve
   form <- stats::reformulate(terms, response = ".outcome")
   fam <- if (weighted && family$family == "binomial") {
     stats::quasibinomial()
-  } else if (weighted && family$family == "poisson") stats::quasipoisson(link = family$link) else family
+  } else if (weighted && family$family == "poisson") {
+    stats::quasipoisson(link = family$link)
+  } else {
+    family
+  }
   fit <- withCallingHandlers(stats::glm(form, data = frame, family = fam, weights = .w),
     warning = function(cnd) {
       cli::cli_warn("Model fitting warning: {conditionMessage(cnd)}")
@@ -184,8 +188,8 @@ adjusted_glm <- function(.data, y, e, selected, used, family, measure, conf_leve
   if (!is.null(mod)) {
     ix <- grep("^\\.exposure:\\.mod", names(beta))
     b <- beta[ix]
-    Vi <- V[ix, ix, drop = FALSE]
-    wald <- tryCatch(drop(t(b) %*% solve(Vi) %*% b), error = function(err) NA_real_)
+    v_int <- V[ix, ix, drop = FALSE]
+    wald <- tryCatch(drop(t(b) %*% solve(v_int) %*% b), error = function(err) NA_real_)
     out <- tibble::add_column(out, modifier = mname, modifier_level = levels_out, .after = "measure")
     out$interaction_p_value <- stats::pchisq(wald, length(ix), lower.tail = FALSE)
   }

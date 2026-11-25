@@ -22,7 +22,7 @@ ny_covid_counties_2020
 Weekly confirmed COVID-19 cases for the 62 counties of New York State over
 the 13 weeks ending 8 March to 31 May 2020, with 2019 population and
 county centroids. \code{x_km} and \code{y_km} are centroids on a local
-equirectangular projection in kilometres, suitable for the planar scan
+equirectangular projection in kilometers, suitable for the planar scan
 statistics at state scale.
 }
 \examples{

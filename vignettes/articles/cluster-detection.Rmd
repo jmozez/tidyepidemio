@@ -61,7 +61,7 @@ ggplot(nc_sids, aes(x_km, y_km)) +
 
 Both periods show a significant cluster in the south-east of the state: in
 1974-78 it covers Robeson, Bladen and Columbus counties, and in 1979-84 the
-neighbouring Scotland County. Excess SIDS mortality in this part of North
+neighboring Scotland County. Excess SIDS mortality in this part of North
 Carolina is a long-noted feature of the dataset.
 
 ## Part 2. Where and when did COVID-19 cluster in New York State?
@@ -97,7 +97,7 @@ ggplot(ny, aes(x_km, y_km)) +
 ```
 
 The cluster is the five boroughs of New York City plus Nassau County over the
-first ten weeks, the epicentre of the United States' spring 2020 wave.
+first ten weeks, the epicenter of the United States' spring 2020 wave.
 
 ## Part 3. Screening monthly deaths against a seasonal baseline
 
@@ -134,6 +134,6 @@ No month in 1978-79 exceeds what the seasonal pattern predicts.
 
 - A small p-value says the most likely cluster is unlikely under a
   homogeneous Poisson null; it does not prove a common cause.
-- Circles are drawn around centroids in projected kilometres. Use projected
+- Circles are drawn around centroids in projected kilometers. Use projected
   coordinates, not longitude and latitude.
 - An alert is a signal to investigate, not an outbreak diagnosis.

@@ -57,7 +57,10 @@ bw <- MASS::birthwt
 bw$race <- factor(bw$race, labels = c("white", "black", "other"))
 knitr::kable(rbind(
   cbind(analysis = "Crude", epi_odds_ratio(bw, smoke, low)[c("estimate", "conf_low", "conf_high")]),
-  cbind(analysis = "Mantel-Haenszel by race", epi_mantel_haenszel(bw, smoke, low, race)[c("estimate", "conf_low", "conf_high")]),
+  cbind(
+    analysis = "Mantel-Haenszel by race",
+    epi_mantel_haenszel(bw, smoke, low, race)[c("estimate", "conf_low", "conf_high")]
+  ),
   cbind(analysis = "Logistic, age + weight + race",
         epi_adjusted_odds_ratio(bw, smoke, low, adjust = c(age, lwt, race))[c("estimate", "conf_low", "conf_high")]),
   cbind(analysis = "Logistic, spline for weight, robust SE",

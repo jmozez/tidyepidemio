@@ -9,7 +9,8 @@
 #' squares, with fixed population, recovery, and (for SEIR) progression rates;
 #' only transmission is estimated. The first observation supplies the initial
 #' number infectious, and initial exposed and recovered numbers are fixed.
-#' Fitting can be weakly identified and the objective may have multiple minima. Predictions are point estimates only, not calibrated probabilistic
+#' Fitting can be weakly identified and the objective may have multiple
+#' minima. Predictions are point estimates only, not calibrated probabilistic
 #' forecasts. These simplified models do not adjust for imports, observation
 #' error, reporting delays, changes in interventions, or heterogeneous mixing.
 #' @param .data Optional data frame, retained as a data-first convention. It is
@@ -243,7 +244,9 @@ fit_epi_compartmental <- function(
     if (length(d$y) < 3) {
       cli::cli_abort("At least three observations are required for an SEIR transmission fit.")
     }
-  } else if (initial_exposed != 0 || !is.null(sigma)) cli::cli_abort("For SIR, {.arg initial_exposed} must be zero and {.arg sigma} must be NULL.") # nolint: line_length_linter.
+  } else if (initial_exposed != 0 || !is.null(sigma)) {
+    cli::cli_abort("For SIR, {.arg initial_exposed} must be zero and {.arg sigma} must be NULL.")
+  }
   initial_susceptible <- population - d$y[1] - initial_exposed - initial_recovered
   if (d$y[1] <= 0 || initial_susceptible <= 0 || any(d$y > population)) {
     cli::cli_abort(

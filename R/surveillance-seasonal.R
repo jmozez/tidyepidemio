@@ -33,7 +33,8 @@
 #' @param adjust Multiple-testing adjustment passed to [stats::p.adjust()], such
 #'   as `"none"`, `"holm"`, `"bonferroni"` or `"BH"`.
 #' @return Input tibble with `baseline_expected`, `threshold` (the unadjusted
-#'   per-row quantile), `p_value`, `p_adjusted` and logical `alert` columns. Counts exactly equal to the threshold are not flagged.
+#'   per-row quantile), `p_value`, `p_adjusted` and logical `alert` columns.
+#'   Counts exactly equal to the threshold are not flagged.
 #' @examples
 #' train <- data.frame(t = 1:40, cases = rep(c(4, 6, 8, 6), 10))
 #' new <- data.frame(t = 41:42, cases = c(20, 5))

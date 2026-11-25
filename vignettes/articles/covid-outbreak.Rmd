@@ -55,14 +55,14 @@ Cases were doubling roughly every two to three days.
 ## 3. The reproduction number
 
 The renewal equation needs a generation-interval distribution. Here a gamma
-distribution with mean about 5 days, discretised over two weeks:
+distribution with mean about 5 days, discretized over two weeks:
 
 ```{r}
 w <- dgamma(1:14, shape = 2.3, rate = 0.45)
 w <- w / sum(w)
 ```
 
-Early cases were mostly travellers infected abroad. Treat any case with no
+Early cases were mostly travelers infected abroad. Treat any case with no
 case in the previous 14 days as imported, so it seeds transmission without
 being counted as local transmission:
 
@@ -83,7 +83,7 @@ ggplot(subset(rt, !is.na(rt_mean) & date <= as.Date("2020-05-15")), aes(date, rt
   geom_line(colour = red, linewidth = 1) +
   geom_hline(yintercept = 1, linetype = 2) +
   geom_vline(xintercept = lockdown, linetype = 2, colour = navy) +
-  labs(x = NULL, y = expression(R[t]~"(95% credible interval)")) +
+  labs(x = NULL, y = expression(R[t] ~ "(95% credible interval)")) +
   theme_minimal()
 ```
 
@@ -94,7 +94,7 @@ about two weeks of it.
 
 Suppose it is 10 April and R<sub>t</sub> was last estimated at about 0.8.
 Forecast the next 14 days with a renewal model, taking R as uncertain with a
-gamma distribution centred on 0.8 and held constant:
+gamma distribution centered on 0.8 and held constant:
 
 ```{r}
 upto <- subset(nz_covid_2020, date <= as.Date("2020-04-10"))
@@ -110,7 +110,10 @@ ggplot(fc, aes(date)) +
   geom_col(data = subset(nz_covid_2020, date > as.Date("2020-03-20") & date <= as.Date("2020-04-24")),
            aes(y = cases), fill = navy, alpha = 0.5, width = 0.8) +
   geom_vline(xintercept = as.Date("2020-04-10"), linetype = 2) +
-  labs(x = NULL, y = "Cases per day", subtitle = "Forecast median and 95% prediction interval (red); observed cases (blue)") +
+  labs(
+    x = NULL, y = "Cases per day",
+    subtitle = "Forecast median and 95% prediction interval (red); observed cases (blue)"
+  ) +
   theme_minimal()
 
 mean(actual$cases >= fc$lower & actual$cases <= fc$upper)

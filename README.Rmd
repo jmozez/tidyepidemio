@@ -74,13 +74,13 @@ remotes::install_github("jmozez/tidyepidemio")
 Every example below runs on real, published data shipped with the package
 or with R. See `?nz_covid_2020`, `?ny_covid_counties_2020`,
 `?flu_boarding_school_1978`, `?british_doctors` and `?nc_sids` for sources
-and licences.
+and licenses.
 
 ### COVID-19 in New Zealand: from epidemic curve to R<sub>t</sub>
 
 New Zealand recorded 1,530 confirmed cases in its first wave and eliminated
 community transmission after a strict lockdown from 26 March 2020. Early cases
-were travellers, so any case with no cases in the previous 14 days is
+were travelers, so any case with no cases in the previous 14 days is
 treated as imported. With a gamma generation interval (mean about 5 days),
 `epi_rt_gamma()` gives a posterior for the time-varying reproduction number.
 
@@ -250,7 +250,7 @@ ggplot(roc, aes(false_positive_rate, sensitivity)) +
 The Monte Carlo scan statistics and the moving-window screen run in compiled
 C++ (Rcpp). Random numbers are still drawn by R, so results are identical to
 the original pure-R code for a given seed, a property the test suite checks.
-Median of three runs on a Windows laptop, R 4.6.2, optimised (`-O2`) build;
+Median of three runs on a Windows laptop, R 4.6.2, optimized (`-O2`) build;
 reproduce with `data-raw/benchmarks.R`.
 
 ```{r speed-table}
@@ -404,7 +404,7 @@ surveillance methods (see NEWS).
   joins keep the left table's metadata.
 - Longitudinal (time-varying) causal methods and fully Bayesian outbreak models
   are outside the scope of this package.
-- Tests cover documented behaviour, reference implementations and key edge
+- Tests cover documented behavior, reference implementations and key edge
   cases, not every data type, dependency version or platform.
 
 ## Implementation guide and workflows

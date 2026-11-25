@@ -30,7 +30,8 @@ a deterministic SIR or SEIR trajectory to infectious prevalence using least
 squares, with fixed population, recovery, and (for SEIR) progression rates;
 only transmission is estimated. The first observation supplies the initial
 number infectious, and initial exposed and recovered numbers are fixed.
-Fitting can be weakly identified and the objective may have multiple minima. Predictions are point estimates only, not calibrated probabilistic
+Fitting can be weakly identified and the objective may have multiple
+minima. Predictions are point estimates only, not calibrated probabilistic
 forecasts. These simplified models do not adjust for imports, observation
 error, reporting delays, changes in interventions, or heterogeneous mixing.
 }

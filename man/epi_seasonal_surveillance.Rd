@@ -42,7 +42,8 @@ as \code{"none"}, \code{"holm"}, \code{"bonferroni"} or \code{"BH"}.}
 }
 \value{
 Input tibble with \code{baseline_expected}, \code{threshold} (the unadjusted
-per-row quantile), \code{p_value}, \code{p_adjusted} and logical \code{alert} columns. Counts exactly equal to the threshold are not flagged.
+per-row quantile), \code{p_value}, \code{p_adjusted} and logical \code{alert} columns.
+Counts exactly equal to the threshold are not flagged.
 }
 \description{
 Fits a Poisson log-linear baseline with Fourier seasonal terms to a separate
