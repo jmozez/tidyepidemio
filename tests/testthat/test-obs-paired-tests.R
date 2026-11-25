@@ -9,3 +9,12 @@ test_that("exact paired p-values match binomial test and no discordance is defin
  z<-epi_paired_diagnostic(d,a,b,y); expect_equal(z$p_value[1],binom.test(6,6)$p.value); expect_equal(z$p_value[2],1)
  expect_error(epi_paired_diagnostic(d[1:8,],a,b,y),"Both")
 })
+test_that("paired differences carry Tango score intervals", {
+ # PropCIs::scoreci.mp(b, c, n) reports (c - b) / n; ours is (b - c) / n, so limits mirror.
+ expect_equal(tango_paired_ci(5, 2, 40, .95), c(-0.065685, 0.223396), tolerance = 1e-5)
+ expect_equal(tango_paired_ci(0, 0, 20, .95), c(-0.161125, 0.161125), tolerance = 1e-5)
+ expect_equal(tango_paired_ci(7, 0, 30, .95), c(0.093333, 0.409283), tolerance = 1e-5)
+ d <- data.frame(y = rep(0:1, each = 5), a = c(0,0,1,0,1,1,1,1,0,0), b = c(0,1,0,0,1,1,0,1,1,0))
+ z <- epi_paired_diagnostic(d, a, b, y)
+ expect_true(all(z$conf_low <= z$difference & z$difference <= z$conf_high))
+})

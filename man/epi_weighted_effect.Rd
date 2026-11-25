@@ -4,7 +4,14 @@
 \alias{epi_weighted_effect}
 \title{Weighted marginal risks and contrasts}
 \usage{
-epi_weighted_effect(.data, exposure, outcome, weights)
+epi_weighted_effect(
+  .data,
+  exposure,
+  outcome,
+  weights,
+  bootstrap = 0L,
+  conf_level = 0.95
+)
 }
 \arguments{
 \item{.data}{A data frame of individual records.}
@@ -15,18 +22,27 @@ epi_weighted_effect(.data, exposure, outcome, weights)
 
 \item{weights}{Non-negative numeric weights, with a positive total in each
 exposure group. Zero weights are allowed.}
+
+\item{bootstrap}{Number of individual bootstrap resamples: 0 (no
+intervals) or an integer from 100 to 2000.}
+
+\item{conf_level}{Confidence level strictly between zero and one.}
 }
 \value{
 A one-row tibble with group risks, risk difference, risk ratio,
-effective sample sizes and original sample size. An undefined ratio is \code{NA}.
+effective sample sizes and original sample size, plus percentile limits
+for the difference and ratio when bootstrapping. An undefined ratio is \code{NA}.
 }
 \description{
 Computes separately normalized (Hájek) weighted risks for the exposed and
 unexposed groups, their difference, and their ratio. Effective sample sizes
-are \verb{(sum w)^2 / sum(w^2)} within each group. No uncertainty interval is
-returned: naïve intervals treating estimated weights as fixed ignore
-propensity-score estimation and can be misleading. This function does not
-test covariate balance or establish a causal interpretation.
+are \verb{(sum w)^2 / sum(w^2)} within each group. With \code{bootstrap > 0}, records
+are resampled with their supplied weights held fixed and percentile intervals
+are returned for the risk difference and ratio. Holding estimated propensity
+weights fixed ignores their estimation; for inverse-probability weights this
+usually makes intervals conservative. Use \code{\link[=epi_ipw]{epi_ipw()}} to re-estimate the
+propensity model in every resample. This function does not test covariate
+balance or establish a causal interpretation.
 }
 \examples{
 d<-data.frame(e=c(0,0,1,1),y=c(0,1,1,1),w=c(1,1,2,1))

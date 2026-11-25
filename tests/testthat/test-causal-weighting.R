@@ -10,3 +10,13 @@ test_that("covariate propensity scores agree with glm", {
  d<-expand.grid(e=0:1,age=20:24,rep=1:6); d$y<-as.integer(d$rep<=1+d$e+(d$age%%2))
  z<-epi_propensity_weights(d,e,adjust=age,stabilized=FALSE); fit<-glm(e~age,data=d,family=binomial()); expect_equal(z$propensity,unname(fitted(fit))); expect_equal(z$ipw,ifelse(d$e==1,1/z$propensity,1/(1-z$propensity)))
 })
+test_that("weighted effect bootstrap returns ordered percentile limits", {
+ set.seed(7)
+ d <- data.frame(e = rbinom(300, 1, .5)); d$y <- rbinom(300, 1, .2 + .2 * d$e); d$w <- runif(300, .5, 3)
+ z <- epi_weighted_effect(d, e, y, w, bootstrap = 200)
+ expect_true(z$risk_difference_low < z$risk_difference & z$risk_difference < z$risk_difference_high)
+ expect_true(z$risk_ratio_low < z$risk_ratio & z$risk_ratio < z$risk_ratio_high)
+ expect_equal(z$bootstrap_success, 200L)
+ expect_false("risk_difference_low" %in% names(epi_weighted_effect(d, e, y, w)))
+ expect_error(epi_weighted_effect(d, e, y, w, bootstrap = 50), "100 to 2000")
+})

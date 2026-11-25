@@ -50,26 +50,54 @@ epi_propensity_weights <- function(.data, exposure, adjust=c(), stabilized=TRUE)
 #'
 #' Computes separately normalized (Hájek) weighted risks for the exposed and
 #' unexposed groups, their difference, and their ratio. Effective sample sizes
-#' are `(sum w)^2 / sum(w^2)` within each group. No uncertainty interval is
-#' returned: naïve intervals treating estimated weights as fixed ignore
-#' propensity-score estimation and can be misleading. This function does not
-#' test covariate balance or establish a causal interpretation.
+#' are `(sum w)^2 / sum(w^2)` within each group. With `bootstrap > 0`, records
+#' are resampled with their supplied weights held fixed and percentile intervals
+#' are returned for the risk difference and ratio. Holding estimated propensity
+#' weights fixed ignores their estimation; for inverse-probability weights this
+#' usually makes intervals conservative. Use [epi_ipw()] to re-estimate the
+#' propensity model in every resample. This function does not test covariate
+#' balance or establish a causal interpretation.
 #' @param .data A data frame of individual records.
 #' @param exposure Binary 0/1 exposure column.
 #' @param outcome Binary 0/1 outcome column.
 #' @param weights Non-negative numeric weights, with a positive total in each
 #'   exposure group. Zero weights are allowed.
+#' @param bootstrap Number of individual bootstrap resamples: 0 (no
+#'   intervals) or an integer from 100 to 2000.
+#' @param conf_level Confidence level strictly between zero and one.
 #' @return A one-row tibble with group risks, risk difference, risk ratio,
-#'   effective sample sizes and original sample size. An undefined ratio is `NA`.
+#'   effective sample sizes and original sample size, plus percentile limits
+#'   for the difference and ratio when bootstrapping. An undefined ratio is `NA`.
 #' @examples
 #' d<-data.frame(e=c(0,0,1,1),y=c(0,1,1,1),w=c(1,1,2,1))
 #' epi_weighted_effect(d,e,y,w)
 #' @export
-epi_weighted_effect <- function(.data, exposure, outcome, weights) {
+epi_weighted_effect <- function(.data, exposure, outcome, weights, bootstrap=0L, conf_level=0.95) {
   check_data(.data); e<-check_binary(column(.data,rlang::enquo(exposure),"exposure"),"exposure"); y<-check_binary(column(.data,rlang::enquo(outcome),"outcome"),"outcome"); w<-column(.data,rlang::enquo(weights),"weights"); check_nonnegative(w,"weights")
   if (!length(e) || length(unique(e))<2) cli::cli_abort("Both exposure groups must contain observations.")
+  check_probability(conf_level,"conf_level")
+  if (!is.numeric(bootstrap) || length(bootstrap)!=1 || is.na(bootstrap) || bootstrap!=floor(bootstrap) || !(bootstrap==0 || (bootstrap>=100 && bootstrap<=2000))) cli::cli_abort("{.arg bootstrap} must be 0 or an integer from 100 to 2000.")
   summarize_group<-function(id) {g<-e==id; ww<-w[g]; if (max(ww)<=0) cli::cli_abort("Both exposure groups must have positive total weight."); ww<-ww/max(ww); c(risk=sum(ww*y[g])/sum(ww),ess=sum(ww)^2/sum(ww^2))}
   zero<-summarize_group(0); one<-summarize_group(1); ratio<-if (zero["risk"]==0) NA_real_ else unname(one["risk"]/zero["risk"])
   if (is.na(ratio)) cli::cli_warn("The unexposed weighted risk is zero; the risk ratio is undefined.")
-  tibble::tibble(risk_unexposed=unname(zero["risk"]),risk_exposed=unname(one["risk"]),risk_difference=unname(one["risk"]-zero["risk"]),risk_ratio=ratio,ess_unexposed=unname(zero["ess"]),ess_exposed=unname(one["ess"]),n=length(y))
+  out<-tibble::tibble(risk_unexposed=unname(zero["risk"]),risk_exposed=unname(one["risk"]),risk_difference=unname(one["risk"]-zero["risk"]),risk_ratio=ratio,ess_unexposed=unname(zero["ess"]),ess_exposed=unname(one["ess"]),n=length(y))
+  if (bootstrap>0) out<-dplyr::bind_cols(out,weighted_effect_boot(e,y,w,bootstrap,conf_level,is.na(ratio)))
+  out
+}
+weighted_effect_boot <- function(e, y, w, bootstrap, conf_level, ratio_undefined) {
+  n <- length(y); boot <- matrix(NA_real_, bootstrap, 2)
+  for (i in seq_len(bootstrap)) {
+    k <- sample.int(n, n, replace = TRUE); ek <- e[k]; yk <- y[k]; wk <- w[k]
+    w0 <- wk[ek == 0]; w1 <- wk[ek == 1]
+    if (!length(w0) || !length(w1) || sum(w0) <= 0 || sum(w1) <= 0) next
+    r0 <- sum(w0 * yk[ek == 0]) / sum(w0); r1 <- sum(w1 * yk[ek == 1]) / sum(w1)
+    boot[i, ] <- c(r1 - r0, if (r0 > 0) r1 / r0 else NA_real_)
+  }
+  ok <- sum(is.finite(boot[, 1])); failed <- bootstrap - ok
+  if (failed > 0.1 * bootstrap) cli::cli_abort("{failed} of {bootstrap} resamples lacked an exposure group with positive weight; intervals are not reported.")
+  if (failed > 0) cli::cli_warn("{failed} of {bootstrap} resamples lacked an exposure group with positive weight and were omitted.")
+  a <- 1 - conf_level; q <- function(x) stats::quantile(x, c(a / 2, 1 - a / 2), na.rm = TRUE, names = FALSE)
+  rd <- q(boot[, 1]); rr <- if (ratio_undefined || any(!is.finite(boot[is.finite(boot[, 1]), 2]))) c(NA_real_, NA_real_) else q(boot[, 2])
+  tibble::tibble(risk_difference_low = rd[1], risk_difference_high = rd[2], risk_ratio_low = rr[1], risk_ratio_high = rr[2],
+                 bootstrap = as.integer(bootstrap), bootstrap_success = as.integer(ok))
 }
