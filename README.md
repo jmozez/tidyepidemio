@@ -4,6 +4,8 @@
 [![R-CMD-check](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+Documentation: <https://jmozez.github.io/tidyepidemio/>
+
 An early-stage R package for transparent, data-first epidemiological analysis.
 This is a **prototype**, not a comprehensive or clinically validated toolkit.
 Review the assumptions below, and validate methods for the intended application.
