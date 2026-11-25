@@ -12,7 +12,8 @@
 #' epi_growth_rate(d, day, cases)
 #' epi_doubling_time(d, day, cases)
 #' @export
-epi_growth_rate <- function(.data, time, cases) tep_tag("growth", {
+epi_growth_rate <- function(.data, time, cases) {
+  tep_tag("growth", {
   check_data(.data)
   t <- column(.data, rlang::enquo(time), "time")
   y <- column(.data, rlang::enquo(cases), "cases")
@@ -21,16 +22,19 @@ epi_growth_rate <- function(.data, time, cases) tep_tag("growth", {
   }
   check_nonnegative(y, "cases", positive = TRUE)
   tibble::tibble(growth_rate = unname(stats::coef(stats::lm(log(y) ~ t))[2]), n = length(t))
-})
+  })
+}
 #' @rdname epi_growth_rate
 #' @return For doubling time, a tibble with growth rate and doubling time. A
 #'   non-positive growth rate gives `NA` doubling time.
 #' @export
-epi_doubling_time <- function(.data, time, cases) tep_tag("growth", {
+epi_doubling_time <- function(.data, time, cases) {
+  tep_tag("growth", {
   out <- epi_growth_rate(.data, {{ time }}, {{ cases }})
   out$doubling_time <- if (out$growth_rate > 0) log(2) / out$growth_rate else NA_real_
   out
-})
+  })
+}
 #' Renewal-equation effective reproduction number
 #'
 #' Computes `I[t] / sum(I[t-s] * w[s])` for prior observed incidence. The
@@ -45,7 +49,8 @@ epi_doubling_time <- function(.data, time, cases) tep_tag("growth", {
 #' @examples
 #' epi_rt(data.frame(cases = c(1, 2, 4, 8)), cases, weights = 1)
 #' @export
-epi_rt <- function(.data, cases, weights) tep_tag("rt", {
+epi_rt <- function(.data, cases, weights) {
+  tep_tag("rt", {
   check_data(.data)
   y <- column(.data, rlang::enquo(cases), "cases")
   check_nonnegative(y, "cases")
@@ -64,7 +69,8 @@ epi_rt <- function(.data, cases, weights) tep_tag("rt", {
     }
   }
   dplyr::mutate(tibble::as_tibble(.data), rt = out)
-})
+  })
+}
 #' Summarize observed serial intervals
 #'
 #' Calculates the difference in days between infectee and infector onset dates.

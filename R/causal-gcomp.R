@@ -36,7 +36,8 @@
 #' d$y <- as.integer(d$rep <= 1 + d$e + (d$age %% 2))
 #' epi_gcomp(d, e, y, adjust = age)
 #' @export
-epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, conf_level = 0.95) tep_tag("causal", {
+epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, conf_level = 0.95) {
+  tep_tag("causal", {
   check_data(.data)
   check_probability(conf_level, "conf_level")
   eq <- rlang::enquo(exposure)
@@ -161,4 +162,5 @@ epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, co
     bootstrap = as.integer(bootstrap),
     bootstrap_success = successful
   )
-})
+  })
+}

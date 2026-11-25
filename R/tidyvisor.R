@@ -56,8 +56,9 @@ tep_advise <- function(x, question = c("auto", "outbreak", "association", "survi
     }
   }
   n <- nrow(x)
-  checks <- list(tep_check("Records", n))
-  add <- function(check, value, meaning = "") checks[[length(checks) + 1]] <<- tep_check(check, value, meaning)
+  ck <- new.env()
+  ck$rows <- list(tep_check("Records", n))
+  add <- function(check, value, meaning = "") ck$rows[[length(ck$rows) + 1]] <- tep_check(check, value, meaning)
   col <- function(v) if (!is.null(v) && v %in% names(x)) x[[v]] else NULL
   if (!is.null(col(outcome))) {
     y <- col(outcome)
@@ -119,7 +120,7 @@ tep_advise <- function(x, question = c("auto", "outbreak", "association", "survi
       step("Check", "Balance after weighting", "Standardized mean differences below 0.1 after weighting show the groups are comparable.", "epi_balance(...)")
     )
   )
-  structure(list(question = question, checks = do.call(rbind, checks), advice = adv), class = "tep_advice")
+  structure(list(question = question, checks = do.call(rbind, ck$rows), advice = adv), class = "tep_advice")
 }
 
 tep_check <- function(check, value, meaning = "") tibble::tibble(check = check, value = as.character(value), meaning = meaning)

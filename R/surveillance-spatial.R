@@ -29,7 +29,8 @@ epi_surveillance <- function(
   alpha = 0.05,
   family = c("poisson", "negbin"),
   adjust = "none"
-) tep_tag("surveillance", {
+) {
+  tep_tag("surveillance", {
   family <- match.arg(family)
   adjust <- match.arg(adjust, stats::p.adjust.methods)
   check_data(.data)
@@ -62,7 +63,8 @@ epi_surveillance <- function(
   out$p_adjusted <- tail$adjusted
   out$alert <- tail$adjusted <= alpha
   out
-})
+  })
+}
 #' Count neighboring locations within a distance
 #'
 #' Computes pairwise Euclidean distances for projected planar coordinates; it
