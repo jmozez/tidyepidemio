@@ -8,3 +8,4 @@ _archive/
 *.tar.gz
 Rplots.pdf
 docs/
+tests/testthat/_problems/
