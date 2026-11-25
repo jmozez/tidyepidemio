@@ -6,7 +6,7 @@ Description: Data-first tools for descriptive and analytic epidemiology, simple
     causal standardization, infectious disease dynamics, surveillance, spatial
     scanning, preprocessing, and forecast evaluation. Provides explicit estimands and transparent
     implementations for exploratory analysis.
-URL: https://github.com/jmozez/tidyepidemio
+URL: https://github.com/jmozez/tidyepidemio, https://jmozez.github.io/tidyepidemio/
 BugReports: https://github.com/jmozez/tidyepidemio/issues
 License: MIT + file LICENSE
 Encoding: UTF-8

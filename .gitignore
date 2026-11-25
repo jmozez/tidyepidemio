@@ -7,3 +7,4 @@ _archive/
 *.Rcheck/
 *.tar.gz
 Rplots.pdf
+docs/

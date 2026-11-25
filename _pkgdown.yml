@@ -1,0 +1,121 @@
+url: https://jmozez.github.io/tidyepidemio/
+
+template:
+  bootstrap: 5
+
+home:
+  title: "tidyepidemio: Tidy Tools for Epidemiologic Analysis"
+
+reference:
+  - title: Epidemiological data classes
+    contents:
+      - epi_linelist
+
+  - title: Frequency measures
+    contents:
+      - epi_incidence
+      - epi_cumulative_incidence
+      - epi_follow_up
+      - epi_proportion_ci
+      - epi_rate_ci
+
+  - title: Measures of association
+    contents:
+      - epi_risk_ratio
+      - epi_mantel_haenszel
+      - epi_mantel_haenszel_test
+      - epi_fisher_test
+      - epi_adjusted_risk_ratio
+      - epi_adjusted_odds_ratio
+      - epi_adjusted_rate_ratio
+      - epi_attributable_fraction
+      - epi_number_needed
+
+  - title: Standardization
+    contents:
+      - epi_standardize
+      - epi_standardize_ci
+
+  - title: Causal inference
+    contents:
+      - epi_propensity_weights
+      - epi_weighted_effect
+      - epi_ipw
+      - epi_gcomp
+      - epi_balance
+
+  - title: Diagnostic and clinical epidemiology
+    contents:
+      - epi_diagnostic
+      - epi_diagnostic_ci
+      - epi_paired_diagnostic
+      - epi_predictive_values
+      - epi_roc_curve
+      - epi_plot_roc
+      - epi_auc_ci
+      - epi_calibration
+      - epi_calibration_summary
+      - epi_decision_curve
+      - net_benefit
+
+  - title: Survival analysis
+    contents:
+      - epi_kaplan_meier
+      - epi_survival_risk
+      - epi_rmst
+      - epi_cox_hazard_ratio
+
+  - title: Infectious disease dynamics
+    contents:
+      - epi_epicurve
+      - epi_growth_rate
+      - epi_rt
+      - epi_rt_gamma
+      - epi_serial_interval
+      - epi_serial_interval_ci
+      - epi_simulate
+      - epi_simulate_schedule
+
+  - title: Nowcasting and forecasting
+    contents:
+      - epi_nowcast
+      - epi_renewal
+      - epi_fit_renewal
+      - fit_epi_renewal
+      - epi_renewal_forecast
+      - epi_renewal_backtest
+
+  - title: Surveillance
+    contents:
+      - epi_surveillance
+      - epi_seasonal_surveillance
+      - epi_cusum
+      - epi_cusum_calibrate
+
+  - title: Spatial and space-time analysis
+    contents:
+      - epi_spatial_neighbors
+      - epi_spatial_scan
+      - epi_spacetime_scan
+
+  - title: Preprocessing (recipes)
+    contents:
+      - step_epi_lags
+      - epi_bake_history
+      - epi_temporal_features
+
+  - title: Resampling (rsample)
+    contents:
+      - epi_rolling_origin
+      - epi_spatial_blocks
+      - epi_spatial_cv
+
+  - title: Forecast evaluation (yardstick)
+    contents:
+      - wis
+      - wis_metric
+
+  - title: Tidying and plotting
+    contents:
+      - tidy.epi_result
+      - autoplot.epi_ts
