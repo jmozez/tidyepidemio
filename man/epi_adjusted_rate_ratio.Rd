@@ -10,7 +10,12 @@ epi_adjusted_rate_ratio(
   time,
   exposure,
   adjust = c(),
-  conf_level = 0.95
+  conf_level = 0.95,
+  weights = NULL,
+  cluster = NULL,
+  robust = c("model", "HC0", "HC1"),
+  modifier = NULL,
+  nonlinear = c()
 )
 }
 \arguments{
@@ -25,6 +30,19 @@ epi_adjusted_rate_ratio(
 \item{adjust}{Tidy selection of complete numeric, factor or logical covariates.}
 
 \item{conf_level}{Confidence level strictly between zero and one.}
+
+\item{weights}{Optional column of finite, non-negative observation weights.}
+
+\item{cluster}{Optional complete cluster identifier column. Observations
+within a cluster may be dependent; distinct clusters are assumed independent.}
+
+\item{robust}{Standard-error type: \code{"model"}, \code{"HC0"} or \code{"HC1"}.}
+
+\item{modifier}{Optional effect-modifier column with 2 to 10 levels; every
+level must contain both exposure groups.}
+
+\item{nonlinear}{Tidy selection of numeric \code{adjust} columns to model with
+natural splines (3 degrees of freedom) instead of linearly.}
 }
 \value{
 An \code{epi_result} tibble containing the adjusted rate ratio, Wald
@@ -33,10 +51,12 @@ confidence limits, event and record counts, and covariate names.
 \description{
 Fits a log-link Poisson regression with log person-time as an offset and
 reports the exponentiated binary exposure coefficient with a normal-Wald
-confidence interval. Requires independent counts, a correctly specified
-multiplicative rate model and Poisson variance. The model does not handle
-overdispersion, recurrent-event dependence, clustered data, weights, missing
-data, nonlinear terms or interactions. Assess fit and confounding assumptions
+confidence interval. Model-based errors require independent counts, a
+correctly specified multiplicative rate model and Poisson variance. Use
+\code{robust = "HC0"} or \code{"HC1"} for sandwich errors that remain valid under
+overdispersion, and \code{cluster} for recurrent events or other dependence within
+clusters. Weights, effect modification and spline terms work as in
+\code{\link[=epi_adjusted_odds_ratio]{epi_adjusted_odds_ratio()}}. Missing data are not handled. Assess fit and confounding assumptions
 separately; this is not automatically a causal effect.
 }
 \examples{

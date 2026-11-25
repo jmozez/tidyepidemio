@@ -10,7 +10,11 @@ epi_adjusted_risk_ratio(
   outcome,
   adjust = c(),
   cluster = NULL,
-  conf_level = 0.95
+  conf_level = 0.95,
+  weights = NULL,
+  robust = c("HC0", "HC1"),
+  modifier = NULL,
+  nonlinear = c()
 )
 }
 \arguments{
@@ -27,6 +31,16 @@ observations within a cluster may be dependent; distinct clusters are
 assumed independent.}
 
 \item{conf_level}{Confidence level strictly between zero and one.}
+
+\item{weights}{Optional column of finite, non-negative observation weights.}
+
+\item{robust}{Sandwich standard-error type, \code{"HC0"} or \code{"HC1"}.}
+
+\item{modifier}{Optional effect-modifier column with 2 to 10 levels; every
+level must contain both exposure groups.}
+
+\item{nonlinear}{Tidy selection of numeric \code{adjust} columns to model with
+natural splines (3 degrees of freedom) instead of linearly.}
 }
 \value{
 An \code{epi_result} tibble with risk ratio, confidence limits, number of
@@ -36,8 +50,8 @@ observations, standard-error type, cluster count and covariate names.
 Fits a Poisson log-link model to a binary outcome and reports an exponentiated
 exposure coefficient with a sandwich-based normal-Wald interval. The sandwich
 estimator uses uncorrected HC0 independent-observation scores by default, or
-cluster-summed scores when \code{cluster} is supplied. There is no small-sample
-correction and normal inference can be inaccurate with few clusters. Unlike a
+cluster-summed scores when \code{cluster} is supplied; \code{robust = "HC1"} adds the
+usual small-sample factor. Normal inference can be inaccurate with few clusters. Unlike a
 Poisson mean model for counts, this method uses a robust variance estimator
 because the outcome is binary. Fitted means can exceed one; a warning is
 issued and the working model should then be scrutinized.
@@ -46,8 +60,9 @@ issued and the working model should then be scrutinized.
 Requires complete data, a correctly specified log risk model, appropriate
 independence or independent clusters, sufficient overlap and large-sample
 inference. The result is a covariate-conditional risk ratio, not automatically
-a causal effect. There is no weighting, imputation, interaction, nonlinear
-term, small-sample correction, or assessment of confounding assumptions.
+a causal effect. Weights, effect modification and spline terms work as in
+\code{\link[=epi_adjusted_odds_ratio]{epi_adjusted_odds_ratio()}}. There is no imputation or assessment of
+confounding assumptions.
 }
 \examples{
 d<-expand.grid(e=0:1,age=20:24,rep=1:6)
