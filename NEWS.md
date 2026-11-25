@@ -1,3 +1,41 @@
+# tidyepidemio 1.2.0
+
+## Association and regression
+
+* `epi_mantel_haenszel()` now returns a Robins-Breslow-Greenland confidence
+  interval and a Breslow-Day test of odds-ratio homogeneity (Tarone-corrected).
+* `epi_risk_ratio()`, `epi_odds_ratio()` and `epi_attributable_risk()` gain a
+  `correction` argument (for example 0.5) applied when any 2x2 cell is zero.
+* `epi_adjusted_odds_ratio()`, `epi_adjusted_risk_ratio()` and
+  `epi_adjusted_rate_ratio()` share one fitting engine and gain `weights`,
+  HC0/HC1 and cluster-robust standard errors (`robust`, `cluster`), effect
+  modification with per-level estimates and an interaction test (`modifier`),
+  and natural-spline terms (`nonlinear`). `splines` and `MASS` are now imported.
+
+## Survival
+
+* `epi_kaplan_meier()` and `epi_cumulative_incidence()` accept delayed entry
+  (`entry`) for left-truncated data.
+* `epi_cumulative_incidence()` returns Aalen-Johansen confidence limits.
+
+## Causal inference and diagnostics
+
+* `epi_weighted_effect()` gains percentile bootstrap intervals (`bootstrap`).
+* `epi_paired_diagnostic()` returns Tango score intervals for paired
+  differences in sensitivity and specificity.
+
+## Surveillance
+
+* `epi_surveillance()` and `epi_seasonal_surveillance()` support negative
+  binomial baselines (`family = "negbin"`), report upper-tail p-values, and
+  adjust alerts for multiple testing (`adjust`).
+* `epi_cusum_calibrate()` simulates overdispersed nulls (`size`) and calibrates
+  several independent series together (`n_series`).
+
+## Fixes
+
+* `epi_rt()` reports its intended error when `.data` already has an `rt` column.
+
 # tidyepidemio 1.1.0
 
 * Preserve epidemiological class and metadata across supported grouped,

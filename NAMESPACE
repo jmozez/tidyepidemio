@@ -141,6 +141,7 @@ importFrom(recipes,
   required_pkgs
 )
 importFrom(rlang,.data)
+importFrom(splines,ns)
 importFrom(vctrs,
   vec_cast,
   vec_ptype2,

@@ -100,15 +100,16 @@ epi_spatial_scan(locations, x, y, cases, pop, radii=c(.1,1), nsim=99)
 ## Implemented scope
 
 - Frequency, binary risk/odds/rate ratios and risk difference, diagnostics,
-  direct/indirect standardization, Mantel-Haenszel pooled odds ratio, adjusted
-  logistic odds ratios, robust modified-Poisson risk ratios, Poisson rate
+  direct/indirect standardization, Mantel-Haenszel pooled odds ratio with Breslow-Day heterogeneity test,
+  adjusted logistic odds ratios (with weights, robust or cluster errors, effect
+  modification and spline terms), robust modified-Poisson risk ratios, Poisson rate
   ratios, Cox hazard ratios, Kaplan-Meier survival and fixed-horizon risks,
   attributable fractions, number needed to treat/harm, and Aalen-Johansen
   competing-risk cumulative incidence.
   Wilson/binomial, Poisson, diagnostic and standardized-rate confidence intervals
   are available, along with Fisher exact and Mantel-Haenszel tests and
   prevalence-adjusted predictive values, empirical ROC curves and AUC bootstrap
-  intervals, exact paired diagnostic comparisons, restricted mean survival time,
+  intervals, exact paired diagnostic comparisons with score intervals, restricted mean survival time,
   and cohort
   follow-up with optional administrative censoring.
 - Logistic g-computation with optional individual-level percentile bootstrap;
@@ -140,28 +141,37 @@ epi_spatial_scan(locations, x, y, cases, pop, radii=c(.1,1), nsim=99)
 
 ## Important limitations
 
+Most items below are statistical assumptions that no software can remove; they
+describe when results can be trusted. Version 1.2.0 closed the remaining
+feature gaps in association, regression, survival, causal, diagnostic and
+surveillance methods (see NEWS).
+
 - Binary outcomes and exposures must be non-missing 0/1; grouped inputs for
   core analysis are rejected rather than silently pooled. Wald intervals are
-  approximate and zero cells can lead to undefined estimates or intervals.
-  Standardization intervals use Poisson assumptions and Mantel-Haenszel does
-  not assess heterogeneity. Logistic and Poisson regression use Wald inference
-  with no robust standard errors, weights, nonlinear terms or interactions.
-  Modified-Poisson risk ratios have HC0 or cluster-HC0 intervals, but no
-  small-sample correction. Attributable fractions and numbers needed to treat
-  or harm are unadjusted contrasts; causal interpretation requires an appropriate
-  design and assumptions. The Cox model allows left truncation but assumes proportional hazards. The
-  Kaplan-Meier and competing-risk functions do not support left truncation,
-  covariate adjustment or competing-risk confidence intervals. All survival
-  methods require appropriate independent-censoring assumptions. Restricted mean
-  survival time is limited to observed follow-up; its Greenwood Wald interval
-  may be unreliable with heavy censoring or small samples. G-computation
-  and propensity weighting require consistency, positivity, exchangeability,
-  appropriate temporal ordering and correct model specification for causal
-  interpretation; neither proves those assumptions. G-computation supports only
-  an individual-level bootstrap; `epi_ipw()` provides individual-level
-  bootstrap intervals, whereas `epi_weighted_effect()` provides no intervals.
-  Failed or warned bootstrap fits are omitted (and more than 10% abort);
-  conditioning on successful fits may bias intervals.
+  approximate; zero cells give undefined estimates unless an explicit
+  `correction` (such as 0.5) is requested, which biases towards the null.
+  Standardization intervals use Poisson assumptions. The Breslow-Day
+  heterogeneity test has low power with few or sparse strata.
+- Adjusted logistic, modified-Poisson and Poisson models assume a correctly
+  specified model, adequate overlap and independent observations or clusters.
+  Sandwich (HC0/HC1, cluster) errors use normal inference and can be
+  unreliable with few clusters. Missing data are not handled. Attributable
+  fractions and numbers needed to treat or harm are unadjusted contrasts.
+  Causal interpretation of any estimate requires an appropriate design and
+  assumptions.
+- The Cox model assumes proportional hazards. Kaplan-Meier and cumulative
+  incidence support delayed entry, which must be independent of the event
+  processes, but not covariate adjustment. All survival methods require
+  independent censoring. Restricted mean survival time is limited to observed
+  follow-up; its Greenwood Wald interval may be unreliable with heavy censoring
+  or small samples.
+- G-computation and propensity weighting require consistency, positivity,
+  exchangeability, appropriate temporal ordering and correct model
+  specification; neither proves those assumptions. Bootstrap intervals in
+  `epi_weighted_effect()` hold the supplied weights fixed (usually conservative
+  for inverse-probability weights); `epi_ipw()` re-estimates the propensity
+  model in each resample. Failed or warned bootstrap fits are omitted (more than
+  10% abort); conditioning on successful fits may bias intervals.
 - `epi_rt()` is a descriptive renewal ratio. `epi_rt_gamma()` adds a
   conditional gamma-Poisson posterior and optional imported counts, but neither
   method directly corrects for reporting delays, uncertain generation intervals
@@ -170,62 +180,40 @@ epi_spatial_scan(locations, x, y, cases, pop, radii=c(.1,1), nsim=99)
 - The parsnip renewal fit estimates a single constant R using a conditional
   Poisson mean, known generation weights, no imports and point forecasts.
   The SIR/SEIR fit estimates beta by least squares with fixed population,
-  gamma, progression rate (SEIR) and initial compartment values. The first
-  observed prevalence is I0; estimation can be weakly identified. Neither
-  accounts for observation error, uncertainty or changing parameters. The
-  separate renewal forecast includes Poisson process uncertainty and optionally
-  a single gamma-distributed R per trajectory, but assumes fixed future R, no
-  imports and no observation model; its intervals are not guaranteed calibrated.
+  gamma, progression rate (SEIR) and initial compartment values; estimation can
+  be weakly identified. Neither accounts for observation error or changing
+  parameters. Renewal forecast intervals assume fixed future R, no imports and
+  no observation model, and are not guaranteed calibrated.
 - SIR/SEIR simulation is a discrete-time approximation, not a continuous ODE
-  solver. Stochastic simulations use R's RNG. Epidemiological model outputs
-  are not validated for operational decisions.
+  solver. Epidemiological model outputs are not validated for operational
+  decisions.
 - Recipe lag/rolling/exposure steps assume sorted, ungrouped data and do not
-  retain history between training and new data. `epi_bake_history()` accepts
-  explicit raw prior history for a restricted set of package steps and one
-  series at a time. Current-row rolling and exposure windows can leak outcomes.
-  The separate `epi_temporal_features()` helper also accepts earlier history, but using
-  later observed assessment outcomes for a multi-step forecast leaks information.
-  Renewal backtests assume historical counts were available without delay; real
-  surveillance should use data vintages rather than later revised counts.
-- Spatial CV uses user-provided block IDs and optional point-to-point buffers;
-  a separate helper can create projected square blocks, but the resampler does
-  not automatically build blocks or buffer polygon boundaries. Neighbor counts and
-  the Poisson scan use planar projected coordinates. The spatial scan assumes a
-  homogeneous Poisson null with population at point locations; the space-time
-  version also assumes constant risk over time. Neither adjusts for confounding,
-  seasonal changes or reporting bias. The simple Poisson screen and
-  CUSUM do not automatically address seasonality, overdispersion, delay or
-  multiple testing. Seasonal surveillance assumes a correctly specified, stable
-  Poisson baseline and ignores parameter uncertainty, overdispersion, reporting
-  delays and repeated-test calibration; finite-horizon CUSUM calibration assumes independent Poisson
-  observations under the supplied baseline and does not automatically calibrate
-  repeated restarts or multiple monitored series. An alert is not an outbreak
-  diagnosis.
+  retain history between training and new data; `epi_bake_history()` supplies
+  explicit history for one series at a time. Current-row windows and later
+  assessment outcomes can leak information. Renewal backtests assume counts were
+  available without delay; real surveillance should use data vintages.
+- Spatial CV uses user-provided or square-grid blocks with point-to-point
+  buffers on planar projected coordinates. The spatial and space-time scans
+  assume a homogeneous Poisson null (and, for space-time, constant risk over
+  time) and do not adjust for confounding or reporting bias.
+- Surveillance screens support negative binomial baselines for overdispersion
+  and multiple-testing adjustment across screened rows, and CUSUM calibration
+  supports overdispersed nulls and several independent series. All still assume
+  a correctly specified, outbreak-free baseline and ignore reporting delays and
+  baseline parameter uncertainty. An alert is not an outbreak diagnosis.
 - Risk-prediction calibration, discrimination and decision curves should be
-  evaluated on independent validation data. The reported summaries do not
-  generally do not account for clustering. AUC intervals use a stratified
-  individual bootstrap and do not refit models or correct optimism. Paired
-  diagnostic comparisons require an accurate shared reference standard and
-  yield unadjusted p-values, without confidence intervals. Decision thresholds
-  reflect clinical trade-offs and are not chosen by the package.
-- WIS supports multiple central intervals, groups, and weights but requires
-  additional interval columns; `wis_metric()` captures them for numeric metric
-  sets. Net benefit supports grouped and weighted data and yardstick probability
-  metric sets, at one threshold per call.
-- S3 metadata are checked when combining two epidemiological subclasses, but
-  row-binding or casting a subclass with a plain data frame is rejected; explicitly
-  assign matching provenance before combining. Common row-preserving grouped
-  dplyr operations and ungrouping retain epidemiological class and metadata;
-  summarise, group_modify, rowwise conversion and untested operations can drop
-  them. Joins retain the left table's metadata, which does not automatically
-  describe the joined right-hand data.
-- More realistic forecast uncertainty, sophisticated surveillance and spatial
-  outbreak models, more realistic serial-interval inference, longitudinal causal
-  methods and many other epidemiological methods remain outside the scope of
-  this prototype. Parsnip, S3 and yardstick framework signatures
-  necessarily follow their conventions rather than always putting `.data` first.
-- Tests currently cover examples and key edge cases,
-  not every possible data type, dependency version, platform or API behavior.
+  evaluated on independent validation data and do not account for clustering.
+  AUC intervals do not refit models or correct optimism. Paired diagnostic
+  comparisons assume an accurate shared reference standard. The yardstick
+  `net_benefit()` metric returns one threshold per call by design; use
+  `epi_decision_curve()` for many thresholds.
+- Combining epidemiological subclasses with plain data frames is rejected;
+  summarise, group_modify and rowwise conversion can drop class metadata, and
+  joins keep the left table's metadata.
+- Longitudinal (time-varying) causal methods and fully Bayesian outbreak models
+  are outside the scope of this package.
+- Tests cover documented behaviour, reference implementations and key edge
+  cases, not every data type, dependency version or platform.
 
 ## Implementation guide and workflows
 
