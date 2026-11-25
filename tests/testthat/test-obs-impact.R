@@ -1,0 +1,17 @@
+test_that("attributable fractions are correct and may be negative", {
+ d<-data.frame(e=rep(0:1,each=4),y=c(0,0,0,1,0,1,1,1)); z<-epi_attributable_fraction(d,e,y)
+ expect_equal(z$attributable_fraction_exposed,2/3); expect_equal(z$population_attributable_fraction,.5)
+ d$y<-rev(d$y); expect_lt(epi_attributable_fraction(d,e,y)$population_attributable_fraction,0)
+ expect_warning(z<-epi_attributable_fraction(transform(d,y=0),e,y),"undefined"); expect_true(is.na(z$population_attributable_fraction))
+})
+test_that("number needed reports benefit, harm and equal risks", {
+ d<-data.frame(t=rep(0:1,each=4),y=c(1,1,0,0,1,0,0,0)); z<-epi_number_needed(d,t,y)
+ expect_equal(z$type,"NNT"); expect_equal(z$number_needed,4); expect_equal(z$absolute_risk_reduction,.25)
+ d$t<-1-d$t; z<-epi_number_needed(d,t,y); expect_equal(z$type,"NNH"); expect_equal(z$number_needed,4)
+ d$y<-rep(c(0,1),4); z<-epi_number_needed(d,t,y); expect_equal(z$type,"no_difference"); expect_true(is.na(z$number_needed))
+ expect_error(epi_number_needed(data.frame(t=1,y=0),t,y),"Both treatment groups")
+})
+test_that("number needed does not overflow on large group sizes", {
+ d<-data.frame(t=rep(0:1,each=50000),y=c(rep(1,25000),rep(0,25000),rep(1,12500),rep(0,37500)))
+ z<-epi_number_needed(d,t,y); expect_equal(z$number_needed,4); expect_equal(z$absolute_risk_reduction,.25)
+})

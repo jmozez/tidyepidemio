@@ -1,0 +1,20 @@
+Package: tidyepidemio
+Title: Tidy Tools for Epidemiologic Analysis
+Version: 1.1.0
+Authors@R: person("Jimmy", "Moses", email = "jimmy.moses@pnguot.ac.pg", role = c("aut", "cre", "cph"))
+Description: Data-first tools for descriptive and analytic epidemiology, simple
+    causal standardization, infectious disease dynamics, surveillance, spatial
+    scanning, preprocessing, and forecast evaluation. Provides explicit estimands and transparent
+    implementations for exploratory analysis.
+URL: https://github.com/jmozez/tidyepidemio
+BugReports: https://github.com/jmozez/tidyepidemio/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: cli, dplyr, ggplot2, rlang, tibble, vctrs, recipes,
+    rsample, yardstick, generics, parsnip, tidyselect, stats, utils, survival
+Suggests: testthat (>= 3.0.0), roxygen2, knitr, broom, hardhat
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1
+RoxygenNote: 7.3.2

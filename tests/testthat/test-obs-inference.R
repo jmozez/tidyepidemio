@@ -1,0 +1,13 @@
+test_that("proportion intervals match binom.test and edge cases", {
+ d<-data.frame(e=c(1,1,0,0,0)); z<-epi_proportion_ci(d,e,method="exact")
+ expect_equal(c(z$conf_low,z$conf_high),as.numeric(stats::binom.test(2,5)$conf.int))
+ w<-epi_proportion_ci(data.frame(e=rep(0,10)),e); expect_equal(w$conf_low,0); expect_gt(w$conf_high,0)
+ expect_equal(epi_proportion_ci(data.frame(e=rep(1,10)),e)$conf_high,1,tolerance=1e-10)
+ expect_error(epi_proportion_ci(d,e,conf_level=1),"less than")
+})
+test_that("Poisson rate interval matches poisson.test", {
+ d<-data.frame(e=c(1,2,0),t=c(2,3,1)); z<-epi_rate_ci(d,e,t)
+ ref<-stats::poisson.test(3,T=6); expect_equal(z$estimate,unname(ref$estimate)); expect_equal(c(z$conf_low,z$conf_high),as.numeric(ref$conf.int))
+ z<-epi_rate_ci(data.frame(e=0,t=4),e,t); expect_equal(z$conf_low,0); expect_gt(z$conf_high,0)
+ expect_error(epi_rate_ci(data.frame(e=1.5,t=2),e,t),"integer")
+})

@@ -1,0 +1,14 @@
+test_that("prospective alerts use only previous observations", {
+ d<-data.frame(day=1:6, y=c(1,2,1,2,1,10)); z<-epi_surveillance(d,y,window=3)
+ expect_equal(z$baseline_mean[4],4/3); expect_true(z$alert[6]); expect_true(all(is.na(z$alert[1:3])))
+ expect_error(epi_surveillance(data.frame(y=c(1,-1)),y),"non-negative")
+})
+test_that("spatial neighbors exclude self and honor boundary", {
+ d<-data.frame(x=c(0,1,5),y=0); expect_equal(epi_spatial_neighbors(d,x,y,1)$neighbors,c(1L,1L,0L))
+ d<-data.frame(x=c(0,0),y=0); expect_equal(epi_spatial_neighbors(d,x,y,0)$neighbors,c(1L,1L))
+ expect_error(epi_spatial_neighbors(d,x,y,-1),"radius")
+})
+test_that("simple surveillance uses stable upper-tail quantiles", {
+ d<-data.frame(y=c(1,2,1,10)); z<-epi_surveillance(d,y,window=3,alpha=1e-20)
+ expect_true(is.finite(z$threshold[4])); expect_equal(z$threshold[4],qpois(1e-20,4/3,lower.tail=FALSE))
+})

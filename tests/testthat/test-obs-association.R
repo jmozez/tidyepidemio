@@ -1,0 +1,16 @@
+test_that("association estimates agree with hand calculations", {
+ d <- data.frame(e=rep(0:1,each=4), y=c(0,0,0,1,0,1,1,1), t=rep(1,8))
+ expect_equal(epi_risk_ratio(d,e,y)$estimate,3)
+ expect_equal(epi_odds_ratio(d,e,y)$estimate,9)
+ expect_equal(epi_attributable_risk(d,e,y)$estimate,0.5)
+ expect_equal(epi_rate_ratio(d,e,y,t)$estimate,3)
+ expect_error(epi_risk_ratio(d,e,y,conf_level=1),"less than")
+ expect_warning(z <- epi_risk_ratio(data.frame(e=c(0,1),y=c(0,1)),e,y),"undefined")
+ expect_true(is.na(z$estimate))
+ expect_warning(zero <- epi_risk_ratio(data.frame(e=c(0,0,1,1),y=c(0,1,0,0)),e,y),"undefined")
+ expect_equal(zero$estimate, 0); expect_true(is.na(zero$conf_low))
+})
+test_that("odds-ratio cell products do not overflow for large cohorts", {
+ d<-data.frame(e=rep(0:1,each=100000),y=c(rep(1,60000),rep(0,40000),rep(1,40000),rep(0,60000)))
+ z<-epi_odds_ratio(d,e,y); expect_equal(z$estimate,4/9); expect_true(is.finite(z$conf_high))
+})

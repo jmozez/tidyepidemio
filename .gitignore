@@ -1,0 +1,9 @@
+_archive/
+.claude/
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rcheck/
+*.tar.gz
+Rplots.pdf

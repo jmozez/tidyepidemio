@@ -1,0 +1,12 @@
+test_that("intercept-only propensities and weighted contrasts are correct", {
+ d<-data.frame(e=c(0,0,0,1,1,1),y=c(0,0,1,0,1,1)); z<-epi_propensity_weights(d,e)
+ expect_equal(z$propensity,rep(.5,6)); expect_equal(z$ipw,rep(1,6)); result<-epi_weighted_effect(z,e,y,ipw)
+ expect_equal(result$risk_unexposed,1/3); expect_equal(result$risk_exposed,2/3); expect_equal(result$risk_ratio,2); expect_equal(result$ess_exposed,3)
+ z<-epi_propensity_weights(d,e,stabilized=FALSE); expect_equal(z$ipw,rep(2,6))
+ expect_error(epi_propensity_weights(d,e,adjust=e),"exclude")
+ expect_error(epi_weighted_effect(transform(d,w=0),e,y,w),"positive total")
+})
+test_that("covariate propensity scores agree with glm", {
+ d<-expand.grid(e=0:1,age=20:24,rep=1:6); d$y<-as.integer(d$rep<=1+d$e+(d$age%%2))
+ z<-epi_propensity_weights(d,e,adjust=age,stabilized=FALSE); fit<-glm(e~age,data=d,family=binomial()); expect_equal(z$propensity,unname(fitted(fit))); expect_equal(z$ipw,ifelse(d$e==1,1/z$propensity,1/(1-z$propensity)))
+})
