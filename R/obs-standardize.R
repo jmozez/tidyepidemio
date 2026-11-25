@@ -66,6 +66,7 @@ epi_standardize <- function(.data, events, population, standard, method = c("dir
 #' epi_mantel_haenszel(d, e, y, s)
 #' @export
 epi_mantel_haenszel <- function(.data, exposure, outcome, strata, conf_level = 0.95) {
+  tep_tag("mantel_haenszel", {
   check_data(.data)
   check_scalar(conf_level, "conf_level")
   if (conf_level >= 1) cli::cli_abort("{.arg conf_level} must be less than 1.")
@@ -111,6 +112,7 @@ epi_mantel_haenszel <- function(.data, exposure, outcome, strata, conf_level = 0
     estimate = estimate, conf_low = lo, conf_high = hi, strata = nrow(tab),
     heterogeneity_statistic = het$statistic, heterogeneity_df = het$df, heterogeneity_p_value = het$p_value
   )
+  })
 }
 breslow_day <- function(tab, psi) {
   none <- list(statistic = NA_real_, df = NA_integer_, p_value = NA_real_)

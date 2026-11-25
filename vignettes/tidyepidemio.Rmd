@@ -68,6 +68,20 @@ ggplot(generics::augment(fit), aes(day)) +
   theme_minimal()
 ```
 
+## Statistical advice
+
+`tep_advise()` says which estimator answers the question and what to check
+first; `tep_interpret()` explains a result, says what to do next and how to
+report it in a paper. With the tidyvisor package installed, `tidyvisor()`
+calls them for you.
+
+```{r}
+d <- data.frame(exposure = rep(0:1, each = 40),
+                outcome = rep(c(0, 1, 0, 1), c(30, 10, 18, 22)))
+tep_advise(d, exposure = "exposure", outcome = "outcome")
+tep_interpret(epi_risk_ratio(d, exposure, outcome))
+```
+
 ## Where next
 
 The articles on the package website work through complete analyses on real

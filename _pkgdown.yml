@@ -167,6 +167,10 @@ reference:
       - wis
       - wis_metric
 
+  - title: Statistical advice
+    desc: Advice on which estimator to use and plain-language interpretation of results, used by the tidyvisor package.
+    contents:
+      - tep_advise
   - title: Tidying and plotting
     contents:
       - tidy.epi_result

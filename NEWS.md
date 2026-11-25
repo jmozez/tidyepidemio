@@ -1,3 +1,22 @@
+# tidyepidemio (development version)
+
+* `tep_advise()` and `tep_interpret()`: statistical advice and
+  plain-language interpretation for epidemiology, which the tidyvisor
+  package uses when it is installed (`tidyvisor::tidyvisor()`), alongside
+  tidydiversity and tidymapr. tidyepidemio does not depend on tidyvisor.
+  - Advice for six questions (outbreak, association, survival, diagnostic,
+    surveillance, causal): checks of the data and the estimator to run,
+    with code that uses the column names of the data.
+  - Interpretations of ratios and other `epi_result` objects, and of the
+    results of `epi_rt()`, `epi_doubling_time()`, `epi_diagnostic()`,
+    `epi_mantel_haenszel()`, `epi_surveillance()`, `epi_gcomp()`,
+    `epi_ipw()` and `epi_kaplan_meier()`, each ending with "After the
+    overall test" (what to do next, and what not to) and "For the paper"
+    (a Results sentence, the figure, the table and the Methods, with STROBE
+    and STARD where they apply).
+  - These results now carry a class naming what they are (`tep_rt`,
+    `tep_growth`, `tep_survival`, ...) in front of their tibble classes.
+
 # tidyepidemio 1.2.0
 
 ## Association and regression

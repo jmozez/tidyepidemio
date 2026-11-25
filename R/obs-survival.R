@@ -26,6 +26,7 @@
 #' epi_kaplan_meier(d, t, event, strata = group)
 #' @export
 epi_kaplan_meier <- function(.data, time, event, strata = NULL, conf_level = 0.95, entry = NULL) {
+  tep_tag("survival", {
   check_data(.data)
   t <- column(.data, rlang::enquo(time), "time")
   e <- check_binary(column(.data, rlang::enquo(event), "event"), "event")
@@ -62,6 +63,7 @@ epi_kaplan_meier <- function(.data, time, event, strata = NULL, conf_level = 0.9
     )
   })
   dplyr::bind_rows(pieces)
+  })
 }
 survival_entry <- function(.data, q, time) {
   if (rlang::quo_is_null(q)) {
