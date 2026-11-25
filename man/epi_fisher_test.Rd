@@ -38,6 +38,6 @@ The test conditions on observed margins and does not adjust for confounding,
 clustering or multiple testing. Significance does not establish causality.
 }
 \examples{
-d<-data.frame(e=rep(0:1,each=4),y=c(0,0,0,1,0,1,1,1))
-epi_fisher_test(d,e,y)
+d <- data.frame(e = rep(0:1, each = 4), y = c(0, 0, 0, 1, 0, 1, 1, 1))
+epi_fisher_test(d, e, y)
 }

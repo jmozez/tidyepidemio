@@ -50,7 +50,7 @@ WIS requires interval columns in addition to the median; use \code{\link[=wis_me
 to capture those columns for a yardstick \code{metric_set()}.
 }
 \examples{
-d <- data.frame(y=c(1,2), med=c(1,3), lo=c(0,1), hi=c(2,4))
-wis(d, y, med, lo, hi, alpha=0.1)
-wis_vec(d$y, d$med, d$lo, d$hi, alpha=0.1)
+d <- data.frame(y = c(1, 2), med = c(1, 3), lo = c(0, 1), hi = c(2, 4))
+wis(d, y, med, lo, hi, alpha = 0.1)
+wis_vec(d$y, d$med, d$lo, d$hi, alpha = 0.1)
 }

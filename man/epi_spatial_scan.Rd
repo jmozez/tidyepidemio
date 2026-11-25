@@ -58,7 +58,7 @@ to selection bias. A significant p-value is not proof of causation. Run
 \code{set.seed()} for reproducible simulation.
 }
 \examples{
-d <- data.frame(x=c(0,1,10,11), y=0, cases=c(8,7,1,1), pop=100)
+d <- data.frame(x = c(0, 1, 10, 11), y = 0, cases = c(8, 7, 1, 1), pop = 100)
 set.seed(1)
-epi_spatial_scan(d, x, y, cases, pop, radii=c(0.1,1), nsim=19)
+epi_spatial_scan(d, x, y, cases, pop, radii = c(0.1, 1), nsim = 19)
 }

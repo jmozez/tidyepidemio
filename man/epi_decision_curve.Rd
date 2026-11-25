@@ -45,6 +45,6 @@ No uncertainty intervals, prevalence adjustment, or subgroup inference are
 calculated. This function does not choose a clinical threshold.
 }
 \examples{
-d<-data.frame(y=c(1,1,0,0),p=c(.9,.6,.4,.1))
-epi_decision_curve(d,y,p,thresholds=c(.25,.5,.75))
+d <- data.frame(y = c(1, 1, 0, 0), p = c(.9, .6, .4, .1))
+epi_decision_curve(d, y, p, thresholds = c(.25, .5, .75))
 }

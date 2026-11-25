@@ -35,5 +35,5 @@ by time; rows are not sorted and the optional lag introduces a gap between
 analysis and assessment sets.
 }
 \examples{
-epi_rolling_origin(data.frame(day=1:10), initial=5, assess=2)
+epi_rolling_origin(data.frame(day = 1:10), initial = 5, assess = 2)
 }

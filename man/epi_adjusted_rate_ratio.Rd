@@ -60,7 +60,9 @@ clusters. Weights, effect modification and spline terms work as in
 separately; this is not automatically a causal effect.
 }
 \examples{
-d<-data.frame(e=rep(0:1,each=6), events=c(1,2,1,2,3,1,3,4,2,4,5,3),
-              time=rep(10,12), age=rep(1:3,4))
-epi_adjusted_rate_ratio(d, events, time, e, adjust=age)
+d <- data.frame(
+  e = rep(0:1, each = 6), events = c(1, 2, 1, 2, 3, 1, 3, 4, 2, 4, 5, 3),
+  time = rep(10, 12), age = rep(1:3, 4)
+)
+epi_adjusted_rate_ratio(d, events, time, e, adjust = age)
 }

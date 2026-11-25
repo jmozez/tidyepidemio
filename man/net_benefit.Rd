@@ -45,7 +45,7 @@ at or above threshold. Truth must be a two-level factor; the first level is
 the event by default. This evaluates one threshold without uncertainty.
 }
 \examples{
-d <- data.frame(y=factor(c("case","control"), levels=c("case","control")), p=c(0.8,0.6))
-net_benefit(d, y, p, threshold=0.5)
-net_benefit_vec(d$y, d$p, threshold=0.5)
+d <- data.frame(y = factor(c("case", "control"), levels = c("case", "control")), p = c(0.8, 0.6))
+net_benefit(d, y, p, threshold = 0.5)
+net_benefit_vec(d$y, d$p, threshold = 0.5)
 }

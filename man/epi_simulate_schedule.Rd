@@ -43,6 +43,6 @@ discrete-time approximations, not continuous-time exact Markov or ODE models.
 Set the R random seed for reproducible stochastic simulations.
 }
 \examples{
-schedule<-data.frame(beta=c(.3,.3,.1,.1),gamma=.1)
-epi_simulate_schedule(schedule, initial=data.frame(S=999,I=1,R=0))
+schedule <- data.frame(beta = c(.3, .3, .1, .1), gamma = .1)
+epi_simulate_schedule(schedule, initial = data.frame(S = 999, I = 1, R = 0))
 }

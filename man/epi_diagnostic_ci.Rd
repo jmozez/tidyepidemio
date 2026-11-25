@@ -39,6 +39,6 @@ design. Likelihood ratios and Youden's index are reported by \code{\link[=epi_di
 without intervals.
 }
 \examples{
-d<-data.frame(test=c(1,1,0,0),truth=c(1,0,1,0))
-epi_diagnostic_ci(d,test,truth,method="exact")
+d <- data.frame(test = c(1, 1, 0, 0), truth = c(1, 0, 1, 0))
+epi_diagnostic_ci(d, test, truth, method = "exact")
 }

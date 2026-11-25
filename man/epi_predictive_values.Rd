@@ -31,6 +31,6 @@ verification bias and uncertainty in prevalence or test accuracy are not
 addressed. Intervals are not calculated.
 }
 \examples{
-d<-data.frame(test=c(1,1,0,0),truth=c(1,0,1,0))
-epi_predictive_values(d,test,truth,prevalence=c(.01,.1,.5))
+d <- data.frame(test = c(1, 1, 0, 0), truth = c(1, 0, 1, 0))
+epi_predictive_values(d, test, truth, prevalence = c(.01, .1, .5))
 }

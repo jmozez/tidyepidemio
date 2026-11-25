@@ -52,7 +52,9 @@ competing risks, clustering, time-varying covariates, or assess a causal
 effect. Sparse data or separation can make the estimates unreliable.
 }
 \examples{
-d <- data.frame(t=1:12, event=c(1,0,1,1,0,1,1,0,1,0,1,1),
-                e=rep(0:1,6), age=rep(30:33,3))
-epi_cox_hazard_ratio(d, t, event, e, adjust=age)
+d <- data.frame(
+  t = 1:12, event = c(1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1),
+  e = rep(0:1, 6), age = rep(30:33, 3)
+)
+epi_cox_hazard_ratio(d, t, event, e, adjust = age)
 }

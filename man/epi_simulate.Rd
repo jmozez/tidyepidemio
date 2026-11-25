@@ -46,5 +46,5 @@ binomial draws. Supply rates per time unit; \code{dt} sets step length. Set a se
 before stochastic runs for reproducibility.
 }
 \examples{
-epi_simulate(data.frame(S=999, I=1, R=0), beta=0.3, gamma=0.1, steps=10)
+epi_simulate(data.frame(S = 999, I = 1, R = 0), beta = 0.3, gamma = 0.1, steps = 10)
 }

@@ -43,6 +43,6 @@ dispersion. Each screened row gets an upper-tail p-value, and \code{adjust} appl
 \code{\link[stats:p.adjust]{stats::p.adjust()}} across all screened rows. Flags are not outbreak diagnoses.
 }
 \examples{
-d <- data.frame(day=1:6, cases=c(1,2,1,2,1,10))
-epi_surveillance(d, cases, window=3, alpha=0.05)
+d <- data.frame(day = 1:6, cases = c(1, 2, 1, 2, 1, 10))
+epi_surveillance(d, cases, window = 3, alpha = 0.05)
 }

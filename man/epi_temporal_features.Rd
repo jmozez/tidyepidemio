@@ -60,7 +60,7 @@ once, those later outcomes are not yet known; supplying them would leak future
 information. Supply only values actually available at each prediction time.
 }
 \examples{
-history<-data.frame(day=1:3,cases=c(1,2,3))
-new<-data.frame(day=4:5,cases=c(4,5))
-epi_temporal_features(new,cases,time=day,history=history,lag=1,window=2)
+history <- data.frame(day = 1:3, cases = c(1, 2, 3))
+new <- data.frame(day = 4:5, cases = c(4, 5))
+epi_temporal_features(new, cases, time = day, history = history, lag = 1, window = 2)
 }

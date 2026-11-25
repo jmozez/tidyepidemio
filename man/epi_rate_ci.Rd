@@ -27,5 +27,5 @@ event dependence, or complex sampling. A count of zero has a lower bound of
 zero and a positive upper bound.
 }
 \examples{
-epi_rate_ci(data.frame(events=c(1,2,0), time=c(2,3,1)), events, time, multiplier=100)
+epi_rate_ci(data.frame(events = c(1, 2, 0), time = c(2, 3, 1)), events, time, multiplier = 100)
 }

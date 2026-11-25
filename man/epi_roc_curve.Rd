@@ -40,7 +40,7 @@ Use independent validation data where appropriate. PPV and NPV use the input
 sample prevalence and may not transport to other settings.
 }
 \examples{
-d<-data.frame(y=c(0,1,0,1),score=c(.1,.6,.6,.9))
-curve<-epi_roc_curve(d,y,score)
+d <- data.frame(y = c(0, 1, 0, 1), score = c(.1, .6, .6, .9))
+curve <- epi_roc_curve(d, y, score)
 epi_plot_roc(curve)
 }

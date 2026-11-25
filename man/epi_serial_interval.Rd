@@ -21,6 +21,6 @@ Calculates the difference in days between infectee and infector onset dates.
 Negative intervals are allowed and should be assessed for data quality.
 }
 \examples{
-d <- data.frame(a=as.Date("2020-01-01") + 0:2, b=as.Date("2020-01-01") + 2:4)
+d <- data.frame(a = as.Date("2020-01-01") + 0:2, b = as.Date("2020-01-01") + 2:4)
 epi_serial_interval(d, a, b)
 }

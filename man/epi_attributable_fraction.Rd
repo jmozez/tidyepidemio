@@ -31,6 +31,6 @@ assumptions are not checked; confounding and selection bias can be important.
 This function does not estimate adjusted effects or confidence intervals.
 }
 \examples{
-d<-data.frame(e=rep(0:1,each=4),y=c(0,0,0,1,0,1,1,1))
-epi_attributable_fraction(d,e,y)
+d <- data.frame(e = rep(0:1, each = 4), y = c(0, 0, 0, 1, 0, 1, 1, 1))
+epi_attributable_fraction(d, e, y)
 }

@@ -35,17 +35,19 @@ forecasts. These simplified models do not adjust for imports, observation
 error, reporting delays, changes in interventions, or heterogeneous mixing.
 }
 \examples{
-d <- data.frame(time=1:6, cases=c(1,2,4,8,16,32))
-spec <- epi_renewal() |> parsnip::set_engine("tidyepidemio", weights=1)
-fit <- parsnip::fit(spec, cases ~ time, data=d)
-predict(fit, new_data=data.frame(time=7:8))
-d <- data.frame(time=0:4, infectious=c(5,6,7,8,9))
+d <- data.frame(time = 1:6, cases = c(1, 2, 4, 8, 16, 32))
+spec <- epi_renewal() |> parsnip::set_engine("tidyepidemio", weights = 1)
+fit <- parsnip::fit(spec, cases ~ time, data = d)
+predict(fit, new_data = data.frame(time = 7:8))
+d <- data.frame(time = 0:4, infectious = c(5, 6, 7, 8, 9))
 spec <- epi_compartmental() |>
-  parsnip::set_engine("tidyepidemio", population=1000, gamma=0.1)
-fit <- parsnip::fit(spec, infectious ~ time, data=d)
-predict(fit, new_data=data.frame(time=5:6))
+  parsnip::set_engine("tidyepidemio", population = 1000, gamma = 0.1)
+fit <- parsnip::fit(spec, infectious ~ time, data = d)
+predict(fit, new_data = data.frame(time = 5:6))
 seir <- epi_compartmental() |>
-  parsnip::set_engine("tidyepidemio", population=1000, gamma=.1,
-                      model="seir", sigma=.2, initial_exposed=5)
-parsnip::fit(seir, infectious ~ time, data=d)
+  parsnip::set_engine("tidyepidemio",
+    population = 1000, gamma = .1,
+    model = "seir", sigma = .2, initial_exposed = 5
+  )
+parsnip::fit(seir, infectious ~ time, data = d)
 }

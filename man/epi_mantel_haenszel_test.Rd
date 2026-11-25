@@ -41,6 +41,6 @@ reasonably homogeneous. The test itself does not test homogeneity, adjust for
 other confounders, or establish causality.
 }
 \examples{
-d<-data.frame(e=rep(c(0,0,1,1),2),y=rep(c(0,1,0,1),2),s=rep(1:2,each=4))
-epi_mantel_haenszel_test(d,e,y,s)
+d <- data.frame(e = rep(c(0, 0, 1, 1), 2), y = rep(c(0, 1, 0, 1), 2), s = rep(1:2, each = 4))
+epi_mantel_haenszel_test(d, e, y, s)
 }

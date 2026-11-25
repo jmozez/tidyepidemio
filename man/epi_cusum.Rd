@@ -42,6 +42,6 @@ testing and baseline uncertainty affect false-alarm rates. Flags are not
 outbreak diagnoses.
 }
 \examples{
-d <- data.frame(day=1:5, cases=c(2,1,3,7,9), baseline=rep(2,5))
-epi_cusum(d, cases, baseline, relative_risk=2, threshold=3)
+d <- data.frame(day = 1:5, cases = c(2, 1, 3, 7, 9), baseline = rep(2, 5))
+epi_cusum(d, cases, baseline, relative_risk = 2, threshold = 3)
 }

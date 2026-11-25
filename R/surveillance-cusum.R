@@ -19,15 +19,28 @@
 #' @param initial Non-negative statistic at start of the series.
 #' @return Input tibble with `cusum` and logical `alert` columns.
 #' @examples
-#' d <- data.frame(day=1:5, cases=c(2,1,3,7,9), baseline=rep(2,5))
-#' epi_cusum(d, cases, baseline, relative_risk=2, threshold=3)
+#' d <- data.frame(day = 1:5, cases = c(2, 1, 3, 7, 9), baseline = rep(2, 5))
+#' epi_cusum(d, cases, baseline, relative_risk = 2, threshold = 3)
 #' @export
-epi_cusum <- function(.data, cases, baseline, relative_risk=2, threshold=5, initial=0) {
-  check_data(.data); count<-column(.data,rlang::enquo(cases),"cases"); mu<-column(.data,rlang::enquo(baseline),"baseline")
-  check_nonnegative(count,"cases"); check_nonnegative(mu,"baseline",positive=TRUE); check_scalar(relative_risk,"relative_risk",min=1); check_scalar(threshold,"threshold"); check_scalar(initial,"initial",inclusive=TRUE)
-  if (any(count!=floor(count))) cli::cli_abort("{.arg cases} must contain integer counts.")
-  if (any(c("cusum","alert") %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
-  value<-numeric(length(count)); last<-initial
-  for (i in seq_along(count)) {last<-max(0,last+count[i]*log(relative_risk)-(relative_risk-1)*mu[i]); value[i]<-last}
-  out<-tibble::as_tibble(.data); out$cusum<-value; out$alert<-value>=threshold; out
+epi_cusum <- function(.data, cases, baseline, relative_risk = 2, threshold = 5, initial = 0) {
+  check_data(.data)
+  count <- column(.data, rlang::enquo(cases), "cases")
+  mu <- column(.data, rlang::enquo(baseline), "baseline")
+  check_nonnegative(count, "cases")
+  check_nonnegative(mu, "baseline", positive = TRUE)
+  check_scalar(relative_risk, "relative_risk", min = 1)
+  check_scalar(threshold, "threshold")
+  check_scalar(initial, "initial", inclusive = TRUE)
+  if (any(count != floor(count))) cli::cli_abort("{.arg cases} must contain integer counts.")
+  if (any(c("cusum", "alert") %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
+  value <- numeric(length(count))
+  last <- initial
+  for (i in seq_along(count)) {
+    last <- max(0, last + count[i] * log(relative_risk) - (relative_risk - 1) * mu[i])
+    value[i] <- last
+  }
+  out <- tibble::as_tibble(.data)
+  out$cusum <- value
+  out$alert <- value >= threshold
+  out
 }

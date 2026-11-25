@@ -72,9 +72,11 @@ was known at each forecast date rather than revised final counts. Set a seed
 for reproducible Monte Carlo forecasts.
 }
 \examples{
-d<-data.frame(day=1:8,cases=c(1,2,4,8,16,32,64,128))
+d <- data.frame(day = 1:8, cases = c(1, 2, 4, 8, 16, 32, 64, 128))
 set.seed(1)
-backtest<-epi_renewal_backtest(d,day,cases,weights=1,initial=4,
-                               horizon=2,nsim=100)
-wis(backtest,observed,forecast_median,forecast_low,forecast_high,alpha=.05)
+backtest <- epi_renewal_backtest(d, day, cases,
+  weights = 1, initial = 4,
+  horizon = 2, nsim = 100
+)
+wis(backtest, observed, forecast_median, forecast_low, forecast_high, alpha = .05)
 }

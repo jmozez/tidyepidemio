@@ -49,8 +49,8 @@ Low-level fit functions used by the parsnip engines. See \code{\link[=epi_renewa
 the model definitions and assumptions.
 }
 \examples{
-fit_epi_renewal(cases ~ time, data.frame(time=1:4,cases=c(1,2,4,8)), weights=1)
-d <- data.frame(time=0:4, infectious=c(5,6,7,8,9))
-fit_epi_compartmental(infectious ~ time, d, population=1000, gamma=.1)
+fit_epi_renewal(cases ~ time, data.frame(time = 1:4, cases = c(1, 2, 4, 8)), weights = 1)
+d <- data.frame(time = 0:4, infectious = c(5, 6, 7, 8, 9))
+fit_epi_compartmental(infectious ~ time, d, population = 1000, gamma = .1)
 }
 \keyword{internal}

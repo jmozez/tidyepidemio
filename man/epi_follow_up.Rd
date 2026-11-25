@@ -45,7 +45,9 @@ days, not a calendar-year calculation. Censoring must be appropriately handled
 in the downstream analysis.
 }
 \examples{
-d<-data.frame(start=as.Date("2024-01-01")+c(0,1),
-              end=as.Date("2024-01-01")+c(5,10),event=c(1,1))
-epi_follow_up(d,start,end,event,censor_at=as.Date("2024-01-08"))
+d <- data.frame(
+  start = as.Date("2024-01-01") + c(0, 1),
+  end = as.Date("2024-01-01") + c(5, 10), event = c(1, 1)
+)
+epi_follow_up(d, start, end, event, censor_at = as.Date("2024-01-08"))
 }

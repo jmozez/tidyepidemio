@@ -39,8 +39,8 @@ account for cluster sampling or time-varying treatment. The returned weights
 alone do not estimate an effect or uncertainty.
 }
 \examples{
-d<-expand.grid(e=0:1,age=20:24,rep=1:6)
-d$y<-as.integer(d$rep<=1+d$e+(d$age \%\% 2))
-weighted<-epi_propensity_weights(d,e,adjust=age)
-epi_weighted_effect(weighted,e,y,ipw)
+d <- expand.grid(e = 0:1, age = 20:24, rep = 1:6)
+d$y <- as.integer(d$rep <= 1 + d$e + (d$age \%\% 2))
+weighted <- epi_propensity_weights(d, e, adjust = age)
+epi_weighted_effect(weighted, e, y, ipw)
 }

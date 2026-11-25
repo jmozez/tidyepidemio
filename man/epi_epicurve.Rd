@@ -40,6 +40,6 @@ The function does not distinguish dates of onset from specimen or report
 dates, correct incomplete ascertainment, or insert unknown-onset cases.
 }
 \examples{
-d<-data.frame(onset=as.Date("2024-01-01")+c(0,0,2), region=c("a","b","a"))
-epi_epicurve(d,onset,group=region)
+d <- data.frame(onset = as.Date("2024-01-01") + c(0, 0, 2), region = c("a", "b", "a"))
+epi_epicurve(d, onset, group = region)
 }

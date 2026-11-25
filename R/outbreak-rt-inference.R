@@ -22,24 +22,45 @@
 #' @return Input tibble with `infectiousness`, `rt_mean`, `rt_low`, `rt_high`;
 #'   early rows without full history/window are `NA`.
 #' @examples
-#' d <- data.frame(day=1:8, cases=c(1,2,4,8,16,32,64,128))
-#' epi_rt_gamma(d, cases, weights=1, window=3)
+#' d <- data.frame(day = 1:8, cases = c(1, 2, 4, 8, 16, 32, 64, 128))
+#' epi_rt_gamma(d, cases, weights = 1, window = 3)
 #' @export
-epi_rt_gamma <- function(.data, cases, weights, window=7L, imported=NULL, prior_shape=1, prior_rate=1, conf_level=0.95) {
-  check_data(.data); check_window(window,"window"); check_scalar(prior_shape,"prior_shape"); check_scalar(prior_rate,"prior_rate"); check_probability(conf_level,"conf_level")
-  local<-column(.data,rlang::enquo(cases),"cases"); iq<-rlang::enquo(imported)
-  imports<-if (rlang::quo_is_null(iq)) rep(0,length(local)) else column(.data,iq,"imported")
-  check_nonnegative(local,"cases"); check_nonnegative(imports,"imported"); check_nonnegative(weights,"weights")
-  if (any(local!=floor(local)) || any(imports!=floor(imports))) cli::cli_abort("Local and imported counts must be integers.")
-  if (!length(weights) || abs(sum(weights)-1)>1e-8) cli::cli_abort("{.arg weights} must be a non-empty probability distribution summing to one.")
-  cols<-c("infectiousness","rt_mean","rt_low","rt_high"); if (any(cols %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
-  n<-length(local); k<-length(weights); lambda<-m<-lo<-hi<-rep(NA_real_,n)
-  if (n>k) for (i in seq.int(k+1,n)) lambda[i]<-sum((local+imports)[i-seq_len(k)]*weights)
-  if (any(local>0 & !is.na(lambda) & lambda==0)) cli::cli_abort("Positive local incidence occurs when infectiousness is zero. Check case classification, history, and generation weights.")
-  start<-k+window
-  if (n>=start) for (i in seq.int(start,n)) {
-    idx<-seq.int(i-window+1,i); shape<-prior_shape+sum(local[idx]); rate<-prior_rate+sum(lambda[idx]); m[i]<-shape/rate
-    lo[i]<-stats::qgamma((1-conf_level)/2, shape=shape, rate=rate); hi[i]<-stats::qgamma((1+conf_level)/2, shape=shape, rate=rate)
+epi_rt_gamma <- function(.data, cases, weights, window = 7L, imported = NULL, prior_shape = 1, prior_rate = 1, conf_level = 0.95) {
+  check_data(.data)
+  check_window(window, "window")
+  check_scalar(prior_shape, "prior_shape")
+  check_scalar(prior_rate, "prior_rate")
+  check_probability(conf_level, "conf_level")
+  local <- column(.data, rlang::enquo(cases), "cases")
+  iq <- rlang::enquo(imported)
+  imports <- if (rlang::quo_is_null(iq)) rep(0, length(local)) else column(.data, iq, "imported")
+  check_nonnegative(local, "cases")
+  check_nonnegative(imports, "imported")
+  check_nonnegative(weights, "weights")
+  if (any(local != floor(local)) || any(imports != floor(imports))) cli::cli_abort("Local and imported counts must be integers.")
+  if (!length(weights) || abs(sum(weights) - 1) > 1e-8) cli::cli_abort("{.arg weights} must be a non-empty probability distribution summing to one.")
+  cols <- c("infectiousness", "rt_mean", "rt_low", "rt_high")
+  if (any(cols %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
+  n <- length(local)
+  k <- length(weights)
+  lambda <- m <- lo <- hi <- rep(NA_real_, n)
+  if (n > k) for (i in seq.int(k + 1, n)) lambda[i] <- sum((local + imports)[i - seq_len(k)] * weights)
+  if (any(local > 0 & !is.na(lambda) & lambda == 0)) cli::cli_abort("Positive local incidence occurs when infectiousness is zero. Check case classification, history, and generation weights.")
+  start <- k + window
+  if (n >= start) {
+    for (i in seq.int(start, n)) {
+      idx <- seq.int(i - window + 1, i)
+      shape <- prior_shape + sum(local[idx])
+      rate <- prior_rate + sum(lambda[idx])
+      m[i] <- shape / rate
+      lo[i] <- stats::qgamma((1 - conf_level) / 2, shape = shape, rate = rate)
+      hi[i] <- stats::qgamma((1 + conf_level) / 2, shape = shape, rate = rate)
+    }
   }
-  out<-tibble::as_tibble(.data); out$infectiousness<-lambda; out$rt_mean<-m; out$rt_low<-lo; out$rt_high<-hi; out
+  out <- tibble::as_tibble(.data)
+  out$infectiousness <- lambda
+  out$rt_mean <- m
+  out$rt_low <- lo
+  out$rt_high <- hi
+  out
 }

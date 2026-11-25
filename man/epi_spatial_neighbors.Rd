@@ -24,5 +24,5 @@ Self-neighbors are excluded, but distinct rows at the same coordinates count
 as neighbors. Runtime and memory scale quadratically with row count.
 }
 \examples{
-epi_spatial_neighbors(data.frame(x=c(0,1,5),y=c(0,0,0)), x, y, radius=1)
+epi_spatial_neighbors(data.frame(x = c(0, 1, 5), y = c(0, 0, 0)), x, y, radius = 1)
 }

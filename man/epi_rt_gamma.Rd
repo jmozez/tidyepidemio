@@ -49,6 +49,6 @@ ascertainment, superspreading, or right censoring; intervals are conditional on
 the supplied counts, imports, weights and prior.
 }
 \examples{
-d <- data.frame(day=1:8, cases=c(1,2,4,8,16,32,64,128))
-epi_rt_gamma(d, cases, weights=1, window=3)
+d <- data.frame(day = 1:8, cases = c(1, 2, 4, 8, 16, 32, 64, 128))
+epi_rt_gamma(d, cases, weights = 1, window = 3)
 }

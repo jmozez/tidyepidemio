@@ -62,7 +62,7 @@ It does not account for later restarting, changing horizon, or retuning the
 threshold. Set a seed to reproduce the Monte Carlo result.
 }
 \examples{
-d<-data.frame(base=rep(2,10))
+d <- data.frame(base = rep(2, 10))
 set.seed(1)
-epi_cusum_calibrate(d,base,relative_risk=2,alpha=.1,nsim=99)
+epi_cusum_calibrate(d, base, relative_risk = 2, alpha = .1, nsim = 99)
 }

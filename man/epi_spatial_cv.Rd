@@ -30,6 +30,7 @@ longitude/latitude. Random block assignment is reproducible with \code{set.seed(
 Block sizes may differ, and buffering can substantially reduce analysis data.
 }
 \examples{
-d <- data.frame(block=rep(1:4, each=2), value=1:8)
-set.seed(1); epi_spatial_cv(d, block, v=2)
+d <- data.frame(block = rep(1:4, each = 2), value = 1:8)
+set.seed(1)
+epi_spatial_cv(d, block, v = 2)
 }

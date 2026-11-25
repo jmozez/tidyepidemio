@@ -45,6 +45,6 @@ propensity model in every resample. This function does not test covariate
 balance or establish a causal interpretation.
 }
 \examples{
-d<-data.frame(e=c(0,0,1,1),y=c(0,1,1,1),w=c(1,1,2,1))
-epi_weighted_effect(d,e,y,w)
+d <- data.frame(e = c(0, 0, 1, 1), y = c(0, 1, 1, 1), w = c(1, 1, 2, 1))
+epi_weighted_effect(d, e, y, w)
 }

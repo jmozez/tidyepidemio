@@ -24,5 +24,5 @@ all lags are observed; zero infectiousness also gives \code{NA}. Imported cases,
 uncertainty, reporting delays, and right censoring are not modeled.
 }
 \examples{
-epi_rt(data.frame(cases=c(1,2,4,8)), cases, weights=1)
+epi_rt(data.frame(cases = c(1, 2, 4, 8)), cases, weights = 1)
 }

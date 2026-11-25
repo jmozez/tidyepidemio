@@ -15,19 +15,20 @@
 #' @return A `yardstick` numeric metric function. Its result has `.metric`
 #'   equal to `"wis"`.
 #' @examples
-#' d<-data.frame(y=c(1,2),med=c(1,3),lo=c(0,1),hi=c(2,4))
-#' interval_score<-wis_metric(d,lo,hi,alpha=.1)
-#' metrics<-yardstick::metric_set(yardstick::rmse,interval_score)
-#' metrics(d,truth=y,estimate=med)
+#' d <- data.frame(y = c(1, 2), med = c(1, 3), lo = c(0, 1), hi = c(2, 4))
+#' interval_score <- wis_metric(d, lo, hi, alpha = .1)
+#' metrics <- yardstick::metric_set(yardstick::rmse, interval_score)
+#' metrics(d, truth = y, estimate = med)
 #' @export
-wis_metric <- function(.data, lower, upper, alpha=0.1) {
+wis_metric <- function(.data, lower, upper, alpha = 0.1) {
   if (!is.data.frame(.data)) cli::cli_abort("{.arg .data} must be a data frame.")
-  l<-names(tidyselect::eval_select(rlang::enquo(lower),.data,allow_rename=FALSE)); u<-names(tidyselect::eval_select(rlang::enquo(upper),.data,allow_rename=FALSE))
-  if (!length(l) || length(l)!=length(u)) cli::cli_abort("Select equal non-zero numbers of lower and upper columns.")
-  if (any(!vapply(.data[c(l,u)],is.numeric,logical(1)))) cli::cli_abort("Interval columns must be numeric.")
-  if (!is.numeric(alpha) || length(alpha)!=length(l) || anyNA(alpha) || any(!is.finite(alpha)) || any(alpha<=0 | alpha>=1) || anyDuplicated(alpha)) cli::cli_abort("Supply one distinct alpha in (0,1) per interval.")
-  metric <- function(data, truth, estimate, na_rm=TRUE, case_weights=NULL, ...) {
-    rlang::inject(wis(data, truth=!!rlang::enquo(truth), estimate=!!rlang::enquo(estimate), lower=tidyselect::all_of(l), upper=tidyselect::all_of(u), alpha=alpha, na_rm=na_rm, case_weights=!!rlang::enquo(case_weights)))
+  l <- names(tidyselect::eval_select(rlang::enquo(lower), .data, allow_rename = FALSE))
+  u <- names(tidyselect::eval_select(rlang::enquo(upper), .data, allow_rename = FALSE))
+  if (!length(l) || length(l) != length(u)) cli::cli_abort("Select equal non-zero numbers of lower and upper columns.")
+  if (any(!vapply(.data[c(l, u)], is.numeric, logical(1)))) cli::cli_abort("Interval columns must be numeric.")
+  if (!is.numeric(alpha) || length(alpha) != length(l) || anyNA(alpha) || any(!is.finite(alpha)) || any(alpha <= 0 | alpha >= 1) || anyDuplicated(alpha)) cli::cli_abort("Supply one distinct alpha in (0,1) per interval.")
+  metric <- function(data, truth, estimate, na_rm = TRUE, case_weights = NULL, ...) {
+    rlang::inject(wis(data, truth = !!rlang::enquo(truth), estimate = !!rlang::enquo(estimate), lower = tidyselect::all_of(l), upper = tidyselect::all_of(u), alpha = alpha, na_rm = na_rm, case_weights = !!rlang::enquo(case_weights)))
   }
-  yardstick::new_numeric_metric(metric, direction="minimize")
+  yardstick::new_numeric_metric(metric, direction = "minimize")
 }

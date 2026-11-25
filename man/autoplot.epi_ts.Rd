@@ -36,7 +36,7 @@ Data are not completed for missing dates. Confidence intervals, when present,
 are shown on a linear scale. See method documentation for object schemas.
 }
 \examples{
-x <- epi_ts(data.frame(time=1:4, cases=c(2,4,3,1)))
+x <- epi_ts(data.frame(time = 1:4, cases = c(2, 4, 3, 1)))
 ggplot2::autoplot(x)
-ggplot2::autoplot(epi_linelist(data.frame(onset=as.Date("2024-01-01")+0:2)))
+ggplot2::autoplot(epi_linelist(data.frame(onset = as.Date("2024-01-01") + 0:2)))
 }

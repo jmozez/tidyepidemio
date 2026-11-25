@@ -45,8 +45,8 @@ series call separately for each group. Row identity is verified through
 validation of supported steps and the baked row count.
 }
 \examples{
-d<-data.frame(day=1:6,cases=1:6)
-rec<-recipes::recipe(~.,data=d[1:4,]) |> step_epi_lags(cases,lag=1)
-prepped<-recipes::prep(rec)
-epi_bake_history(d[5:6,],prepped,history=d[1:4,],time=day)
+d <- data.frame(day = 1:6, cases = 1:6)
+rec <- recipes::recipe(~., data = d[1:4, ]) |> step_epi_lags(cases, lag = 1)
+prepped <- recipes::prep(rec)
+epi_bake_history(d[5:6, ], prepped, history = d[1:4, ], time = day)
 }

@@ -50,7 +50,7 @@ and require positive event counts (all cells for odds ratios).
 Attributable risk is exposed risk minus unexposed risk.
 }
 \examples{
-d <- data.frame(exposure = rep(0:1, each = 4), outcome = c(0,0,0,1,0,1,1,1))
+d <- data.frame(exposure = rep(0:1, each = 4), outcome = c(0, 0, 0, 1, 0, 1, 1, 1))
 epi_risk_ratio(d, exposure, outcome)
 epi_odds_ratio(d, exposure, outcome)
 epi_attributable_risk(d, exposure, outcome)

@@ -19,6 +19,6 @@ line. Rows must be ordered by non-decreasing false-positive rate. This plot
 does not recompute the curve, AUC, or confidence intervals.
 }
 \examples{
-d<-data.frame(y=c(0,1,0,1),score=c(.1,.6,.6,.9))
-epi_plot_roc(epi_roc_curve(d,y,score))
+d <- data.frame(y = c(0, 1, 0, 1), score = c(.1, .6, .6, .9))
+epi_plot_roc(epi_roc_curve(d, y, score))
 }

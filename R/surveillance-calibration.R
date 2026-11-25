@@ -33,31 +33,49 @@
 #' @return One-row tibble with `threshold`, `alpha`, `series_alpha`, `marginal_bound`,
 #'   `simulations`, and the number of monitoring `steps`.
 #' @examples
-#' d<-data.frame(base=rep(2,10))
+#' d <- data.frame(base = rep(2, 10))
 #' set.seed(1)
-#' epi_cusum_calibrate(d,base,relative_risk=2,alpha=.1,nsim=99)
+#' epi_cusum_calibrate(d, base, relative_risk = 2, alpha = .1, nsim = 99)
 #' @export
-epi_cusum_calibrate <- function(.data, baseline, relative_risk=2, alpha=0.05, nsim=999L, initial=0, size=Inf, n_series=1L) {
-  check_data(.data); mu<-column(.data,rlang::enquo(baseline),"baseline"); check_nonnegative(mu,"baseline",positive=TRUE); check_scalar(relative_risk,"relative_risk",min=1); check_probability(alpha,"alpha"); check_window(nsim,"nsim"); check_scalar(initial,"initial",inclusive=TRUE)
-  if (!is.numeric(size) || length(size)!=1 || is.na(size) || size<=0) cli::cli_abort("{.arg size} must be a positive number or Inf."); check_window(n_series,"n_series")
-  family_alpha<-alpha; series_alpha<-1-(1-alpha)^(1/n_series); alpha<-series_alpha
+epi_cusum_calibrate <- function(.data, baseline, relative_risk = 2, alpha = 0.05, nsim = 999L, initial = 0, size = Inf, n_series = 1L) {
+  check_data(.data)
+  mu <- column(.data, rlang::enquo(baseline), "baseline")
+  check_nonnegative(mu, "baseline", positive = TRUE)
+  check_scalar(relative_risk, "relative_risk", min = 1)
+  check_probability(alpha, "alpha")
+  check_window(nsim, "nsim")
+  check_scalar(initial, "initial", inclusive = TRUE)
+  if (!is.numeric(size) || length(size) != 1 || is.na(size) || size <= 0) cli::cli_abort("{.arg size} must be a positive number or Inf.")
+  check_window(n_series, "n_series")
+  family_alpha <- alpha
+  series_alpha <- 1 - (1 - alpha)^(1 / n_series)
+  alpha <- series_alpha
   if (!length(mu)) cli::cli_abort("At least one baseline period is required.")
-  if (as.double(nsim)*length(mu)>10000000) cli::cli_abort("At most 10 million simulation steps are supported.")
-  k<-ceiling((as.double(nsim)+1)*(1-alpha))
-  if (k>nsim) cli::cli_abort("Increase {.arg nsim} so that it is at least 1 / alpha - 1.")
-  current<-rep(initial,nsim); maximum<-rep(0,nsim)
-  for (m in mu) {draws<-if (is.finite(size)) stats::rnbinom(nsim,size=size,mu=m) else stats::rpois(nsim,m); current<-pmax(0,current+draws*log(relative_risk)-(relative_risk-1)*m); maximum<-pmax(maximum,current)}
-  q<-sort(maximum,partial=k)[k]; threshold<-q+1e-12*max(1,abs(q))
+  if (as.double(nsim) * length(mu) > 10000000) cli::cli_abort("At most 10 million simulation steps are supported.")
+  k <- ceiling((as.double(nsim) + 1) * (1 - alpha))
+  if (k > nsim) cli::cli_abort("Increase {.arg nsim} so that it is at least 1 / alpha - 1.")
+  current <- rep(initial, nsim)
+  maximum <- rep(0, nsim)
+  for (m in mu) {
+    draws <- if (is.finite(size)) stats::rnbinom(nsim, size = size, mu = m) else stats::rpois(nsim, m)
+    current <- pmax(0, current + draws * log(relative_risk) - (relative_risk - 1) * m)
+    maximum <- pmax(maximum, current)
+  }
+  q <- sort(maximum, partial = k)[k]
+  threshold <- q + 1e-12 * max(1, abs(q))
   if (!is.finite(threshold)) cli::cli_abort("Calibration produced a non-finite threshold.")
-  tibble::tibble(threshold=threshold,alpha=family_alpha,series_alpha=series_alpha,marginal_bound=(nsim+1-k)/(nsim+1),simulations=as.integer(nsim),steps=length(mu))
+  tibble::tibble(threshold = threshold, alpha = family_alpha, series_alpha = series_alpha, marginal_bound = (nsim + 1 - k) / (nsim + 1), simulations = as.integer(nsim), steps = length(mu))
 }
 # Upper-tail p-values P(Y >= y) for Poisson (size = Inf) or negative binomial
 # counts, with an optional multiple-testing adjustment over non-missing values.
 surveillance_tail <- function(y, mean, size, adjust) {
-  p <- rep(NA_real_, length(y)); ok <- !is.na(mean)
+  p <- rep(NA_real_, length(y))
+  ok <- !is.na(mean)
   p[ok] <- ifelse(is.finite(size[ok]), stats::pnbinom(y[ok] - 1, size = size[ok], mu = mean[ok], lower.tail = FALSE),
-                  stats::ppois(y[ok] - 1, mean[ok], lower.tail = FALSE))
-  adj <- p; adj[ok] <- stats::p.adjust(p[ok], method = adjust)
+    stats::ppois(y[ok] - 1, mean[ok], lower.tail = FALSE)
+  )
+  adj <- p
+  adj[ok] <- stats::p.adjust(p[ok], method = adjust)
   list(p = p, adjusted = adj)
 }
 surveillance_quantile <- function(alpha, mean, size) {

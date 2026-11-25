@@ -57,7 +57,7 @@ conditional on successful fits can still be biased. Set a seed for
 reproducibility; more than 100 replicates are generally advisable.
 }
 \examples{
-d<-expand.grid(e=0:1,age=20:24,rep=1:6)
-d$y<-as.integer(d$rep <= 1+d$e+(d$age \%\% 2))
-epi_gcomp(d,e,y,adjust=age)
+d <- expand.grid(e = 0:1, age = 20:24, rep = 1:6)
+d$y <- as.integer(d$rep <= 1 + d$e + (d$age \%\% 2))
+epi_gcomp(d, e, y, adjust = age)
 }

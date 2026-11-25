@@ -29,6 +29,6 @@ interval. The interval assumes independent, identically distributed Bernoulli
 outcomes; it does not account for clustering, survey design, or weights.
 }
 \examples{
-epi_proportion_ci(data.frame(event=c(1,1,0,0,0)), event)
-epi_proportion_ci(data.frame(event=c(1,1,0,0,0)), event, method="exact")
+epi_proportion_ci(data.frame(event = c(1, 1, 0, 0, 0)), event)
+epi_proportion_ci(data.frame(event = c(1, 1, 0, 0, 0)), event, method = "exact")
 }

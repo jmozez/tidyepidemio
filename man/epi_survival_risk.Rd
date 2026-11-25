@@ -40,6 +40,6 @@ For competing events use \code{\link[=epi_cumulative_incidence]{epi_cumulative_i
 them as if they were independent.
 }
 \examples{
-d<-data.frame(time=c(1,2,3,4),event=c(1,0,1,0))
-epi_survival_risk(d,time,event,horizons=c(0,2,3))
+d <- data.frame(time = c(1, 2, 3, 4), event = c(1, 0, 1, 0))
+epi_survival_risk(d, time, event, horizons = c(0, 2, 3))
 }

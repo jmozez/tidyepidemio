@@ -70,15 +70,15 @@ to avoid future leakage. Existing output names are rejected.
 }
 \examples{
 d <- data.frame(cases = 1:5, population = rep(100, 5))
-rec <- recipes::recipe(~ ., data = d) |>
+rec <- recipes::recipe(~., data = d) |>
   step_epi_lags(cases, lag = 1)
 recipes::bake(recipes::prep(rec), new_data = d)
-rec2 <- recipes::recipe(~ ., data=d) |>
-  step_epi_rolling(cases, window=2) |>
-  step_epi_rates(cases, denominator=population)
-recipes::bake(recipes::prep(rec2), new_data=d)
-ex <- data.frame(exposure=c(0,1,1,0))
-rec3 <- recipes::recipe(~ ., data=ex) |>
-  step_epi_exposure_window(exposure, window=2)
-recipes::bake(recipes::prep(rec3), new_data=ex)
+rec2 <- recipes::recipe(~., data = d) |>
+  step_epi_rolling(cases, window = 2) |>
+  step_epi_rates(cases, denominator = population)
+recipes::bake(recipes::prep(rec2), new_data = d)
+ex <- data.frame(exposure = c(0, 1, 1, 0))
+rec3 <- recipes::recipe(~., data = ex) |>
+  step_epi_exposure_window(exposure, window = 2)
+recipes::bake(recipes::prep(rec3), new_data = ex)
 }

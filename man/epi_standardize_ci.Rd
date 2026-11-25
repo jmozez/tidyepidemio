@@ -43,7 +43,7 @@ fixed standard rates; overdispersion or uncertain standard rates invalidate
 these simple intervals.
 }
 \examples{
-d <- data.frame(events=c(10,20), pop=c(100,100), standard=c(150,50))
+d <- data.frame(events = c(10, 20), pop = c(100, 100), standard = c(150, 50))
 epi_standardize_ci(d, events, pop, standard)
 }
 \references{

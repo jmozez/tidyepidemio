@@ -36,6 +36,6 @@ size and origin should reflect the study's spatial dependence and deployment
 domain. Coordinates and grid size share the same units.
 }
 \examples{
-d<-data.frame(x=c(-1,0,9,10),y=c(0,0,11,11))
-epi_spatial_blocks(d,x,y,size=10)
+d <- data.frame(x = c(-1, 0, 9, 10), y = c(0, 0, 11, 11))
+epi_spatial_blocks(d, x, y, size = 10)
 }

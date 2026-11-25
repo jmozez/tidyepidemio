@@ -28,6 +28,6 @@ epidemic-phase bias, uncertainty in transmission links, or repeated infectors.
 These limitations can be severe during an ongoing outbreak.
 }
 \examples{
-d<-data.frame(a=as.Date("2024-01-01")+0:3,b=as.Date("2024-01-01")+c(2,4,5,7))
-epi_serial_interval_ci(d,a,b)
+d <- data.frame(a = as.Date("2024-01-01") + 0:3, b = as.Date("2024-01-01") + c(2, 4, 5, 7))
+epi_serial_interval_ci(d, a, b)
 }

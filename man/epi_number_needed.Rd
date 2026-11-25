@@ -33,6 +33,6 @@ calculate confidence intervals; inversion of intervals crossing zero requires
 careful interpretation and is not a single conventional finite interval.
 }
 \examples{
-d<-data.frame(treated=rep(0:1,each=4),adverse=c(1,1,0,0,1,0,0,0))
-epi_number_needed(d,treated,adverse)
+d <- data.frame(treated = rep(0:1, each = 4), adverse = c(1, 1, 0, 0, 1, 0, 0, 0))
+epi_number_needed(d, treated, adverse)
 }

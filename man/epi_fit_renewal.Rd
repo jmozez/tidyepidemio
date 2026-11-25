@@ -62,9 +62,9 @@ validated forecasting system. Select exactly one distinct column for each
 argument; non-syntactic names can be selected using backticks or \code{all_of()}.
 }
 \examples{
-d<-data.frame(day=1:5,cases=c(1,2,4,8,16))
-fit<-epi_fit_renewal(d,day,cases,weights=1)
-predict(fit,newdata=data.frame(day=6:7))
-c<-data.frame(day=0:4,infectious=c(5,6,7,8,9))
-epi_fit_compartmental(c,day,infectious,population=1000,gamma=.1)
+d <- data.frame(day = 1:5, cases = c(1, 2, 4, 8, 16))
+fit <- epi_fit_renewal(d, day, cases, weights = 1)
+predict(fit, newdata = data.frame(day = 6:7))
+c <- data.frame(day = 0:4, infectious = c(5, 6, 7, 8, 9))
+epi_fit_compartmental(c, day, infectious, population = 1000, gamma = .1)
 }

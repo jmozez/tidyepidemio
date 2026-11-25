@@ -36,6 +36,6 @@ weights, clustering, missing-data handling or recalibration are provided.
 Evaluate performance on independent validation data, not the fitting sample.
 }
 \examples{
-d<-data.frame(y=c(0,0,1,0,1,0,1,1),p=c(.1,.2,.3,.4,.5,.6,.7,.8))
-epi_calibration_summary(d,y,p)
+d <- data.frame(y = c(0, 0, 1, 0, 1, 0, 1, 1), p = c(.1, .2, .3, .4, .5, .6, .7, .8))
+epi_calibration_summary(d, y, p)
 }

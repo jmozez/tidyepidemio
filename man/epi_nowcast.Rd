@@ -60,7 +60,9 @@ are discrete for delays 0, 1, ..., with total one. All input observations
 must represent reports actually available as of \code{as_of}.
 }
 \examples{
-d<-data.frame(onset=as.Date("2024-01-01")+0:2, reported=c(10,8,3))
-epi_nowcast(d,onset,reported,as_of=as.Date("2024-01-03"),
-            delay_prob=c(.5,.3,.2),prior_shape=2,prior_rate=1)
+d <- data.frame(onset = as.Date("2024-01-01") + 0:2, reported = c(10, 8, 3))
+epi_nowcast(d, onset, reported,
+  as_of = as.Date("2024-01-03"),
+  delay_prob = c(.5, .3, .2), prior_shape = 2, prior_rate = 1
+)
 }

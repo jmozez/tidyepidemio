@@ -41,7 +41,9 @@ not a comparison of predictive values or ROC AUCs and does not address
 clustered observations.
 }
 \examples{
-d<-data.frame(y=rep(0:1,each=5),a=c(0,0,1,0,1,1,1,1,0,0),
-              b=c(0,1,0,0,1,1,0,1,1,0))
-epi_paired_diagnostic(d,a,b,y)
+d <- data.frame(
+  y = rep(0:1, each = 5), a = c(0, 0, 1, 0, 1, 1, 1, 1, 0, 0),
+  b = c(0, 1, 0, 0, 1, 1, 0, 1, 1, 0)
+)
+epi_paired_diagnostic(d, a, b, y)
 }

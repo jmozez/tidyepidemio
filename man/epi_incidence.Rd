@@ -38,6 +38,6 @@ prevalence. Person-time rates use the units supplied by the caller.
 d <- data.frame(event = c(1, 0, 1), time = c(1, 2, 3))
 epi_incidence(d, event)
 epi_prevalence(d, event)
-epi_attack_rate(d, event, multiplier=100)
+epi_attack_rate(d, event, multiplier = 100)
 epi_person_time(d, event, time, multiplier = 100)
 }

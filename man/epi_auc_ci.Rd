@@ -46,7 +46,7 @@ independent individuals. Small samples and highly discrete scores can give
 poor percentile-interval coverage; no clinical operating threshold is chosen.
 }
 \examples{
-d<-data.frame(y=rep(0:1,each=5),score=c(1,2,3,4,5,2,3,4,5,6))
+d <- data.frame(y = rep(0:1, each = 5), score = c(1, 2, 3, 4, 5, 2, 3, 4, 5, 6))
 set.seed(17)
-epi_auc_ci(d,y,score,bootstrap=100)
+epi_auc_ci(d, y, score, bootstrap = 100)
 }

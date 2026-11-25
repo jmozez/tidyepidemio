@@ -35,9 +35,9 @@ and residual values for training data, or predictions for supplied new data.
 For the renewal model, early fitted values are missing until all lags exist.
 }
 \examples{
-d <- data.frame(e=rep(0:1, each=4), y=c(0,0,0,1,0,1,1,1))
+d <- data.frame(e = rep(0:1, each = 4), y = c(0, 0, 0, 1, 0, 1, 1, 1))
 x <- epi_risk_ratio(d, e, y)
 generics::tidy(x)
-f <- fit_epi_renewal(y ~ time, data.frame(time=1:4,y=c(1,2,4,8)))
+f <- fit_epi_renewal(y ~ time, data.frame(time = 1:4, y = c(1, 2, 4, 8)))
 generics::augment(f)
 }

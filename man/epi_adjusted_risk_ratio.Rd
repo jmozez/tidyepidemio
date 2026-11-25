@@ -65,7 +65,7 @@ a causal effect. Weights, effect modification and spline terms work as in
 confounding assumptions.
 }
 \examples{
-d<-expand.grid(e=0:1,age=20:24,rep=1:6)
-d$y<-as.integer(d$rep <= 1+d$e+(d$age \%\% 2))
-epi_adjusted_risk_ratio(d,e,y,adjust=age)
+d <- expand.grid(e = 0:1, age = 20:24, rep = 1:6)
+d$y <- as.integer(d$rep <= 1 + d$e + (d$age \%\% 2))
+epi_adjusted_risk_ratio(d, e, y, adjust = age)
 }

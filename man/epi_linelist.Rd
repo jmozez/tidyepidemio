@@ -33,6 +33,6 @@ for metadata preservation. Joins retain left-hand metadata only.
 \examples{
 x <- epi_linelist(data.frame(case = 1:3), metadata = list(source = "clinic"))
 x[1:2, ]
-epi_cohort(data.frame(id=1:3))
-epi_ts(data.frame(time=1:3, cases=c(1,2,3)))
+epi_cohort(data.frame(id = 1:3))
+epi_ts(data.frame(time = 1:3, cases = c(1, 2, 3)))
 }

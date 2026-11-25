@@ -29,8 +29,8 @@ whenever the metric is evaluated. WIS interpretation and assumptions are
 identical to \code{\link[=wis]{wis()}}. Grouping and case weights are supported.
 }
 \examples{
-d<-data.frame(y=c(1,2),med=c(1,3),lo=c(0,1),hi=c(2,4))
-interval_score<-wis_metric(d,lo,hi,alpha=.1)
-metrics<-yardstick::metric_set(yardstick::rmse,interval_score)
-metrics(d,truth=y,estimate=med)
+d <- data.frame(y = c(1, 2), med = c(1, 3), lo = c(0, 1), hi = c(2, 4))
+interval_score <- wis_metric(d, lo, hi, alpha = .1)
+metrics <- yardstick::metric_set(yardstick::rmse, interval_score)
+metrics(d, truth = y, estimate = med)
 }

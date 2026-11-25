@@ -17,15 +17,21 @@
 #' @return One-row tibble containing group and population risks, exposed and
 #'   population attributable fractions, and sample size.
 #' @examples
-#' d<-data.frame(e=rep(0:1,each=4),y=c(0,0,0,1,0,1,1,1))
-#' epi_attributable_fraction(d,e,y)
+#' d <- data.frame(e = rep(0:1, each = 4), y = c(0, 0, 0, 1, 0, 1, 1, 1))
+#' epi_attributable_fraction(d, e, y)
 #' @export
 epi_attributable_fraction <- function(.data, exposure, outcome) {
-  check_data(.data); e<-check_binary(column(.data,rlang::enquo(exposure),"exposure"),"exposure"); y<-check_binary(column(.data,rlang::enquo(outcome),"outcome"),"outcome")
-  if (!length(e) || length(unique(e))<2) cli::cli_abort("Both exposure groups must contain observations.")
-  p0<-mean(y[e==0]); p1<-mean(y[e==1]); p<-mean(y); af<-if (p1==0) NA_real_ else (p1-p0)/p1; paf<-if (p==0) NA_real_ else (p-p0)/p
+  check_data(.data)
+  e <- check_binary(column(.data, rlang::enquo(exposure), "exposure"), "exposure")
+  y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
+  if (!length(e) || length(unique(e)) < 2) cli::cli_abort("Both exposure groups must contain observations.")
+  p0 <- mean(y[e == 0])
+  p1 <- mean(y[e == 1])
+  p <- mean(y)
+  af <- if (p1 == 0) NA_real_ else (p1 - p0) / p1
+  paf <- if (p == 0) NA_real_ else (p - p0) / p
   if (is.na(af) || is.na(paf)) cli::cli_warn("At least one risk denominator is zero; the corresponding fraction is undefined.")
-  tibble::tibble(risk_unexposed=p0,risk_exposed=p1,risk_population=p,attributable_fraction_exposed=af,population_attributable_fraction=paf,n=length(y))
+  tibble::tibble(risk_unexposed = p0, risk_exposed = p1, risk_population = p, attributable_fraction_exposed = af, population_attributable_fraction = paf, n = length(y))
 }
 #' Number needed to treat or harm
 #'
@@ -47,14 +53,21 @@ epi_attributable_fraction <- function(.data, exposure, outcome) {
 #' @return A one-row tibble with risks, absolute risk reduction, `type`, and
 #'   the rounded-up `number_needed`.
 #' @examples
-#' d<-data.frame(treated=rep(0:1,each=4),adverse=c(1,1,0,0,1,0,0,0))
-#' epi_number_needed(d,treated,adverse)
+#' d <- data.frame(treated = rep(0:1, each = 4), adverse = c(1, 1, 0, 0, 1, 0, 0, 0))
+#' epi_number_needed(d, treated, adverse)
 #' @export
 epi_number_needed <- function(.data, treatment, outcome) {
-  check_data(.data); t<-check_binary(column(.data,rlang::enquo(treatment),"treatment"),"treatment"); y<-check_binary(column(.data,rlang::enquo(outcome),"outcome"),"outcome")
-  if (!length(t) || length(unique(t))<2) cli::cli_abort("Both treatment groups must contain observations.")
-  n0<-as.double(sum(t==0)); n1<-as.double(sum(t==1)); a0<-sum(y[t==0]); a1<-sum(y[t==1]); numerator<-a0*n1-a1*n0; reduction<-numerator/(n0*n1)
-  type<-if (numerator>0) "NNT" else if (numerator<0) "NNH" else "no_difference"
-  needed<-if (numerator==0) NA_real_ else ceiling((n0*n1)/abs(numerator))
-  tibble::tibble(risk_untreated=a0/n0,risk_treated=a1/n1,absolute_risk_reduction=reduction,type=type,number_needed=needed,n_untreated=n0,n_treated=n1)
+  check_data(.data)
+  t <- check_binary(column(.data, rlang::enquo(treatment), "treatment"), "treatment")
+  y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
+  if (!length(t) || length(unique(t)) < 2) cli::cli_abort("Both treatment groups must contain observations.")
+  n0 <- as.double(sum(t == 0))
+  n1 <- as.double(sum(t == 1))
+  a0 <- sum(y[t == 0])
+  a1 <- sum(y[t == 1])
+  numerator <- a0 * n1 - a1 * n0
+  reduction <- numerator / (n0 * n1)
+  type <- if (numerator > 0) "NNT" else if (numerator < 0) "NNH" else "no_difference"
+  needed <- if (numerator == 0) NA_real_ else ceiling((n0 * n1) / abs(numerator))
+  tibble::tibble(risk_untreated = a0 / n0, risk_treated = a1 / n1, absolute_risk_reduction = reduction, type = type, number_needed = needed, n_untreated = n0, n_treated = n1)
 }

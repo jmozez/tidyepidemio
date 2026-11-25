@@ -53,6 +53,6 @@ is no covariate adjustment. Treating competing
 events as ordinary censoring in Kaplan-Meier would not estimate this quantity.
 }
 \examples{
-d<-data.frame(time=1:4,status=c(1,2,0,1))
-epi_cumulative_incidence(d,time,status,cause=1)
+d <- data.frame(time = 1:4, status = c(1, 2, 0, 1))
+epi_cumulative_incidence(d, time, status, cause = 1)
 }

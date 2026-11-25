@@ -23,15 +23,25 @@
 #'   Before the first observed event or censoring time, the risk and limits are
 #'   zero. Limits may be missing when survival limits are undefined.
 #' @examples
-#' d<-data.frame(time=c(1,2,3,4),event=c(1,0,1,0))
-#' epi_survival_risk(d,time,event,horizons=c(0,2,3))
+#' d <- data.frame(time = c(1, 2, 3, 4), event = c(1, 0, 1, 0))
+#' epi_survival_risk(d, time, event, horizons = c(0, 2, 3))
 #' @export
-epi_survival_risk <- function(.data, time, event, horizons, conf_level=0.95) {
-  check_data(.data); check_probability(conf_level,"conf_level"); t<-column(.data,rlang::enquo(time),"time"); e<-check_binary(column(.data,rlang::enquo(event),"event"),"event"); check_nonnegative(t,"time"); check_nonnegative(horizons,"horizons")
+epi_survival_risk <- function(.data, time, event, horizons, conf_level = 0.95) {
+  check_data(.data)
+  check_probability(conf_level, "conf_level")
+  t <- column(.data, rlang::enquo(time), "time")
+  e <- check_binary(column(.data, rlang::enquo(event), "event"), "event")
+  check_nonnegative(t, "time")
+  check_nonnegative(horizons, "horizons")
   if (!length(t) || !length(horizons)) cli::cli_abort("At least one record and one horizon are required.")
-  if (any(horizons>max(t))) cli::cli_abort("Horizons must not exceed the maximum observed follow-up time.")
-  d<-data.frame(t=t,e=e); fit<-survival::survfit(survival::Surv(t,e)~1,data=d,conf.type="log-log",conf.int=conf_level)
-  index<-findInterval(horizons,fit$time); risk<-lo<-hi<-rep(0,length(horizons)); has<-index>0
-  risk[has]<-1-fit$surv[index[has]]; lo[has]<-1-fit$upper[index[has]]; hi[has]<-1-fit$lower[index[has]]
-  tibble::tibble(horizon=horizons,n_risk=vapply(horizons,function(h) sum(t>=h),integer(1)),risk=risk,conf_low=lo,conf_high=hi,conf_level=conf_level)
+  if (any(horizons > max(t))) cli::cli_abort("Horizons must not exceed the maximum observed follow-up time.")
+  d <- data.frame(t = t, e = e)
+  fit <- survival::survfit(survival::Surv(t, e) ~ 1, data = d, conf.type = "log-log", conf.int = conf_level)
+  index <- findInterval(horizons, fit$time)
+  risk <- lo <- hi <- rep(0, length(horizons))
+  has <- index > 0
+  risk[has] <- 1 - fit$surv[index[has]]
+  lo[has] <- 1 - fit$upper[index[has]]
+  hi[has] <- 1 - fit$lower[index[has]]
+  tibble::tibble(horizon = horizons, n_risk = vapply(horizons, function(h) sum(t >= h), integer(1)), risk = risk, conf_low = lo, conf_high = hi, conf_level = conf_level)
 }

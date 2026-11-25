@@ -39,6 +39,6 @@ there is no universally sufficient threshold. Undefined SMDs caused by a zero
 pooled standard deviation are \code{NA}; this may indicate severe non-overlap.
 }
 \examples{
-d<-data.frame(e=c(0,0,1,1),age=c(20,30,30,40),w=c(1,2,2,1))
-epi_balance(d,e,age,weights=w)
+d <- data.frame(e = c(0, 0, 1, 1), age = c(20, 30, 30, 40), w = c(1, 2, 2, 1))
+epi_balance(d, e, age, weights = w)
 }

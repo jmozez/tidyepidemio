@@ -41,6 +41,6 @@ censoring. There is no left truncation, competing-risk adjustment, weighting,
 covariate adjustment, clustering or comparison between groups.
 }
 \examples{
-d<-data.frame(t=c(1,2,3,4,5,6),e=c(1,0,1,0,1,0))
-epi_rmst(d,t,e,tau=5)
+d <- data.frame(t = c(1, 2, 3, 4, 5, 6), e = c(1, 0, 1, 0, 1, 0))
+epi_rmst(d, t, e, tau = 5)
 }

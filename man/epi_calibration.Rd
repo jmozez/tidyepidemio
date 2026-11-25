@@ -36,6 +36,6 @@ temporal or external validation. Apparent calibration on training data can be
 optimistic. Binning can conceal miscalibration and results depend on bin width.
 }
 \examples{
-d<-data.frame(y=c(0,0,1,1),p=c(.1,.3,.7,.9))
-epi_calibration(d,y,p,bins=2)
+d <- data.frame(y = c(0, 0, 1, 1), p = c(.1, .3, .7, .9))
+epi_calibration(d, y, p, bins = 2)
 }

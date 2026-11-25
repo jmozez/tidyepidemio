@@ -68,10 +68,12 @@ seed to reproduce Monte Carlo results. Simultaneous testing across repeated
 surveillance dates requires additional calibration.
 }
 \examples{
-d<-data.frame(x=c(0,1,10,11),y=0,pop=100,
-              day1=c(1,1,1,1),day2=c(8,7,1,1))
+d <- data.frame(
+  x = c(0, 1, 10, 11), y = 0, pop = 100,
+  day1 = c(1, 1, 1, 1), day2 = c(8, 7, 1, 1)
+)
 set.seed(1)
-epi_spacetime_scan(d,x,y,c(day1,day2),pop,radii=c(.1,1),nsim=19)
+epi_spacetime_scan(d, x, y, c(day1, day2), pop, radii = c(.1, 1), nsim = 19)
 }
 \references{
 Kulldorff M (2001). Prospective time periodic geographical disease

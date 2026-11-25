@@ -74,9 +74,11 @@ required; sparse data can render estimates and Wald intervals unreliable.
 Missing data are not handled.
 }
 \examples{
-d <- data.frame(e=rep(0:1,each=20), y=rep(c(0,1,0,0,1),8),
-                age=rep(20:29,4), sex=rep(c("f","m"),20))
-epi_adjusted_odds_ratio(d, e, y, adjust=age)
-epi_adjusted_odds_ratio(d, e, y, adjust=age, robust="HC1")
-epi_adjusted_odds_ratio(d, e, y, adjust=age, modifier=sex)
+d <- data.frame(
+  e = rep(0:1, each = 20), y = rep(c(0, 1, 0, 0, 1), 8),
+  age = rep(20:29, 4), sex = rep(c("f", "m"), 20)
+)
+epi_adjusted_odds_ratio(d, e, y, adjust = age)
+epi_adjusted_odds_ratio(d, e, y, adjust = age, robust = "HC1")
+epi_adjusted_odds_ratio(d, e, y, adjust = age, modifier = sex)
 }

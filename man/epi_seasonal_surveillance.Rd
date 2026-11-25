@@ -68,7 +68,7 @@ alerts. This is a screening rule, not
 a validated outbreak detection system; a flag is not an outbreak diagnosis.
 }
 \examples{
-train<-data.frame(t=1:40,cases=rep(c(4,6,8,6),10))
-new<-data.frame(t=41:42,cases=c(20,5))
-epi_seasonal_surveillance(new,t,cases,training=train,period=4)
+train <- data.frame(t = 1:40, cases = rep(c(4, 6, 8, 6), 10))
+new <- data.frame(t = 41:42, cases = c(20, 5))
+epi_seasonal_surveillance(new, t, cases, training = train, period = 4)
 }

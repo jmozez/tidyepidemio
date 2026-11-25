@@ -56,7 +56,7 @@ all-zero history is absorbing. Prediction intervals are empirical Monte Carlo
 quantiles, not guaranteed-calibrated intervals. Set a seed for reproducibility.
 }
 \examples{
-d<-data.frame(cases=c(1,2,4,8))
+d <- data.frame(cases = c(1, 2, 4, 8))
 set.seed(1)
-epi_renewal_forecast(d, cases, weights=1, horizon=3, rt=1.2, nsim=100)
+epi_renewal_forecast(d, cases, weights = 1, horizon = 3, rt = 1.2, nsim = 100)
 }

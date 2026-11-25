@@ -45,7 +45,7 @@ continuous-time predictions are not supported.
 Follow-up times and censoring times share the same units.
 }
 \examples{
-d <- data.frame(t=c(1,2,3,4), event=c(1,0,1,0), group=c("a","a","b","b"))
+d <- data.frame(t = c(1, 2, 3, 4), event = c(1, 0, 1, 0), group = c("a", "a", "b", "b"))
 epi_kaplan_meier(d, t, event)
-epi_kaplan_meier(d, t, event, strata=group)
+epi_kaplan_meier(d, t, event, strata = group)
 }
