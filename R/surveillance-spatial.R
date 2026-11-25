@@ -35,17 +35,16 @@ epi_surveillance <- function(.data, cases, window = 4L, alpha = 0.05, family = c
   cols <- c("baseline_mean", "threshold", "p_value", "p_adjusted", "alert")
   if (any(cols %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
   n <- length(y)
-  mu <- cut <- rep(NA_real_, n)
   size <- rep(Inf, n)
-  if (n > window) {
-    for (i in seq.int(window + 1, n)) {
-      past <- y[seq.int(i - window, i - 1)]
-      mu[i] <- mean(past)
-      v <- if (window > 1) stats::var(past) else 0
-      if (family == "negbin" && mu[i] > 0 && v > mu[i]) size[i] <- mu[i]^2 / (v - mu[i])
-      cut[i] <- surveillance_quantile(alpha, mu[i], size[i])
-    }
+  mw <- moving_window_cpp(as.double(y), as.integer(window))
+  mu <- mw$mean
+  if (family == "negbin") {
+    over <- !is.na(mu) & mu > 0 & mw$var > mu
+    size[over] <- mu[over]^2 / (mw$var[over] - mu[over])
   }
+  cut <- rep(NA_real_, n)
+  ok <- !is.na(mu)
+  cut[ok] <- surveillance_quantile(alpha, mu[ok], size[ok])
   tail <- surveillance_tail(y, mu, size, adjust)
   out <- tibble::as_tibble(.data)
   out$baseline_mean <- mu

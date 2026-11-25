@@ -50,54 +50,40 @@ epi_spatial_scan <- function(.data, x, y, cases, population, radii, max_fraction
   if (!length(radii) || anyDuplicated(radii)) cli::cli_abort("{.arg radii} must be a non-empty vector of distinct radii.")
   if (length(nsim) != 1 || !is.numeric(nsim) || is.na(nsim) || !is.finite(nsim) || nsim < 0 || nsim != floor(nsim) || nsim > 100000) cli::cli_abort("{.arg nsim} must be an integer between 0 and 100000.")
   n <- length(count)
-  if (n > 1000 || n * length(radii) > 20000) cli::cli_abort("At most 1000 locations and 20000 candidate circles are supported.")
-  radii <- sort(radii)
-  memberships <- list()
-  centers <- integer()
-  candidate_radii <- numeric()
-  fractions <- numeric()
-  total_pop <- sum(pop)
-  for (i in seq_len(n)) {
-    distance <- sqrt((a - a[i])^2 + (b - b[i])^2)
-    for (r in radii) {
-      inside <- distance <= r
-      fraction <- sum(pop[inside]) / total_pop
-      if (fraction > 0 && fraction <= max_fraction && fraction < 1) {
-        memberships[[length(memberships) + 1L]] <- inside
-        centers <- c(centers, i)
-        candidate_radii <- c(candidate_radii, r)
-        fractions <- c(fractions, fraction)
-      }
-    }
-  }
-  if (!length(memberships)) cli::cli_abort("No eligible circles. Adjust {.arg radii} or {.arg max_fraction}.")
-  M <- do.call(cbind, memberships)
+  if (n > 5000 || as.double(n) * length(radii) > 200000) cli::cli_abort("At most 5000 locations and 200000 candidate circles are supported.")
+  cand <- scan_candidates_cpp(as.double(a), as.double(b), as.double(pop), as.double(sort(radii)), max_fraction)
+  m <- length(cand$center)
+  if (!m) cli::cli_abort("No eligible circles. Adjust {.arg radii} or {.arg max_fraction}.")
   total <- sum(count)
-  expected <- total * fractions
-  scan_scores <- function(z) {
-    inside <- as.numeric(crossprod(M, z))
-    outside <- total - inside
-    scores <- numeric(length(inside))
-    ok <- inside > expected
-    scores[ok] <- inside[ok] * log(inside[ok] / expected[ok])
-    valid <- ok & outside > 0
-    scores[valid] <- scores[valid] + outside[valid] * log(outside[valid] / (total - expected[valid]))
-    scores
-  }
-  scores <- scan_scores(count)
-  best <- which.max(scores)
-  obs <- as.numeric(crossprod(M[, best], count))
+  total_pop <- sum(pop)
+  expected <- total * cand$fraction
+  scan_res <- scan_scores_cpp(cand$ptr, cand$idx, expected, 1L, matrix(as.double(count), ncol = 1), total)
+  best <- which.max(scan_res$score)
+  obs <- scan_res$observed[best]
   outside <- total - obs
-  inside_pop <- total_pop * fractions[best]
+  inside_pop <- total_pop * cand$fraction[best]
   rr <- if (outside == 0) Inf else (obs / inside_pop) / (outside / (total_pop - inside_pop))
   p <- NA_real_
   if (nsim > 0) {
-    more <- 0
-    for (j in seq_len(nsim)) {
-      sim <- as.numeric(stats::rmultinom(1, size = total, prob = pop))
-      if (max(scan_scores(sim)) >= scores[best] - 1e-12) more <- more + 1L
-    }
-    p <- (more + 1) / (nsim + 1)
+    maxima <- scan_simulate_max(cand, expected, 1L, n, 1L, total, pop, nsim)
+    p <- (sum(maxima >= scan_res$score[best] - 1e-12) + 1) / (nsim + 1)
   }
-  tibble::tibble(center_x = a[centers[best]], center_y = b[centers[best]], radius = candidate_radii[best], observed = obs, expected = expected[best], population = inside_pop, relative_risk = rr, log_likelihood_ratio = scores[best], p_value = p, simulations = as.integer(nsim), candidates = ncol(M))
+  tibble::tibble(center_x = a[cand$center[best]], center_y = b[cand$center[best]], radius = cand$radius[best], observed = obs, expected = expected[best], population = inside_pop, relative_risk = rr, log_likelihood_ratio = scan_res$score[best], p_value = p, simulations = as.integer(nsim), candidates = m)
+}
+
+# Draw multinomial null datasets in batches (the same random stream as one
+# rmultinom() call per simulation) and score each with the compiled kernel.
+scan_simulate_max <- function(cand, expected, windows, n, n_times, total, pop, nsim) {
+  prob <- rep(pop, n_times)
+  batch <- max(1L, min(as.integer(nsim), floor(2e7 / (n * n_times))))
+  out <- numeric(0)
+  done <- 0L
+  while (done < nsim) {
+    b <- min(batch, nsim - done)
+    sims <- stats::rmultinom(b, size = total, prob = prob)
+    storage.mode(sims) <- "double"
+    out <- c(out, scan_sim_max_cpp(cand$ptr, cand$idx, expected, as.integer(windows), as.integer(n), as.integer(n_times), sims, total))
+    done <- done + b
+  }
+  out
 }

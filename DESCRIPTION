@@ -11,8 +11,9 @@ BugReports: https://github.com/jmozez/tidyepidemio/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
-Imports: cli, dplyr, ggplot2, rlang, tibble, vctrs, recipes,
+Imports: Rcpp, cli, dplyr, ggplot2, rlang, tibble, vctrs, recipes,
     rsample, yardstick, generics, parsnip, tidyselect, stats, utils, survival, splines, MASS
+LinkingTo: Rcpp
 Suggests: testthat (>= 3.0.0), roxygen2, knitr, broom, hardhat
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)

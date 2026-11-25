@@ -1,0 +1,4 @@
+"task","r_seconds","cpp_seconds","speedup"
+"Spatial scan (400 locations, 3 radii, 999 simulations)",2.45,0.15,16.3
+"Space-time scan (60 locations x 12 weeks, 199 simulations)",0.200000000000001,0.0300000000000011,6.7
+"Moving-window screen (20,000 days)",0.19,0.0300000000000011,6.3

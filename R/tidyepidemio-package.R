@@ -11,6 +11,8 @@
 #' @importFrom dplyr dplyr_reconstruct dplyr_row_slice dplyr_col_modify group_by ungroup select group_modify rename rename_with relocate
 #' @importFrom vctrs vec_restore vec_ptype2 vec_cast
 #' @importFrom splines ns
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib tidyepidemio, .registration = TRUE
 "_PACKAGE"
 
 # Data columns referenced inside model formulas.

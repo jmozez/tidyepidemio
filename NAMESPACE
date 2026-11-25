@@ -117,6 +117,7 @@ export(step_epi_rolling)
 export(wis)
 export(wis_metric)
 export(wis_vec)
+importFrom(Rcpp,sourceCpp)
 importFrom(dplyr,
   dplyr_col_modify,
   dplyr_reconstruct,
@@ -151,3 +152,4 @@ importFrom(yardstick,
   new_numeric_metric,
   new_prob_metric
 )
+useDynLib(tidyepidemio, .registration = TRUE)
