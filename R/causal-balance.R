@@ -34,12 +34,18 @@ epi_balance <- function(.data, exposure, covariates, weights = NULL) {
   en <- names(tidyselect::eval_select(eq, .data, allow_rename = FALSE))
   if (length(en) != 1L) cli::cli_abort("Select exactly one exposure column.")
   e <- check_binary(.data[[en]], "exposure")
-  if (sum(e == 0) < 2 || sum(e == 1) < 2) cli::cli_abort("Each exposure group must have at least two observations.")
+  if (sum(e == 0) < 2 || sum(e == 1) < 2) {
+    cli::cli_abort("Each exposure group must have at least two observations.")
+  }
   cols <- names(tidyselect::eval_select(cq, .data, allow_rename = FALSE))
-  if (!length(cols) || en %in% cols) cli::cli_abort("Select at least one covariate, excluding exposure.")
+  if (!length(cols) || en %in% cols) {
+    cli::cli_abort("Select at least one covariate, excluding exposure.")
+  }
   w <- if (rlang::quo_is_null(wq)) rep(1, length(e)) else column(.data, wq, "weights")
   check_nonnegative(w, "weights")
-  if (max(w[e == 0]) <= 0 || max(w[e == 1]) <= 0) cli::cli_abort("Both exposure groups must have positive total weight.")
+  if (max(w[e == 0]) <= 0 || max(w[e == 1]) <= 0) {
+    cli::cli_abort("Both exposure groups must have positive total weight.")
+  }
   w0 <- w[e == 0] / max(w[e == 0])
   w1 <- w[e == 1] / max(w[e == 1])
   pieces <- list()
@@ -59,18 +65,38 @@ epi_balance <- function(.data, exposure, covariates, weights = NULL) {
       s0 <- (m1 - m0) / ref
       s1 <- (wm1 - wm0) / ref
     }
-    tibble::tibble(covariate = nm, level = level, mean_unexposed = m0, mean_exposed = m1, weighted_mean_unexposed = wm0, weighted_mean_exposed = wm1, reference_sd = ref, smd_unweighted = s0, smd_weighted = s1)
+    tibble::tibble(
+      covariate = nm,
+      level = level,
+      mean_unexposed = m0,
+      mean_exposed = m1,
+      weighted_mean_unexposed = wm0,
+      weighted_mean_exposed = wm1,
+      reference_sd = ref,
+      smd_unweighted = s0,
+      smd_weighted = s1
+    )
   }
   for (nm in cols) {
     v <- .data[[nm]]
-    if (anyNA(v) || !(is.numeric(v) || is.factor(v) || is.logical(v)) || (is.numeric(v) && any(!is.finite(v)))) cli::cli_abort("Covariate {.field {nm}} must be complete, numeric, factor or logical.")
+    if (anyNA(v) ||
+      !(is.numeric(v) || is.factor(v) || is.logical(v)) ||
+      (is.numeric(v) && any(!is.finite(v)))) {
+      cli::cli_abort("Covariate {.field {nm}} must be complete, numeric, factor or logical.")
+    }
     if (is.factor(v) || is.logical(v)) {
       levels_seen <- if (is.factor(v)) levels(droplevels(v)) else as.character(sort(unique(v)))
-      for (lv in levels_seen) pieces[[length(pieces) + 1L]] <- make_row(as.numeric(as.character(v) == lv), nm, lv)
+      for (lv in levels_seen) {
+        pieces[[length(pieces) + 1L]] <- make_row(as.numeric(as.character(v) == lv), nm, lv)
+      }
     } else {
       pieces[[length(pieces) + 1L]] <- make_row(as.numeric(v), nm, NA_character_)
     }
   }
-  if (missing_sd) cli::cli_warn("Some reference standard deviations are zero or non-finite; corresponding SMDs are undefined.")
+  if (missing_sd) {
+    cli::cli_warn(
+      "Some reference standard deviations are zero or non-finite; corresponding SMDs are undefined."
+    )
+  }
   dplyr::bind_rows(pieces)
 }

@@ -9,7 +9,11 @@ test_that("empirical AUC matches independent pairwise concordance with ties", {
     pair <- outer(cases, controls, "-")
     truth <- mean((pair > 0) + .5 * (pair == 0))
     expect_equal(epi_roc_curve(d, y, score)$auc[1], truth, tolerance = 1e-12)
-    expect_equal(epi_roc_curve(d, y, score, direction = "lower")$auc[1], 1 - truth, tolerance = 1e-12)
+    expect_equal(
+      epi_roc_curve(d, y, score, direction = "lower")$auc[1],
+      1 - truth,
+      tolerance = 1e-12
+    )
   }
 })
 test_that("survival RMST agrees with survival package over varied tied data", {
@@ -26,7 +30,14 @@ test_that("compartment simulations preserve population and seeded reproducibilit
   initial <- data.frame(S = 975, E = 10, I = 10, R = 5)
   for (model in c("sir", "seir")) {
     for (stochastic in c(FALSE, TRUE)) {
-      pars <- list(.data = initial, beta = .4, gamma = .1, steps = 20, model = model, stochastic = stochastic)
+      pars <- list(
+        .data = initial,
+        beta = 0.4,
+        gamma = 0.1,
+        steps = 20,
+        model = model,
+        stochastic = stochastic
+      )
       if (model == "seir") pars$sigma <- .2
       set.seed(7303)
       x <- do.call(epi_simulate, pars)

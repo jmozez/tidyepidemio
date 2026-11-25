@@ -6,7 +6,9 @@ test_that("rolling and blocked resampling produce valid splits", {
   set.seed(1)
   s <- epi_spatial_cv(d, block, v = 2)
   expect_equal(nrow(s), 2)
-  for (sp in s$splits) expect_length(intersect(rsample::analysis(sp)$block, rsample::assessment(sp)$block), 0)
+  for (sp in s$splits) {
+    expect_length(intersect(rsample::analysis(sp)$block, rsample::assessment(sp)$block), 0)
+  }
   expect_error(epi_spatial_cv(d, block, v = 5), "number of blocks")
 })
 test_that("spatial buffer excludes nearby training observations", {

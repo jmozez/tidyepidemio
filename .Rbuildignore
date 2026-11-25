@@ -6,8 +6,10 @@
 ^\.git$
 ^\.github$
 ^\.gitignore$
+^\.lintr$
 ^_archive$
 ^_pkgdown\.yml$
 ^data-raw$
 ^docs$
 ^pkgdown$
+^vignettes/articles$

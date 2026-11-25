@@ -14,5 +14,8 @@ test_that("indirect intervals use exact Poisson limits on observed/expected", {
   ref <- stats::poisson.test(3, T = 2)
   expect_equal(z$estimate, 1.5)
   expect_equal(c(z$conf_low, z$conf_high), as.numeric(ref$conf.int))
-  expect_error(epi_standardize_ci(data.frame(e = 1, n = 100, s = 0), e, n, s, method = "indirect"), "Expected")
+  expect_error(
+    epi_standardize_ci(data.frame(e = 1, n = 100, s = 0), e, n, s, method = "indirect"),
+    "Expected"
+  )
 })

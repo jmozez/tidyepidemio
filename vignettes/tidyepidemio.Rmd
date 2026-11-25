@@ -1,0 +1,81 @@
+---
+title: "Get started with tidyepidemio"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with tidyepidemio}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", dev.args = list(bg = "white"),
+                      fig.width = 7, fig.height = 3.8, out.width = "100%")
+```
+
+tidyepidemio follows one rule: **a data frame goes in, a tibble comes out**.
+Columns are named without quotes, as in dplyr, and every result can be
+filtered, joined, plotted or tabulated like any other data.
+
+```{r}
+library(tidyepidemio)
+library(ggplot2)
+```
+
+## 1. A measure of association
+
+Does smoking in pregnancy raise the risk of low birth weight? The `birthwt`
+data (Hosmer and Lemeshow) record 189 births at Baystate Medical Center,
+Springfield, Massachusetts, in 1986.
+
+```{r}
+bw <- MASS::birthwt
+epi_risk_ratio(bw, smoke, low)
+epi_odds_ratio(bw, smoke, low)
+```
+
+Race confounds this association, so pool across race strata with
+Mantel-Haenszel and check whether the odds ratios differ between strata:
+
+```{r}
+epi_mantel_haenszel(bw, smoke, low, race)
+```
+
+The Breslow-Day test gives no evidence that the effect differs by race.
+
+## 2. Adjusting for several covariates
+
+```{r}
+bw$race <- factor(bw$race, labels = c("white", "black", "other"))
+epi_adjusted_odds_ratio(bw, smoke, low, adjust = c(age, lwt, race))
+```
+
+The same call accepts `weights`, `robust = "HC1"`, `cluster`, an effect
+`modifier` and spline terms through `nonlinear`.
+
+## 3. An outbreak
+
+The 1978 boarding-school influenza outbreak is the textbook SIR example:
+
+```{r}
+flu <- transform(flu_boarding_school_1978, day = 0:13)
+fit <- epi_fit_compartmental(flu, day, in_bed, population = 763, gamma = 0.5)
+generics::tidy(fit)
+
+ggplot(generics::augment(fit), aes(day)) +
+  geom_point(aes(y = in_bed)) +
+  geom_line(aes(y = .fitted), colour = "#B03A2E") +
+  labs(x = "Day", y = "Pupils confined to bed") +
+  theme_minimal()
+```
+
+## Where next
+
+The articles on the package website work through complete analyses on real
+data:
+
+- *COVID-19 outbreak analysis*: epidemic curves, growth, R<sub>t</sub> and
+  forecasting for New Zealand's first wave.
+- *Cluster detection and surveillance*: SIDS clusters in North Carolina,
+  COVID-19 across New York State and seasonal mortality screening.
+- *Cohort and clinical epidemiology*: the British Doctors Study, competing
+  risks in MGUS and a diabetes risk model.

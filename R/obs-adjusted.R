@@ -60,13 +60,28 @@ epi_adjusted_odds_ratio <- function(.data, exposure, outcome, adjust = c(), conf
   aq <- rlang::enquo(adjust)
   ename <- names(tidyselect::eval_select(eq, .data, allow_rename = FALSE))
   oname <- names(tidyselect::eval_select(oq, .data, allow_rename = FALSE))
-  if (length(ename) != 1 || length(oname) != 1 || identical(ename, oname)) cli::cli_abort("Select distinct single exposure and outcome columns.")
+  if (length(ename) != 1 || length(oname) != 1 || identical(ename, oname)) {
+    cli::cli_abort("Select distinct single exposure and outcome columns.")
+  }
   e <- check_binary(.data[[ename]], "exposure")
   y <- check_binary(.data[[oname]], "outcome")
-  if (length(e) < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) cli::cli_abort("Both exposure and outcome levels and at least four records are required.")
+  if (length(e) < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) {
+    cli::cli_abort("Both exposure and outcome levels and at least four records are required.")
+  }
   selected <- names(tidyselect::eval_select(aq, .data, allow_rename = FALSE))
-  if (any(selected %in% c(ename, oname))) cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
-  separation <- function(fit, mu) if (any(mu < 1e-8 | mu > 1 - 1e-8)) cli::cli_warn("Possible separation or sparse data; Wald estimates and intervals may be unreliable.")
+  if (any(selected %in% c(ename, oname))) {
+    cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
+  }
+  separation <- function(
+    fit,
+    mu
+  ) {
+    if (any(mu < 1e-08 | mu > 1 - 1e-08)) {
+      cli::cli_warn(
+        "Possible separation or sparse data; Wald estimates and intervals may be unreliable."
+      )
+    }
+  }
   adjusted_glm(.data, y, e, selected, c(ename, oname), stats::binomial(), "adjusted_odds_ratio", conf_level,
     rlang::enquo(weights), rlang::enquo(cluster), rlang::enquo(modifier), rlang::enquo(nonlinear), robust,
     extra = list(n = length(y)), check_fit = separation

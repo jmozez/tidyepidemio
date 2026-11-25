@@ -14,7 +14,8 @@ Depends: R (>= 4.1.0)
 Imports: Rcpp, cli, dplyr, ggplot2, rlang, tibble, vctrs, recipes,
     rsample, yardstick, generics, parsnip, tidyselect, stats, utils, survival, splines, MASS
 LinkingTo: Rcpp
-Suggests: testthat (>= 3.0.0), roxygen2, knitr, broom, hardhat
+Suggests: testthat (>= 3.0.0), roxygen2, knitr, rmarkdown, broom, hardhat
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1

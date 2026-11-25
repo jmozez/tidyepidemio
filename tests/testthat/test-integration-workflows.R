@@ -11,7 +11,10 @@ test_that("cohort data flow consistently from follow-up to survival and effects"
   risk <- epi_survival_risk(follow, follow_up, event_observed, horizons = c(2, 5))
   km <- epi_kaplan_meier(follow, follow_up, event_observed)
   expect_equal(risk$risk, 1 - km$estimate[match(c(2, 5), km$time)])
-  expect_equal(generics::tidy(epi_risk_ratio(follow, exposed, event_observed))$measure, "risk_ratio")
+  expect_equal(
+    generics::tidy(epi_risk_ratio(follow, exposed, event_observed))$measure,
+    "risk_ratio"
+  )
 })
 test_that("rolling splits connect recipe history, parsnip and forecast metrics", {
   d <- data.frame(time = 1:8, cases = c(1, 2, 4, 8, 16, 32, 64, 128))
@@ -33,8 +36,21 @@ test_that("rolling splits connect recipe history, parsnip and forecast metrics",
   expect_equal(point, c(64, 128))
   expect_equal(generics::glance(fit$fit)$nobs, 6)
   set.seed(13)
-  simulated <- epi_renewal_forecast(train, cases, weights = 1, horizon = 2, rt = fit$fit$estimate, nsim = 200, conf_level = .9)
-  evaluated <- data.frame(observed = test$cases, median = simulated$median, low = simulated$lower, high = simulated$upper)
+  simulated <- epi_renewal_forecast(
+    train,
+    cases,
+    weights = 1,
+    horizon = 2,
+    rt = fit$fit$estimate,
+    nsim = 200,
+    conf_level = 0.9
+  )
+  evaluated <- data.frame(
+    observed = test$cases,
+    median = simulated$median,
+    low = simulated$lower,
+    high = simulated$upper
+  )
   m <- wis_metric(evaluated, low, high, alpha = .1)
   result <- yardstick::metric_set(yardstick::rmse, m)(evaluated, truth = observed, estimate = median)
   expect_equal(result$.metric, c("rmse", "wis"))

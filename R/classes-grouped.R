@@ -13,9 +13,23 @@ epi_group_wrap <- function(x, template) {
 }
 
 #' @export
-group_by.epi_tbl <- function(.data, ..., .add = FALSE, .drop = dplyr::group_by_drop_default(.data)) epi_group_wrap(NextMethod(), .data)
+group_by.epi_tbl <- function(
+  .data,
+  ...,
+  .add = FALSE,
+  .drop = dplyr::group_by_drop_default(.data)
+) {
+  epi_group_wrap(NextMethod(), .data)
+}
 #' @export
-group_by.grouped_epi_tbl <- function(.data, ..., .add = FALSE, .drop = dplyr::group_by_drop_default(.data)) epi_group_wrap(NextMethod(), .data)
+group_by.grouped_epi_tbl <- function(
+  .data,
+  ...,
+  .add = FALSE,
+  .drop = dplyr::group_by_drop_default(.data)
+) {
+  epi_group_wrap(NextMethod(), .data)
+}
 #' @export
 ungroup.grouped_epi_tbl <- function(x, ...) epi_group_wrap(NextMethod(), x)
 #' @export
@@ -34,14 +48,22 @@ select.grouped_epi_tbl <- function(.data, ...) epi_group_wrap(NextMethod(), .dat
 #' @export
 vec_restore.grouped_epi_tbl <- function(x, to, ...) {
   vars <- intersect(dplyr::group_vars(to), names(x))
-  out <- dplyr::group_by(tibble::as_tibble(x), !!!rlang::syms(vars), .drop = dplyr::group_by_drop_default(to))
+  out <- dplyr::group_by(
+    tibble::as_tibble(x),
+    !!!rlang::syms(vars),
+    .drop = dplyr::group_by_drop_default(to)
+  )
   epi_group_wrap(out, to)
 }
 #' @export
 group_modify.grouped_epi_tbl <- function(.data, .f, ..., .keep = FALSE) {
   # A group callback can return arbitrary summaries; its output is not safely
   # asserted to represent the original individual-level epidemiological class.
-  plain <- dplyr::group_by(tibble::as_tibble(.data), !!!rlang::syms(dplyr::group_vars(.data)), .drop = dplyr::group_by_drop_default(.data))
+  plain <- dplyr::group_by(
+    tibble::as_tibble(.data),
+    !!!rlang::syms(dplyr::group_vars(.data)),
+    .drop = dplyr::group_by_drop_default(.data)
+  )
   dplyr::group_modify(plain, .f, ..., .keep = .keep)
 }
 
@@ -53,7 +75,11 @@ epi_group_compatible <- function(x, y) {
     identical(dplyr::group_by_drop_default(x), dplyr::group_by_drop_default(y))
 }
 epi_group_assert_compatible <- function(x, y) {
-  if (!epi_group_compatible(x, y)) cli::cli_abort("Cannot combine grouped epidemiological tables with different classes, metadata or grouping. Harmonize them explicitly first.")
+  if (!epi_group_compatible(x, y)) {
+    cli::cli_abort(
+      "Cannot combine grouped epidemiological tables with different classes, metadata or grouping. Harmonize them explicitly first." # nolint: line_length_linter.
+    )
+  }
 }
 epi_group_ptype2 <- function(x, y, ...) {
   epi_group_assert_compatible(x, y)
@@ -61,17 +87,27 @@ epi_group_ptype2 <- function(x, y, ...) {
   a <- new_epi(tibble::as_tibble(x), attr(x, "epi_metadata"), cls)
   b <- new_epi(tibble::as_tibble(y), attr(y, "epi_metadata"), cls)
   out <- vctrs::vec_ptype2(a, b)
-  grouped <- dplyr::group_by(tibble::as_tibble(out), !!!rlang::syms(dplyr::group_vars(x)), .drop = dplyr::group_by_drop_default(x))
+  grouped <- dplyr::group_by(
+    tibble::as_tibble(out),
+    !!!rlang::syms(dplyr::group_vars(x)),
+    .drop = dplyr::group_by_drop_default(x)
+  )
   epi_group_wrap(grouped, x)
 }
 epi_group_cast <- function(x, to, ...) {
   epi_group_assert_compatible(x, to)
   out <- vctrs::vec_cast(tibble::as_tibble(x), tibble::as_tibble(to))
-  grouped <- dplyr::group_by(out, !!!rlang::syms(dplyr::group_vars(to)), .drop = dplyr::group_by_drop_default(to))
+  grouped <- dplyr::group_by(
+    out,
+    !!!rlang::syms(dplyr::group_vars(to)),
+    .drop = dplyr::group_by_drop_default(to)
+  )
   epi_group_wrap(grouped, to)
 }
 epi_group_reject_mixed <- function(x, y, ...) {
-  cli::cli_abort("Cannot combine grouped epidemiological tables with plain or ungrouped tables. Explicitly harmonize class, metadata and grouping first.")
+  cli::cli_abort(
+    "Cannot combine grouped epidemiological tables with plain or ungrouped tables. Explicitly harmonize class, metadata and grouping first." # nolint: line_length_linter.
+  )
 }
 #' @export
 rename.grouped_epi_tbl <- function(.data, ...) epi_group_wrap(NextMethod(), .data)
@@ -86,7 +122,16 @@ rename_with.grouped_epi_tbl <- function(.data, .fn, .cols = tidyselect::everythi
 }
 #' @export
 relocate.grouped_epi_tbl <- function(.data, ..., .before = NULL, .after = NULL) {
-  out <- dplyr::relocate(tibble::as_tibble(.data), ..., .before = {{ .before }}, .after = {{ .after }})
-  out <- dplyr::group_by(out, !!!rlang::syms(dplyr::group_vars(.data)), .drop = dplyr::group_by_drop_default(.data))
+  out <- dplyr::relocate(
+    tibble::as_tibble(.data),
+    ...,
+    .before = {{ .before }},
+    .after = {{ .after }}
+  )
+  out <- dplyr::group_by(
+    out,
+    !!!rlang::syms(dplyr::group_vars(.data)),
+    .drop = dplyr::group_by_drop_default(.data)
+  )
   epi_group_wrap(out, .data)
 }

@@ -53,6 +53,19 @@ epi_diagnostic_ci <- function(.data, test, truth, method = c("wilson", "exact"),
       }
     }
   }
-  if (any(den == 0)) cli::cli_warn("Some diagnostic denominators are zero; their estimates and intervals are missing.")
-  tibble::tibble(metric = c("sensitivity", "specificity", "ppv", "npv"), numerator = num, denominator = den, estimate = p, conf_low = lo, conf_high = hi, conf_level = conf_level, method = method)
+  if (any(den == 0)) {
+    cli::cli_warn(
+      "Some diagnostic denominators are zero; their estimates and intervals are missing."
+    )
+  }
+  tibble::tibble(
+    metric = c("sensitivity", "specificity", "ppv", "npv"),
+    numerator = num,
+    denominator = den,
+    estimate = p,
+    conf_low = lo,
+    conf_high = hi,
+    conf_level = conf_level,
+    method = method
+  )
 }

@@ -12,7 +12,15 @@ test_that("SIR and SEIR simulations conserve population", {
     for (stochastic in c(FALSE, TRUE)) {
       set.seed(1)
       d <- data.frame(S = 990, E = 5, I = 5, R = 0)
-      z <- epi_simulate(d, beta = .3, gamma = .1, sigma = .2, steps = 10, model = model, stochastic = stochastic)
+      z <- epi_simulate(
+        d,
+        beta = 0.3,
+        gamma = 0.1,
+        sigma = 0.2,
+        steps = 10,
+        model = model,
+        stochastic = stochastic
+      )
       cols <- intersect(c("S", "E", "I", "R"), names(z))
       expect_equal(rowSums(z[cols]), rep(sum(unlist(d[cols])), 11), tolerance = 1e-10)
       expect_true(all(as.matrix(z[cols]) >= 0))

@@ -31,12 +31,24 @@ epi_auc_ci <- function(.data, truth, score, direction = c("higher", "lower"), bo
   direction <- match.arg(direction)
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
   s <- column(.data, rlang::enquo(score), "score")
-  if (!is.numeric(s) || anyNA(s) || any(!is.finite(s))) cli::cli_abort("{.arg score} must be finite numeric without missing values.")
+  if (!is.numeric(s) || anyNA(s) || any(!is.finite(s))) {
+    cli::cli_abort("{.arg score} must be finite numeric without missing values.")
+  }
   n1 <- sum(y == 1)
   n0 <- sum(y == 0)
   if (n1 < 2 || n0 < 2) cli::cli_abort("At least two cases and two controls are required.")
-  if (!is.numeric(bootstrap) || length(bootstrap) != 1 || is.na(bootstrap) || !is.finite(bootstrap) || bootstrap != floor(bootstrap) || bootstrap < 100 || bootstrap > 2000) cli::cli_abort("{.arg bootstrap} must be an integer between 100 and 2000.")
-  if (as.double(length(y)) * bootstrap > 5000000) cli::cli_abort("At most 5 million resampled records are supported.")
+  if (!is.numeric(bootstrap) ||
+    length(bootstrap) != 1 ||
+    is.na(bootstrap) ||
+    !is.finite(bootstrap) ||
+    bootstrap != floor(bootstrap) ||
+    bootstrap < 100 ||
+    bootstrap > 2000) {
+    cli::cli_abort("{.arg bootstrap} must be an integer between 100 and 2000.")
+  }
+  if (as.double(length(y)) * bootstrap > 5e+06) {
+    cli::cli_abort("At most 5 million resampled records are supported.")
+  }
   if (direction == "lower") s <- -s
   controls <- s[y == 0]
   cases <- s[y == 1]
@@ -47,8 +59,18 @@ epi_auc_ci <- function(.data, truth, score, direction = c("higher", "lower"), bo
   }
   estimate <- auc(cases, controls)
   draws <- numeric(bootstrap)
-  for (i in seq_len(bootstrap)) draws[i] <- auc(cases[sample.int(n1, n1, replace = TRUE)], controls[sample.int(n0, n0, replace = TRUE)])
+  for (i in seq_len(bootstrap)) {
+    draws[i] <- auc(cases[sample.int(n1, n1, replace = TRUE)], controls[sample.int(n0, n0, replace = TRUE)])
+  }
   alpha <- 1 - conf_level
   bounds <- stats::quantile(draws, probs = c(alpha / 2, 1 - alpha / 2), names = FALSE)
-  tibble::tibble(estimate = estimate, conf_low = bounds[1], conf_high = bounds[2], cases = n1, controls = n0, conf_level = conf_level, bootstrap = as.integer(bootstrap))
+  tibble::tibble(
+    estimate = estimate,
+    conf_low = bounds[1],
+    conf_high = bounds[2],
+    cases = n1,
+    controls = n0,
+    conf_level = conf_level,
+    bootstrap = as.integer(bootstrap)
+  )
 }

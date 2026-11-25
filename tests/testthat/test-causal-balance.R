@@ -1,5 +1,10 @@
 test_that("balance uses a fixed unweighted reference denominator", {
-  d <- data.frame(e = c(0, 0, 1, 1), age = c(20, 30, 30, 40), w = c(1, 2, 2, 1), sex = factor(c("f", "m", "f", "m")))
+  d <- data.frame(
+    e = c(0, 0, 1, 1),
+    age = c(20, 30, 30, 40),
+    w = c(1, 2, 2, 1),
+    sex = factor(c("f", "m", "f", "m"))
+  )
   z <- epi_balance(d, e, c(age, sex), weights = w)
   a <- z[z$covariate == "age", ]
   expect_equal(a$reference_sd, sqrt((var(c(20, 30)) + var(c(30, 40))) / 2))

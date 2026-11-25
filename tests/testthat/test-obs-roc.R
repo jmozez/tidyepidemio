@@ -7,7 +7,10 @@ test_that("empirical ROC has correct tied threshold groups and AUC", {
   expect_equal(z$auc, rep(.875, 4))
   expect_true(is.na(z$ppv[1]))
   expect_true(is.na(z$npv[4]))
-  ref <- yardstick::roc_auc_vec(factor(ifelse(d$y == 1, "case", "control"), levels = c("case", "control")), d$s)
+  ref <- yardstick::roc_auc_vec(
+    factor(ifelse(d$y == 1, "case", "control"), levels = c("case", "control")),
+    d$s
+  )
   expect_equal(z$auc[1], ref)
   expect_s3_class(epi_plot_roc(z), "ggplot")
   expect_no_error(ggplot2::ggplot_build(epi_plot_roc(z)))

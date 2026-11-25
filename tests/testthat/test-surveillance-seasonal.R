@@ -7,9 +7,18 @@ test_that("seasonal baseline matches training-only Poisson fit", {
   expect_true(z$alert[1])
   expect_false(z$alert[2])
   changed <- transform(new, cases = c(1, 100))
-  expect_equal(epi_seasonal_surveillance(changed, t, cases, training = train, period = 4)$baseline_expected, z$baseline_expected)
-  expect_error(epi_seasonal_surveillance(new, t, cases, training = transform(train, t = t + 10), period = 4), "before")
-  expect_error(epi_seasonal_surveillance(new, t, cases, training = transform(train, cases = 0), period = 4), "at least one event")
+  expect_equal(
+    epi_seasonal_surveillance(changed, t, cases, training = train, period = 4)$baseline_expected,
+    z$baseline_expected
+  )
+  expect_error(
+    epi_seasonal_surveillance(new, t, cases, training = transform(train, t = t + 10), period = 4),
+    "before"
+  )
+  expect_error(
+    epi_seasonal_surveillance(new, t, cases, training = transform(train, cases = 0), period = 4),
+    "at least one event"
+  )
 })
 test_that("very small alpha uses stable Poisson upper-tail quantiles", {
   train <- data.frame(t = 1:40, cases = rep(c(4, 6, 8, 6), 10))

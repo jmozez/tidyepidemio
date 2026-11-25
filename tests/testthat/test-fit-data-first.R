@@ -21,5 +21,8 @@ test_that("non-syntactic names and tidy selection work; bad selections fail", {
   expect_error(epi_fit_renewal(d, tidyselect::everything(), `case count`), "exactly one")
   expect_error(epi_fit_renewal(d, `day number`, `day number`), "distinct")
   expect_error(fit_epi_renewal(`case count` ~ log(`day number`), d), "simple column")
-  expect_error(epi_fit_renewal(dplyr::group_by(d, `day number`), `day number`, `case count`), "Grouped")
+  expect_error(
+    epi_fit_renewal(dplyr::group_by(d, `day number`), `day number`, `case count`),
+    "Grouped"
+  )
 })

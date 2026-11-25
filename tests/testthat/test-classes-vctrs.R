@@ -13,7 +13,10 @@ test_that("combining incompatible metadata is rejected", {
   expect_error(vctrs::vec_rbind(a, b), "different classes or metadata")
   expect_error(dplyr::bind_rows(a, b), "different classes or metadata")
   expect_s3_class(vctrs::vec_rbind(a, a), "epi_linelist")
-  expect_error(vctrs::vec_rbind(a, epi_cohort(data.frame(x = 1), metadata = list(source = "a"))), "different classes or metadata")
+  expect_error(
+    vctrs::vec_rbind(a, epi_cohort(data.frame(x = 1), metadata = list(source = "a"))),
+    "different classes or metadata"
+  )
 })
 
 test_that("plain data cannot silently inherit epidemiological provenance", {
@@ -30,10 +33,13 @@ test_that("plain data cannot silently inherit epidemiological provenance", {
 })
 test_that("metadata and common dplyr operations follow their contract", {
   x <- epi_cohort(data.frame(id = 1:3, grp = c(1, 1, 2)), metadata = list(source = "A"))
-  for (z in list(dplyr::filter(x, id > 1), dplyr::select(x, id), dplyr::arrange(x, dplyr::desc(id)), dplyr::left_join(x, data.frame(id = 1:3, w = 1), by = "id"))) {
+  for (z in list(dplyr::filter(x, id > 1), dplyr::select(x, id), dplyr::arrange(x, dplyr::desc(id)), dplyr::left_join(x, data.frame(id = 1:3, w = 1), by = "id"))) { # nolint: line_length_linter.
     expect_s3_class(z, "epi_cohort")
     expect_identical(attr(z, "epi_metadata"), list(source = "A"))
   }
-  expect_error(epi_cohort(data.frame(id = 1), metadata = structure(list(1), names = NA_character_)), "metadata")
+  expect_error(
+    epi_cohort(data.frame(id = 1), metadata = structure(list(1), names = NA_character_)),
+    "metadata"
+  )
   expect_error(epi_cohort(data.frame(id = 1), metadata = list(a = 1, a = 2)), "metadata")
 })

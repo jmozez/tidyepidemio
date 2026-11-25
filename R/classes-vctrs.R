@@ -26,16 +26,26 @@ epi_cohort <- function(.data, metadata = list()) new_epi(.data, metadata, "epi_c
 epi_ts <- function(.data, metadata = list()) new_epi(.data, metadata, "epi_ts")
 new_epi <- function(.data, metadata, cls) {
   check_data(.data)
-  if (!is.list(metadata) || (length(metadata) && (is.null(names(metadata)) || anyNA(names(metadata)) || any(names(metadata) == "") || anyDuplicated(names(metadata))))) {
+  if (!is.list(metadata) || (length(metadata) && (is.null(names(metadata)) || anyNA(names(metadata)) || any(names(metadata) == "") || anyDuplicated(names(metadata))))) { # nolint: line_length_linter.
     cli::cli_abort("{.arg metadata} must be a list with unique, non-missing, non-empty names.")
   }
   x <- tibble::as_tibble(.data)
-  vctrs::new_data_frame(x, n = nrow(x), class = c(cls, "epi_tbl", "tbl_df", "tbl"), epi_metadata = metadata)
+  vctrs::new_data_frame(
+    x,
+    n = nrow(x),
+    class = c(cls, "epi_tbl", "tbl_df", "tbl"),
+    epi_metadata = metadata
+  )
 }
 #' @export
 vec_restore.epi_tbl <- function(x, to, ...) {
   x <- tibble::as_tibble(x)
-  vctrs::new_data_frame(x, n = nrow(x), class = class(to)[class(to) != "data.frame"], epi_metadata = attr(to, "epi_metadata"))
+  vctrs::new_data_frame(
+    x,
+    n = nrow(x),
+    class = class(to)[class(to) != "data.frame"],
+    epi_metadata = attr(to, "epi_metadata")
+  )
 }
 #' @export
 dplyr_reconstruct.epi_tbl <- function(data, template) vctrs::vec_restore(data, template)
@@ -43,13 +53,21 @@ dplyr_reconstruct.epi_tbl <- function(data, template) vctrs::vec_restore(data, t
 # silently inherit the first object's metadata.
 #' @export
 vec_ptype2.epi_tbl.epi_tbl <- function(x, y, ...) {
-  if (!identical(class(x)[1], class(y)[1]) || !identical(attr(x, "epi_metadata"), attr(y, "epi_metadata"))) cli::cli_abort("Cannot combine epidemiological tables with different classes or metadata. Harmonize metadata explicitly first.")
+  if (!identical(class(x)[1], class(y)[1]) ||
+    !identical(attr(x, "epi_metadata"), attr(y, "epi_metadata"))) {
+    cli::cli_abort(
+      "Cannot combine epidemiological tables with different classes or metadata. Harmonize metadata explicitly first."
+    )
+  }
   result <- vctrs::vec_ptype2(tibble::as_tibble(x), tibble::as_tibble(y), ...)
   new_epi(result, attr(x, "epi_metadata"), class(x)[1])
 }
 #' @export
 vec_cast.epi_tbl.epi_tbl <- function(x, to, ...) {
-  if (!identical(class(x)[1], class(to)[1]) || !identical(attr(x, "epi_metadata"), attr(to, "epi_metadata"))) cli::cli_abort("Cannot cast epidemiological tables with different classes or metadata.")
+  if (!identical(class(x)[1], class(to)[1]) ||
+    !identical(attr(x, "epi_metadata"), attr(to, "epi_metadata"))) {
+    cli::cli_abort("Cannot cast epidemiological tables with different classes or metadata.")
+  }
   result <- vctrs::vec_cast(tibble::as_tibble(x), tibble::as_tibble(to), ...)
   new_epi(result, attr(to, "epi_metadata"), class(to)[1])
 }
@@ -57,5 +75,7 @@ vec_cast.epi_tbl.epi_tbl <- function(x, to, ...) {
 # Mixing raw tables into a provenance-bearing type without an explicit decision
 # would falsely attribute the raw records to the metadata of the first input.
 epi_reject_plain_combine <- function(x, y, ...) {
-  cli::cli_abort("Cannot combine or cast epidemiological tables with plain data frames. Assign class and harmonized metadata explicitly first.")
+  cli::cli_abort(
+    "Cannot combine or cast epidemiological tables with plain data frames. Assign class and harmonized metadata explicitly first." # nolint: line_length_linter.
+  )
 }

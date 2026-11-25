@@ -23,8 +23,17 @@ epi_predictive_values <- function(.data, test, truth, prevalence) {
   check_data(.data)
   t <- check_binary(column(.data, rlang::enquo(test), "test"), "test")
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
-  if (!length(y) || length(unique(y)) < 2) cli::cli_abort("Both diseased and non-diseased reference subjects are required.")
-  if (!is.numeric(prevalence) || !length(prevalence) || anyNA(prevalence) || any(!is.finite(prevalence)) || any(prevalence < 0 | prevalence > 1) || anyDuplicated(prevalence)) cli::cli_abort("{.arg prevalence} must contain distinct finite values between zero and one.")
+  if (!length(y) || length(unique(y)) < 2) {
+    cli::cli_abort("Both diseased and non-diseased reference subjects are required.")
+  }
+  if (!is.numeric(prevalence) ||
+    !length(prevalence) ||
+    anyNA(prevalence) ||
+    any(!is.finite(prevalence)) ||
+    any(prevalence < 0 | prevalence > 1) ||
+    anyDuplicated(prevalence)) {
+    cli::cli_abort("{.arg prevalence} must contain distinct finite values between zero and one.")
+  }
   sens <- mean(t[y == 1])
   spec <- mean(1 - t[y == 0])
   positive <- sens * prevalence + (1 - spec) * (1 - prevalence)
@@ -35,6 +44,16 @@ epi_predictive_values <- function(.data, test, truth, prevalence) {
   okn <- negative > 0
   ppv[okp] <- sens * prevalence[okp] / positive[okp]
   npv[okn] <- spec * (1 - prevalence[okn]) / negative[okn]
-  if (any(!okp) || any(!okn)) cli::cli_warn("A test-result probability is zero at some prevalence; the corresponding predictive value is undefined.")
-  tibble::tibble(prevalence = prevalence, sensitivity = sens, specificity = spec, ppv = ppv, npv = npv)
+  if (any(!okp) || any(!okn)) {
+    cli::cli_warn(
+      "A test-result probability is zero at some prevalence; the corresponding predictive value is undefined."
+    )
+  }
+  tibble::tibble(
+    prevalence = prevalence,
+    sensitivity = sens,
+    specificity = spec,
+    ppv = ppv,
+    npv = npv
+  )
 }

@@ -37,9 +37,30 @@ epi_fit_renewal <- function(.data, time, cases, weights = 1) {
 }
 #' @rdname epi_fit_renewal
 #' @export
-epi_fit_compartmental <- function(.data, time, infectious, population, gamma, beta_max = 10, model = c("sir", "seir"), sigma = NULL, initial_exposed = 0, initial_recovered = 0) {
+epi_fit_compartmental <- function(
+  .data,
+  time,
+  infectious,
+  population,
+  gamma,
+  beta_max = 10,
+  model = c("sir", "seir"),
+  sigma = NULL,
+  initial_exposed = 0,
+  initial_recovered = 0
+) {
   formula <- epi_selected_formula(.data, rlang::enquo(time), rlang::enquo(infectious))
-  fit_epi_compartmental(formula, data = .data, population = population, gamma = gamma, beta_max = beta_max, model = model, sigma = sigma, initial_exposed = initial_exposed, initial_recovered = initial_recovered)
+  fit_epi_compartmental(
+    formula,
+    data = .data,
+    population = population,
+    gamma = gamma,
+    beta_max = beta_max,
+    model = model,
+    sigma = sigma,
+    initial_exposed = initial_exposed,
+    initial_recovered = initial_recovered
+  )
 }
 epi_selected_formula <- function(.data, tq, yq) {
   check_data(.data)

@@ -41,9 +41,15 @@ epi_adjusted_rate_ratio <- function(.data, events, time, exposure, adjust = c(),
   e <- check_binary(.data[[en]], "exposure")
   check_nonnegative(y, "events")
   check_nonnegative(t, "time", positive = TRUE)
-  if (length(y) < 4 || any(y != floor(y)) || sum(y) == 0 || length(unique(e)) < 2) cli::cli_abort("At least four records, integer counts with at least one event, and both exposure levels are required.")
+  if (length(y) < 4 || any(y != floor(y)) || sum(y) == 0 || length(unique(e)) < 2) {
+    cli::cli_abort(
+      "At least four records, integer counts with at least one event, and both exposure levels are required."
+    )
+  }
   selected <- names(tidyselect::eval_select(rlang::enquo(adjust), .data, allow_rename = FALSE))
-  if (any(selected %in% used)) cli::cli_abort("Adjustment columns must exclude events, time and exposure.")
+  if (any(selected %in% used)) {
+    cli::cli_abort("Adjustment columns must exclude events, time and exposure.")
+  }
   adjusted_glm(.data, y, e, selected, used, stats::poisson(), "adjusted_rate_ratio", conf_level,
     rlang::enquo(weights), rlang::enquo(cluster), rlang::enquo(modifier), rlang::enquo(nonlinear), robust,
     offset = log(t), extra = list(n = length(y), events = sum(y))

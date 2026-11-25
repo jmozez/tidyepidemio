@@ -54,28 +54,79 @@ epi_spacetime_scan <- function(.data, x, y, cases, population, radii, windows = 
   b <- column(.data, rlang::enquo(y), "y")
   pop <- column(.data, rlang::enquo(population), "population")
   case_names <- names(tidyselect::eval_select(rlang::enquo(cases), .data, allow_rename = FALSE))
-  if (!length(case_names) || any(!vapply(.data[case_names], is.numeric, logical(1)))) cli::cli_abort("Select at least one numeric case-count column.")
+  if (!length(case_names) || any(!vapply(.data[case_names], is.numeric, logical(1)))) {
+    cli::cli_abort("Select at least one numeric case-count column.")
+  }
   counts <- as.matrix(.data[case_names])
   check_nonnegative(as.numeric(counts), "cases")
   check_nonnegative(pop, "population", positive = TRUE)
   check_nonnegative(radii, "radii", positive = TRUE)
   check_probability(max_fraction, "max_fraction")
-  if (!is.numeric(a) || !is.numeric(b) || anyNA(a) || anyNA(b) || any(!is.finite(a)) || any(!is.finite(b))) cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+  if (!is.numeric(a) ||
+    !is.numeric(b) ||
+    anyNA(a) ||
+    anyNA(b) ||
+    any(!is.finite(a)) ||
+    any(!is.finite(b))) {
+    cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+  }
   n <- nrow(.data)
   n_times <- ncol(counts)
   total <- sum(counts)
   total_pop <- sum(pop)
-  if (n < 2 || any(counts != floor(counts)) || total <= 0 || !is.finite(total) || total > .Machine$integer.max || !is.finite(total_pop)) cli::cli_abort("At least two locations and a positive total of integer cases within the integer limit are required; population must total finite.")
-  if (!length(radii) || anyDuplicated(radii)) cli::cli_abort("{.arg radii} must be a non-empty vector of distinct radii.")
+  if (n < 2 ||
+    any(counts != floor(counts)) ||
+    total <= 0 ||
+    !is.finite(total) ||
+    total > .Machine$integer.max ||
+    !is.finite(total_pop)) {
+    cli::cli_abort(
+      "At least two locations and a positive total of integer cases within the integer limit are required; population must total finite." # nolint: line_length_linter.
+    )
+  }
+  if (!length(radii) || anyDuplicated(radii)) {
+    cli::cli_abort("{.arg radii} must be a non-empty vector of distinct radii.")
+  }
   if (is.null(windows)) windows <- seq_len(n_times)
-  if (!is.numeric(windows) || !length(windows) || anyNA(windows) || any(!is.finite(windows)) || any(windows < 1 | windows > n_times | windows != floor(windows)) || anyDuplicated(windows)) cli::cli_abort("{.arg windows} must contain distinct integer lengths between 1 and the number of periods.")
-  if (length(nsim) != 1L || !is.numeric(nsim) || is.na(nsim) || !is.finite(nsim) || nsim < 0 || nsim != floor(nsim) || nsim > 10000) cli::cli_abort("{.arg nsim} must be an integer between 0 and 10000.")
-  if (n > 3000 || as.double(n) * length(radii) > 100000 || as.double(n) * n_times > 2000000) cli::cli_abort("At most 3000 locations, 100000 spatial circles, and 2 million location-time cells are supported.")
+  if (!is.numeric(windows) ||
+    !length(windows) ||
+    anyNA(windows) ||
+    any(!is.finite(windows)) ||
+    any(windows < 1 | windows > n_times | windows != floor(windows)) ||
+    anyDuplicated(windows)) {
+    cli::cli_abort(
+      "{.arg windows} must contain distinct integer lengths between 1 and the number of periods."
+    )
+  }
+  if (length(nsim) != 1L ||
+    !is.numeric(nsim) ||
+    is.na(nsim) ||
+    !is.finite(nsim) ||
+    nsim < 0 ||
+    nsim != floor(nsim) ||
+    nsim > 10000) {
+    cli::cli_abort("{.arg nsim} must be an integer between 0 and 10000.")
+  }
+  if (n > 3000 || as.double(n) * length(radii) > 1e+05 || as.double(n) * n_times > 2e+06) {
+    cli::cli_abort(
+      "At most 3000 locations, 100000 spatial circles, and 2 million location-time cells are supported."
+    )
+  }
   windows <- as.integer(sort(windows))
-  cand <- scan_candidates_cpp(as.double(a), as.double(b), as.double(pop), as.double(sort(radii)), max_fraction)
+  cand <- scan_candidates_cpp(
+    as.double(a),
+    as.double(b),
+    as.double(pop),
+    as.double(sort(radii)),
+    max_fraction
+  )
   m <- length(cand$center)
   if (!m) cli::cli_abort("No eligible circles; adjust {.arg radii} or {.arg max_fraction}.")
-  if (as.double(length(cand$idx)) * length(windows) * max(1, nsim) > 5e10) cli::cli_abort("The candidate set or simulation workload is too large; reduce locations, radii, windows, or simulations.")
+  if (as.double(length(cand$idx)) * length(windows) * max(1, nsim) > 5e+10) {
+    cli::cli_abort(
+      "The candidate set or simulation workload is too large; reduce locations, radii, windows, or simulations."
+    )
+  }
   expected <- as.vector(outer(cand$fraction, windows / n_times)) * total
   storage.mode(counts) <- "double"
   scan_res <- scan_scores_cpp(cand$ptr, cand$idx, expected, windows, counts, total)
@@ -93,5 +144,17 @@ epi_spacetime_scan <- function(.data, x, y, cases, population, radii, windows = 
     p <- (sum(maxima >= scan_res$score[best] - 1e-12) + 1) / (nsim + 1)
   }
   n_candidates <- length(expected)
-  tibble::tibble(center_x = a[cand$center[spatial_index]], center_y = b[cand$center[spatial_index]], radius = cand$radius[spatial_index], window = windows[window_index], observed = obs, expected = expected[best], relative_risk = rr, log_likelihood_ratio = scan_res$score[best], p_value = p, simulations = as.integer(nsim), candidates = n_candidates)
+  tibble::tibble(
+    center_x = a[cand$center[spatial_index]],
+    center_y = b[cand$center[spatial_index]],
+    radius = cand$radius[spatial_index],
+    window = windows[window_index],
+    observed = obs,
+    expected = expected[best],
+    relative_risk = rr,
+    log_likelihood_ratio = scan_res$score[best],
+    p_value = p,
+    simulations = as.integer(nsim),
+    candidates = n_candidates
+  )
 }

@@ -30,19 +30,32 @@
 #' @export
 epi_propensity_weights <- function(.data, exposure, adjust = c(), stabilized = TRUE) {
   check_data(.data)
-  if (!is.logical(stabilized) || length(stabilized) != 1 || is.na(stabilized)) cli::cli_abort("{.arg stabilized} must be TRUE or FALSE.")
+  if (!is.logical(stabilized) || length(stabilized) != 1 || is.na(stabilized)) {
+    cli::cli_abort("{.arg stabilized} must be TRUE or FALSE.")
+  }
   eq <- rlang::enquo(exposure)
   aq <- rlang::enquo(adjust)
   en <- names(tidyselect::eval_select(eq, .data, allow_rename = FALSE))
   if (length(en) != 1) cli::cli_abort("Select exactly one exposure column.")
   e <- check_binary(.data[[en]], "exposure")
-  if (length(e) < 4 || length(unique(e)) < 2) cli::cli_abort("At least four observations and both exposure levels are required.")
-  if (any(c("propensity", "ipw") %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before estimating weights.")
+  if (length(e) < 4 || length(unique(e)) < 2) {
+    cli::cli_abort("At least four observations and both exposure levels are required.")
+  }
+  if (any(c("propensity", "ipw") %in% names(.data))) {
+    cli::cli_abort("Output columns already exist; rename them before estimating weights.")
+  }
   cols <- names(tidyselect::eval_select(aq, .data, allow_rename = FALSE))
   if (en %in% cols) cli::cli_abort("Adjustment columns must exclude exposure.")
   for (nm in cols) {
     v <- .data[[nm]]
-    if (anyNA(v) || !(is.numeric(v) || is.factor(v) || is.logical(v)) || (is.numeric(v) && any(!is.finite(v))) || length(unique(v)) < 2) cli::cli_abort("Adjustment column {.field {nm}} must be complete, numeric, factor or logical, and have at least two observed values.")
+    if (anyNA(v) ||
+      !(is.numeric(v) || is.factor(v) || is.logical(v)) ||
+      (is.numeric(v) && any(!is.finite(v))) ||
+      length(unique(v)) < 2) {
+      cli::cli_abort(
+        "Adjustment column {.field {nm}} must be complete, numeric, factor or logical, and have at least two observed values." # nolint: line_length_linter.
+      )
+    }
   }
   dat <- data.frame(.exposure = e)
   for (j in seq_along(cols)) dat[[paste0(".cov", j)]] <- .data[[cols[j]]]
@@ -52,12 +65,28 @@ epi_propensity_weights <- function(.data, exposure, adjust = c(), stabilized = T
     cli::cli_warn("Propensity model warning: {conditionMessage(w)}")
     invokeRestart("muffleWarning")
   })
-  if (!fit$converged || fit$rank < length(stats::coef(fit)) || anyNA(stats::coef(fit))) cli::cli_abort("The propensity model did not converge or is rank-deficient; inspect covariates and overlap.")
+  if (!fit$converged || fit$rank < length(stats::coef(fit)) || anyNA(stats::coef(fit))) {
+    cli::cli_abort(
+      "The propensity model did not converge or is rank-deficient; inspect covariates and overlap."
+    )
+  }
   p <- unname(stats::fitted(fit))
-  if (any(!is.finite(p) | p <= 0 | p >= 1)) cli::cli_abort("Propensities at zero or one give undefined weights; inspect separation and overlap.")
-  if (any(p < .01 | p > .99)) cli::cli_warn("Some fitted propensities are below 0.01 or above 0.99; investigate overlap and weight stability.")
+  if (any(!is.finite(p) | p <= 0 | p >= 1)) {
+    cli::cli_abort(
+      "Propensities at zero or one give undefined weights; inspect separation and overlap."
+    )
+  }
+  if (any(p < 0.01 | p > 0.99)) {
+    cli::cli_warn(
+      "Some fitted propensities are below 0.01 or above 0.99; investigate overlap and weight stability."
+    )
+  }
   marginal <- mean(e)
-  weight <- ifelse(e == 1, if (stabilized) marginal / p else 1 / p, if (stabilized) (1 - marginal) / (1 - p) else 1 / (1 - p))
+  weight <- ifelse(
+    e == 1,
+    if (stabilized) marginal / p else 1 / p,
+    if (stabilized) (1 - marginal) / (1 - p) else 1 / (1 - p)
+  )
   if (any(!is.finite(weight))) cli::cli_abort("Estimated weights are not finite; inspect overlap.")
   out <- tibble::as_tibble(.data)
   out$propensity <- p
@@ -96,9 +125,17 @@ epi_weighted_effect <- function(.data, exposure, outcome, weights, bootstrap = 0
   y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
   w <- column(.data, rlang::enquo(weights), "weights")
   check_nonnegative(w, "weights")
-  if (!length(e) || length(unique(e)) < 2) cli::cli_abort("Both exposure groups must contain observations.")
+  if (!length(e) || length(unique(e)) < 2) {
+    cli::cli_abort("Both exposure groups must contain observations.")
+  }
   check_probability(conf_level, "conf_level")
-  if (!is.numeric(bootstrap) || length(bootstrap) != 1 || is.na(bootstrap) || bootstrap != floor(bootstrap) || !(bootstrap == 0 || (bootstrap >= 100 && bootstrap <= 2000))) cli::cli_abort("{.arg bootstrap} must be 0 or an integer from 100 to 2000.")
+  if (!is.numeric(bootstrap) ||
+    length(bootstrap) != 1 ||
+    is.na(bootstrap) ||
+    bootstrap != floor(bootstrap) ||
+    !(bootstrap == 0 || (bootstrap >= 100 && bootstrap <= 2000))) {
+    cli::cli_abort("{.arg bootstrap} must be 0 or an integer from 100 to 2000.")
+  }
   summarize_group <- function(id) {
     g <- e == id
     ww <- w[g]
@@ -109,9 +146,21 @@ epi_weighted_effect <- function(.data, exposure, outcome, weights, bootstrap = 0
   zero <- summarize_group(0)
   one <- summarize_group(1)
   ratio <- if (zero["risk"] == 0) NA_real_ else unname(one["risk"] / zero["risk"])
-  if (is.na(ratio)) cli::cli_warn("The unexposed weighted risk is zero; the risk ratio is undefined.")
-  out <- tibble::tibble(risk_unexposed = unname(zero["risk"]), risk_exposed = unname(one["risk"]), risk_difference = unname(one["risk"] - zero["risk"]), risk_ratio = ratio, ess_unexposed = unname(zero["ess"]), ess_exposed = unname(one["ess"]), n = length(y))
-  if (bootstrap > 0) out <- dplyr::bind_cols(out, weighted_effect_boot(e, y, w, bootstrap, conf_level, is.na(ratio)))
+  if (is.na(ratio)) {
+    cli::cli_warn("The unexposed weighted risk is zero; the risk ratio is undefined.")
+  }
+  out <- tibble::tibble(
+    risk_unexposed = unname(zero["risk"]),
+    risk_exposed = unname(one["risk"]),
+    risk_difference = unname(one["risk"] - zero["risk"]),
+    risk_ratio = ratio,
+    ess_unexposed = unname(zero["ess"]),
+    ess_exposed = unname(one["ess"]),
+    n = length(y)
+  )
+  if (bootstrap > 0) {
+    out <- dplyr::bind_cols(out, weighted_effect_boot(e, y, w, bootstrap, conf_level, is.na(ratio)))
+  }
   out
 }
 weighted_effect_boot <- function(e, y, w, bootstrap, conf_level, ratio_undefined) {
@@ -131,12 +180,24 @@ weighted_effect_boot <- function(e, y, w, bootstrap, conf_level, ratio_undefined
   }
   ok <- sum(is.finite(boot[, 1]))
   failed <- bootstrap - ok
-  if (failed > 0.1 * bootstrap) cli::cli_abort("{failed} of {bootstrap} resamples lacked an exposure group with positive weight; intervals are not reported.")
-  if (failed > 0) cli::cli_warn("{failed} of {bootstrap} resamples lacked an exposure group with positive weight and were omitted.")
+  if (failed > 0.1 * bootstrap) {
+    cli::cli_abort(
+      "{failed} of {bootstrap} resamples lacked an exposure group with positive weight; intervals are not reported."
+    )
+  }
+  if (failed > 0) {
+    cli::cli_warn(
+      "{failed} of {bootstrap} resamples lacked an exposure group with positive weight and were omitted."
+    )
+  }
   a <- 1 - conf_level
   q <- function(x) stats::quantile(x, c(a / 2, 1 - a / 2), na.rm = TRUE, names = FALSE)
   rd <- q(boot[, 1])
-  rr <- if (ratio_undefined || any(!is.finite(boot[is.finite(boot[, 1]), 2]))) c(NA_real_, NA_real_) else q(boot[, 2])
+  rr <- if (ratio_undefined || any(!is.finite(boot[is.finite(boot[, 1]), 2]))) {
+    c(NA_real_, NA_real_)
+  } else {
+    q(boot[, 2])
+  }
   tibble::tibble(
     risk_difference_low = rd[1], risk_difference_high = rd[2], risk_ratio_low = rr[1], risk_ratio_high = rr[2],
     bootstrap = as.integer(bootstrap), bootstrap_success = as.integer(ok)

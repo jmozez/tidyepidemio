@@ -1,6 +1,14 @@
 test_that("nowcast predictive negative-binomial distribution matches formula", {
   d <- data.frame(onset = as.Date("2024-01-01") + 0:2, reported = c(10, 8, 3))
-  z <- epi_nowcast(d, onset, reported, as_of = as.Date("2024-01-03"), delay_prob = c(.5, .3, .2), prior_shape = 2, prior_rate = 1)
+  z <- epi_nowcast(
+    d,
+    onset,
+    reported,
+    as_of = as.Date("2024-01-03"),
+    delay_prob = c(0.5, 0.3, 0.2),
+    prior_shape = 2,
+    prior_rate = 1
+  )
   expect_equal(z$reporting_fraction, c(1, .8, .5))
   expect_equal(z$nowcast_mean, c(10, 8 + .2 * 10 / 1.8, 3 + .5 * 5 / 1.5))
   expect_equal(z$nowcast_low[3], 3 + qnbinom(.025, size = 5, prob = 1.5 / 2))

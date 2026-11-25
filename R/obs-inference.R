@@ -33,7 +33,15 @@ epi_proportion_ci <- function(.data, event, conf_level = 0.95, method = c("wilso
     lo <- max(0, center - half)
     hi <- min(1, center + half)
   }
-  tibble::tibble(events = count, total = n, estimate = p, conf_low = unname(lo), conf_high = unname(hi), conf_level = conf_level, method = method)
+  tibble::tibble(
+    events = count,
+    total = n,
+    estimate = p,
+    conf_low = unname(lo),
+    conf_high = unname(hi),
+    conf_level = conf_level,
+    method = method
+  )
 }
 #' Exact Poisson confidence interval for an incidence rate
 #'
@@ -58,14 +66,23 @@ epi_rate_ci <- function(.data, events, time, conf_level = 0.95, multiplier = 1) 
   check_nonnegative(t, "time")
   check_scalar(multiplier, "multiplier")
   check_probability(conf_level, "conf_level")
-  if (!length(y) || any(y != floor(y))) cli::cli_abort("{.arg events} must contain integer counts and at least one record.")
+  if (!length(y) || any(y != floor(y))) {
+    cli::cli_abort("{.arg events} must contain integer counts and at least one record.")
+  }
   total <- sum(t)
   if (total <= 0) cli::cli_abort("Total person-time must be positive.")
   count <- sum(y)
   alpha <- 1 - conf_level
   lo <- if (count == 0) 0 else stats::qchisq(alpha / 2, 2 * count) / 2
   hi <- stats::qchisq(1 - alpha / 2, 2 * (count + 1)) / 2
-  tibble::tibble(events = count, person_time = total, estimate = count / total * multiplier, conf_low = lo / total * multiplier, conf_high = hi / total * multiplier, conf_level = conf_level)
+  tibble::tibble(
+    events = count,
+    person_time = total,
+    estimate = count / total * multiplier,
+    conf_low = lo / total * multiplier,
+    conf_high = hi / total * multiplier,
+    conf_level = conf_level
+  )
 }
 check_probability <- function(x, name) {
   check_scalar(x, name)

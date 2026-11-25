@@ -31,6 +31,9 @@ test_that("cluster-summed scores match manual sandwich", {
   expect_equal(z$estimate, unname(exp(b)))
   expect_equal(z$conf_low, unname(exp(b - qnorm(.975) * se)))
   expect_equal(z$clusters, 60L)
-  expect_error(epi_adjusted_risk_ratio(transform(d, cluster = 1), e, y, cluster = cluster), "two independent clusters")
+  expect_error(
+    epi_adjusted_risk_ratio(transform(d, cluster = 1), e, y, cluster = cluster),
+    "two independent clusters"
+  )
   expect_error(epi_adjusted_risk_ratio(d, e, y, adjust = e), "exclude")
 })

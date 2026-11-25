@@ -44,7 +44,20 @@
 #' )
 #' wis(backtest, observed, forecast_median, forecast_low, forecast_high, alpha = .05)
 #' @export
-epi_renewal_backtest <- function(.data, time, cases, weights, initial, horizon = 1L, stride = 1L, mode = c("posterior", "fixed"), prior_shape = 1, prior_rate = 1, nsim = 1000L, conf_level = 0.95) {
+epi_renewal_backtest <- function(
+  .data,
+  time,
+  cases,
+  weights,
+  initial,
+  horizon = 1L,
+  stride = 1L,
+  mode = c("posterior", "fixed"),
+  prior_shape = 1,
+  prior_rate = 1,
+  nsim = 1000L,
+  conf_level = 0.95
+) {
   check_data(.data)
   t <- column(.data, rlang::enquo(time), "time")
   y <- column(.data, rlang::enquo(cases), "cases")
@@ -59,18 +72,44 @@ epi_renewal_backtest <- function(.data, time, cases, weights, initial, horizon =
   check_probability(conf_level, "conf_level")
   mode <- match.arg(mode)
   is_date <- inherits(t, "Date")
-  if ((!is_date && !is.numeric(t)) || anyNA(t) || any(!is.finite(as.numeric(t))) || (is_date && any(as.numeric(t) != floor(as.numeric(t)))) || length(t) < 2) cli::cli_abort("{.arg time} must contain at least two finite numeric or whole-day Date values.")
+  if ((!is_date && !is.numeric(t)) ||
+    anyNA(t) ||
+    any(!is.finite(as.numeric(t))) ||
+    (is_date && any(as.numeric(t) != floor(as.numeric(t)))) ||
+    length(t) < 2) {
+    cli::cli_abort("{.arg time} must contain at least two finite numeric or whole-day Date values.")
+  }
   dt <- diff(as.numeric(t))
-  if (any(dt <= 0) || any(abs(dt - dt[1]) > max(1, abs(dt[1])) * 1e-10)) cli::cli_abort("{.arg time} must be strictly increasing and regularly spaced.")
-  if (any(y != floor(y)) || !length(weights) || abs(sum(weights) - 1) > 1e-8 || initial <= length(weights)) cli::cli_abort("Incidence must be integer, weights must sum to one, and initial training must exceed the number of lags.")
-  if (as.double(initial) + horizon > length(y)) cli::cli_abort("Not enough rows for the initial training window and assessment horizon.")
+  if (any(dt <= 0) || any(abs(dt - dt[1]) > max(1, abs(dt[1])) * 1e-10)) {
+    cli::cli_abort("{.arg time} must be strictly increasing and regularly spaced.")
+  }
+  if (any(y != floor(y)) ||
+    !length(weights) ||
+    abs(sum(weights) - 1) > 1e-08 ||
+    initial <= length(weights)) {
+    cli::cli_abort(
+      "Incidence must be integer, weights must sum to one, and initial training must exceed the number of lags."
+    )
+  }
+  if (as.double(initial) + horizon > length(y)) {
+    cli::cli_abort("Not enough rows for the initial training window and assessment horizon.")
+  }
   if (nsim < 2) cli::cli_abort("At least two simulation trajectories are required.")
   origins <- seq.int(initial, length(y) - horizon, by = stride)
-  if (as.double(length(origins)) * nsim * horizon > 10000000 || as.double(length(origins)) * nsim * length(weights) > 10000000) cli::cli_abort("The backtest simulation workload is too large; reduce origins, simulations, horizon or lag count.")
+  if (as.double(length(origins)) * nsim * horizon > 1e+07 ||
+    as.double(length(origins)) * nsim * length(weights) > 1e+07) {
+    cli::cli_abort(
+      "The backtest simulation workload is too large; reduce origins, simulations, horizon or lag count."
+    )
+  }
   k <- length(weights)
   lambda <- numeric(length(y))
   for (i in seq.int(k + 1L, length(y))) lambda[i] <- sum(y[i - seq_len(k)] * weights)
-  if (any(y[seq.int(k + 1L, length(y))] > 0 & lambda[seq.int(k + 1L, length(y))] == 0)) cli::cli_abort("Positive incidence follows zero infectiousness; inspect case history and weights.")
+  if (any(y[seq.int(k + 1L, length(y))] > 0 & lambda[seq.int(k + 1L, length(y))] == 0)) {
+    cli::cli_abort(
+      "Positive incidence follows zero infectiousness; inspect case history and weights."
+    )
+  }
   events_cum <- cumsum(replace(y, seq_len(k), 0))
   lambda_cum <- cumsum(lambda)
   results <- lapply(origins, function(origin) {
@@ -78,12 +117,41 @@ epi_renewal_backtest <- function(.data, time, cases, weights, initial, horizon =
     rate <- prior_rate + lambda_cum[origin]
     train <- data.frame(.incidence = y[seq_len(origin)])
     if (mode == "posterior") {
-      fc <- epi_renewal_forecast(train, .data$.incidence, weights = weights, horizon = horizon, rt_shape = shape, rt_rate = rate, nsim = nsim, conf_level = conf_level)
+      fc <- epi_renewal_forecast(
+        train,
+        .data$.incidence,
+        weights = weights,
+        horizon = horizon,
+        rt_shape = shape,
+        rt_rate = rate,
+        nsim = nsim,
+        conf_level = conf_level
+      )
     } else {
-      fc <- epi_renewal_forecast(train, .data$.incidence, weights = weights, horizon = horizon, rt = shape / rate, nsim = nsim, conf_level = conf_level)
+      fc <- epi_renewal_forecast(
+        train,
+        .data$.incidence,
+        weights = weights,
+        horizon = horizon,
+        rt = shape / rate,
+        nsim = nsim,
+        conf_level = conf_level
+      )
     }
     target <- origin + seq_len(horizon)
-    tibble::tibble(origin = origin, origin_time = t[rep(origin, horizon)], horizon = seq_len(horizon), target_time = t[target], observed = y[target], posterior_mean_rt = shape / rate, forecast_mean = fc$mean, forecast_median = fc$median, forecast_low = fc$lower, forecast_high = fc$upper, conf_level = conf_level)
+    tibble::tibble(
+      origin = origin,
+      origin_time = t[rep(origin, horizon)],
+      horizon = seq_len(horizon),
+      target_time = t[target],
+      observed = y[target],
+      posterior_mean_rt = shape / rate,
+      forecast_mean = fc$mean,
+      forecast_median = fc$median,
+      forecast_low = fc$lower,
+      forecast_high = fc$upper,
+      conf_level = conf_level
+    )
   })
   dplyr::bind_rows(results)
 }

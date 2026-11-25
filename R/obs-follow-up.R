@@ -34,7 +34,12 @@ epi_follow_up <- function(.data, entry, exit, event, censor_at = NULL, unit = c(
   b <- column(.data, rlang::enquo(exit), "exit")
   e <- check_binary(column(.data, rlang::enquo(event), "event"), "event")
   check_dates <- function(x, name) {
-    if (!inherits(x, "Date") || anyNA(x) || any(!is.finite(as.numeric(x))) || any(as.numeric(x) != floor(as.numeric(x)))) cli::cli_abort("{.arg {name}} must contain complete finite whole-day Date values.")
+    if (!inherits(x, "Date") ||
+      anyNA(x) ||
+      any(!is.finite(as.numeric(x))) ||
+      any(as.numeric(x) != floor(as.numeric(x)))) {
+      cli::cli_abort("{.arg {name}} must contain complete finite whole-day Date values.")
+    }
   }
   check_dates(a, "entry")
   check_dates(b, "exit")
@@ -42,11 +47,21 @@ epi_follow_up <- function(.data, entry, exit, event, censor_at = NULL, unit = c(
   if (!is.null(censor_at)) {
     if (length(censor_at) != 1L) cli::cli_abort("{.arg censor_at} must be a single Date.")
     check_dates(censor_at, "censor_at")
-    if (any(a > censor_at)) cli::cli_abort("Entry dates must not be after {.arg censor_at}; explicitly exclude ineligible records first.")
+    if (any(a > censor_at)) {
+      cli::cli_abort(
+        "Entry dates must not be after {.arg censor_at}; explicitly exclude ineligible records first."
+      )
+    }
   }
   out_cols <- c("followup_end", "follow_up", "event_observed")
-  if (any(out_cols %in% names(.data))) cli::cli_abort("Output follow-up columns already exist; rename them first.")
-  end <- if (is.null(censor_at)) b else as.Date(pmin(as.numeric(b), as.numeric(censor_at)), origin = "1970-01-01")
+  if (any(out_cols %in% names(.data))) {
+    cli::cli_abort("Output follow-up columns already exist; rename them first.")
+  }
+  end <- if (is.null(censor_at)) {
+    b
+  } else {
+    as.Date(pmin(as.numeric(b), as.numeric(censor_at)), origin = "1970-01-01")
+  }
   observed <- if (is.null(censor_at)) e else e * as.numeric(b <= censor_at)
   elapsed <- as.numeric(end - a)
   if (unit == "years") elapsed <- elapsed / 365.25

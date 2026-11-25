@@ -1,6 +1,9 @@
 test_that("grouped row operations preserve classes, grouping and provenance", {
   for (make in list(epi_linelist, epi_cohort, epi_ts)) {
-    x <- make(data.frame(id = 1:4, g = c("a", "a", "b", "b"), h = c(1, 2, 1, 2)), list(source = "clinic"))
+    x <- make(
+      data.frame(id = 1:4, g = c("a", "a", "b", "b"), h = c(1, 2, 1, 2)),
+      list(source = "clinic")
+    )
     g <- dplyr::group_by(x, g)
     cls <- class(x)[1]
     expect_s3_class(g, cls)
@@ -30,7 +33,10 @@ test_that("grouped row operations preserve classes, grouping and provenance", {
   }
 })
 test_that("grouped binding refuses incompatible provenance and grouping", {
-  x <- epi_linelist(data.frame(id = 1:4, g = c("a", "a", "b", "b"), h = c(1, 2, 1, 2)), list(source = "a"))
+  x <- epi_linelist(
+    data.frame(id = 1:4, g = c("a", "a", "b", "b"), h = c(1, 2, 1, 2)),
+    list(source = "a")
+  )
   a <- dplyr::group_by(x, g)
   b <- dplyr::group_by(epi_linelist(tibble::as_tibble(x), list(source = "b")), g)
   different <- dplyr::group_by(epi_cohort(tibble::as_tibble(x), list(source = "a")), g)
@@ -59,7 +65,10 @@ test_that("grouped analysis is explicitly split and arbitrary outputs are not mi
   expect_false(inherits(summary, "epi_cohort"))
 })
 test_that("empty factor levels and group membership are handled", {
-  x <- epi_ts(data.frame(g = factor(c("a", "a", "b"), levels = c("a", "b", "c")), v = 1:3), list(source = "x"))
+  x <- epi_ts(
+    data.frame(g = factor(c("a", "a", "b"), levels = c("a", "b", "c")), v = 1:3),
+    list(source = "x")
+  )
   g <- dplyr::group_by(x, g, .drop = FALSE)
   z <- dplyr::filter(g, v == 1)
   expect_identical(dplyr::group_by_drop_default(z), FALSE)

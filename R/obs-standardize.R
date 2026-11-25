@@ -34,7 +34,12 @@ epi_standardize <- function(.data, events, population, standard, method = c("dir
   } else {
     expected <- sum(n * s)
     if (expected == 0) cli::cli_abort("Expected events must be positive.")
-    tibble::tibble(method = method, observed = sum(a), expected = expected, estimate = sum(a) / expected)
+    tibble::tibble(
+      method = method,
+      observed = sum(a),
+      expected = expected,
+      estimate = sum(a) / expected
+    )
   }
 }
 #' Mantel-Haenszel pooled odds ratio
@@ -67,9 +72,18 @@ epi_mantel_haenszel <- function(.data, exposure, outcome, strata, conf_level = 0
   e <- check_binary(column(.data, rlang::enquo(exposure), "exposure"), "exposure")
   y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
   s <- column(.data, rlang::enquo(strata), "strata")
-  if (!length(s) || anyNA(s)) cli::cli_abort("{.arg strata} must contain at least one non-missing value and no missing values.")
+  if (!length(s) || anyNA(s)) {
+    cli::cli_abort(
+      "{.arg strata} must contain at least one non-missing value and no missing values."
+    )
+  }
   tab <- do.call(rbind, lapply(split(seq_along(s), s, drop = TRUE), function(i) {
-    c(a = sum(e[i] == 1 & y[i] == 1), b = sum(e[i] == 1 & y[i] == 0), c = sum(e[i] == 0 & y[i] == 1), d = sum(e[i] == 0 & y[i] == 0))
+    c(
+      a = sum(e[i] == 1 & y[i] == 1),
+      b = sum(e[i] == 1 & y[i] == 0),
+      c = sum(e[i] == 0 & y[i] == 1),
+      d = sum(e[i] == 0 & y[i] == 0)
+    )
   }))
   tab <- matrix(as.double(tab), ncol = 4, dimnames = list(NULL, c("a", "b", "c", "d")))
   a <- tab[, "a"]
@@ -80,7 +94,9 @@ epi_mantel_haenszel <- function(.data, exposure, outcome, strata, conf_level = 0
   R <- a * d / n
   S <- b * c / n
   estimate <- ratio_safe(sum(R), sum(S))
-  if (is.na(estimate)) cli::cli_warn("The Mantel-Haenszel odds ratio is undefined; returning {.val NA}.")
+  if (is.na(estimate)) {
+    cli::cli_warn("The Mantel-Haenszel odds ratio is undefined; returning {.val NA}.")
+  }
   lo <- hi <- NA_real_
   if (!is.na(estimate) && estimate > 0) {
     P <- (a + d) / n

@@ -9,7 +9,10 @@ test_that("adjusted odds ratio agrees with glm", {
   expect_equal(z$conf_low, unname(exp(beta - qnorm(.975) * se)))
   expect_equal(z$conf_high, unname(exp(beta + qnorm(.975) * se)))
   expect_s3_class(ggplot2::autoplot(z), "ggplot")
-  expect_equal(epi_adjusted_odds_ratio(d, e, y)$estimate, unname(exp(coef(glm(y ~ e, data = d, family = binomial()))["e"])))
+  expect_equal(
+    epi_adjusted_odds_ratio(d, e, y)$estimate,
+    unname(exp(coef(glm(y ~ e, data = d, family = binomial()))["e"]))
+  )
   expect_error(epi_adjusted_odds_ratio(d, e, y, adjust = e), "exclude")
   expect_error(epi_adjusted_odds_ratio(transform(d, age = NA), e, y, adjust = age), "complete")
 })

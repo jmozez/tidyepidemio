@@ -9,8 +9,14 @@ test_that("space-time scan finds recent localized excess and tests global maximu
   expect_equal(z$log_likelihood_ratio, 15 * log(15 / (21 / 4)) + 6 * log(6 / (63 / 4)))
   expect_true(z$p_value >= .01 && z$p_value <= 1)
   set.seed(2)
-  expect_equal(z$p_value, epi_spacetime_scan(d, x, y, c(day1, day2), pop, c(.1, 1), nsim = 99)$p_value)
+  expect_equal(
+    z$p_value,
+    epi_spacetime_scan(d, x, y, c(day1, day2), pop, c(0.1, 1), nsim = 99)$p_value
+  )
   expect_true(is.na(epi_spacetime_scan(d, x, y, c(day1, day2), pop, 1, nsim = 0)$p_value))
-  expect_error(epi_spacetime_scan(d, x, y, c(day1, day2), pop, 1, windows = 3, nsim = 0), "integer lengths")
+  expect_error(
+    epi_spacetime_scan(d, x, y, c(day1, day2), pop, 1, windows = 3, nsim = 0),
+    "integer lengths"
+  )
   expect_error(epi_spacetime_scan(d, x, y, c(day1, day2), pop, 100, nsim = 0), "No eligible")
 })

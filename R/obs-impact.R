@@ -24,14 +24,25 @@ epi_attributable_fraction <- function(.data, exposure, outcome) {
   check_data(.data)
   e <- check_binary(column(.data, rlang::enquo(exposure), "exposure"), "exposure")
   y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
-  if (!length(e) || length(unique(e)) < 2) cli::cli_abort("Both exposure groups must contain observations.")
+  if (!length(e) || length(unique(e)) < 2) {
+    cli::cli_abort("Both exposure groups must contain observations.")
+  }
   p0 <- mean(y[e == 0])
   p1 <- mean(y[e == 1])
   p <- mean(y)
   af <- if (p1 == 0) NA_real_ else (p1 - p0) / p1
   paf <- if (p == 0) NA_real_ else (p - p0) / p
-  if (is.na(af) || is.na(paf)) cli::cli_warn("At least one risk denominator is zero; the corresponding fraction is undefined.")
-  tibble::tibble(risk_unexposed = p0, risk_exposed = p1, risk_population = p, attributable_fraction_exposed = af, population_attributable_fraction = paf, n = length(y))
+  if (is.na(af) || is.na(paf)) {
+    cli::cli_warn("At least one risk denominator is zero; the corresponding fraction is undefined.")
+  }
+  tibble::tibble(
+    risk_unexposed = p0,
+    risk_exposed = p1,
+    risk_population = p,
+    attributable_fraction_exposed = af,
+    population_attributable_fraction = paf,
+    n = length(y)
+  )
 }
 #' Number needed to treat or harm
 #'
@@ -60,7 +71,9 @@ epi_number_needed <- function(.data, treatment, outcome) {
   check_data(.data)
   t <- check_binary(column(.data, rlang::enquo(treatment), "treatment"), "treatment")
   y <- check_binary(column(.data, rlang::enquo(outcome), "outcome"), "outcome")
-  if (!length(t) || length(unique(t)) < 2) cli::cli_abort("Both treatment groups must contain observations.")
+  if (!length(t) || length(unique(t)) < 2) {
+    cli::cli_abort("Both treatment groups must contain observations.")
+  }
   n0 <- as.double(sum(t == 0))
   n1 <- as.double(sum(t == 1))
   a0 <- sum(y[t == 0])
@@ -69,5 +82,13 @@ epi_number_needed <- function(.data, treatment, outcome) {
   reduction <- numerator / (n0 * n1)
   type <- if (numerator > 0) "NNT" else if (numerator < 0) "NNH" else "no_difference"
   needed <- if (numerator == 0) NA_real_ else ceiling((n0 * n1) / abs(numerator))
-  tibble::tibble(risk_untreated = a0 / n0, risk_treated = a1 / n1, absolute_risk_reduction = reduction, type = type, number_needed = needed, n_untreated = n0, n_treated = n1)
+  tibble::tibble(
+    risk_untreated = a0 / n0,
+    risk_treated = a1 / n1,
+    absolute_risk_reduction = reduction,
+    type = type,
+    number_needed = needed,
+    n_untreated = n0,
+    n_treated = n1
+  )
 }

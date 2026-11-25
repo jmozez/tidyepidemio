@@ -5,7 +5,10 @@ test_that("temporal features use explicit earlier context and exclude current va
   expect_equal(z$lag1_cases, c(3, 4))
   expect_equal(z$past_mean2_cases, c(2.5, 3.5))
   d$cases[2] <- 1000
-  expect_equal(epi_temporal_features(d, cases, time = day, history = h, lag = 1, window = 2)$past_mean2_cases, z$past_mean2_cases)
+  expect_equal(
+    epi_temporal_features(d, cases, time = day, history = h, lag = 1, window = 2)$past_mean2_cases,
+    z$past_mean2_cases
+  )
   z <- epi_temporal_features(data.frame(day = 1:2, cases = 1:2), cases, time = day, lag = 1, window = 2)
   expect_equal(z$lag1_cases, c(NA, 1))
   expect_true(all(is.na(z$past_mean2_cases)))
@@ -17,8 +20,14 @@ test_that("history is group-specific and preserves interleaved output", {
   expect_equal(z$lag1_x, c(20, 2, 30, 3))
   expect_equal(z$past_mean2_x, c(15, 1.5, 25, 2.5))
   expect_equal(z$g, d$g)
-  expect_error(epi_temporal_features(d, x, time = day, group = g, history = transform(h, day = day + 3)), "must precede")
-  expect_error(epi_temporal_features(d[c(3, 2, 1, 4), ], x, time = day, group = g, history = h), "strictly increasing")
+  expect_error(
+    epi_temporal_features(d, x, time = day, group = g, history = transform(h, day = day + 3)),
+    "must precede"
+  )
+  expect_error(
+    epi_temporal_features(d[c(3, 2, 1, 4), ], x, time = day, group = g, history = h),
+    "strictly increasing"
+  )
 })
 test_that("missing values propagate and Date time is supported", {
   h <- data.frame(day = as.Date("2024-01-01") + 0:1, x = c(NA, 2))
@@ -26,7 +35,10 @@ test_that("missing values propagate and Date time is supported", {
   z <- epi_temporal_features(d, x, time = day, history = h, window = 2)
   expect_true(is.na(z$past_mean2_x[1]))
   expect_equal(z$past_mean2_x[2], 2.5)
-  expect_error(epi_temporal_features(d, x, time = day, history = transform(h, day = 1:2)), "both be numeric")
+  expect_error(
+    epi_temporal_features(d, x, time = day, history = transform(h, day = 1:2)),
+    "both be numeric"
+  )
 })
 test_that("multiple tidy-selected features are independently transformed", {
   h <- data.frame(day = 1:2, a = 1:2, b = 3:4)

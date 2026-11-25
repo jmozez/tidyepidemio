@@ -16,7 +16,9 @@ epi_growth_rate <- function(.data, time, cases) {
   check_data(.data)
   t <- column(.data, rlang::enquo(time), "time")
   y <- column(.data, rlang::enquo(cases), "cases")
-  if (!is.numeric(t) || anyNA(t) || any(!is.finite(t)) || length(unique(t)) < 2 || length(t) < 2) cli::cli_abort("{.arg time} must contain at least two distinct finite numeric values.")
+  if (!is.numeric(t) || anyNA(t) || any(!is.finite(t)) || length(unique(t)) < 2 || length(t) < 2) {
+    cli::cli_abort("{.arg time} must contain at least two distinct finite numeric values.")
+  }
   check_nonnegative(y, "cases", positive = TRUE)
   tibble::tibble(growth_rate = unname(stats::coef(stats::lm(log(y) ~ t))[2]), n = length(t))
 }
@@ -48,7 +50,9 @@ epi_rt <- function(.data, cases, weights) {
   y <- column(.data, rlang::enquo(cases), "cases")
   check_nonnegative(y, "cases")
   check_nonnegative(weights, "weights")
-  if (!length(weights) || abs(sum(weights) - 1) > 1e-8) cli::cli_abort("{.arg weights} must be a non-empty probability distribution summing to one.")
+  if (!length(weights) || abs(sum(weights) - 1) > 1e-08) {
+    cli::cli_abort("{.arg weights} must be a non-empty probability distribution summing to one.")
+  }
   if ("rt" %in% names(.data)) cli::cli_abort("{.arg .data} already has an {.field rt} column.")
   n <- length(y)
   k <- length(weights)
@@ -77,7 +81,9 @@ epi_serial_interval <- function(.data, infector, infectee) {
   check_data(.data)
   a <- column(.data, rlang::enquo(infector), "infector")
   b <- column(.data, rlang::enquo(infectee), "infectee")
-  if (!inherits(a, "Date") || !inherits(b, "Date") || anyNA(a) || anyNA(b) || !length(a)) cli::cli_abort("Onset columns must be non-missing Date vectors with at least one pair.")
+  if (!inherits(a, "Date") || !inherits(b, "Date") || anyNA(a) || anyNA(b) || !length(a)) {
+    cli::cli_abort("Onset columns must be non-missing Date vectors with at least one pair.")
+  }
   x <- as.numeric(b - a)
   tibble::tibble(n = length(x), mean_days = mean(x), sd_days = stats::sd(x))
 }

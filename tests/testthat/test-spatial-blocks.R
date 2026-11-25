@@ -14,5 +14,7 @@ test_that("grid blocks can be used for spatial resampling", {
   set.seed(1)
   cv <- epi_spatial_cv(z, block_id, v = 3, x = x, y = y, buffer = 5)
   expect_equal(nrow(cv), 3L)
-  for (sp in cv$splits) expect_true(all(abs(outer(rsample::analysis(sp)$x, rsample::assessment(sp)$x, `-`)) > 5))
+  for (sp in cv$splits) {
+    expect_true(all(abs(outer(rsample::analysis(sp)$x, rsample::assessment(sp)$x, `-`)) > 5))
+  }
 })

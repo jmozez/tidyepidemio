@@ -47,8 +47,24 @@ epi_rmst <- function(.data, time, event, tau, conf_level = 0.95) {
   estimate <- sum(area)
   remainder <- rev(cumsum(rev(area)))
   ev <- which(fit$n.event > 0 & fit$time < tau & fit$n.risk > fit$n.event)
-  variance <- if (length(ev)) sum((remainder[findInterval(fit$time[ev], starts)]^2) * fit$n.event[ev] / (fit$n.risk[ev] * (fit$n.risk[ev] - fit$n.event[ev]))) else 0
+  variance <- if (length(ev)) {
+    sum(
+      (remainder[findInterval(fit$time[ev], starts)]^2) * fit$n.event[ev] / (fit$n.risk[ev] * (fit$n.risk[ev] - fit$n.event[ev])) # nolint: line_length_linter.
+    )
+  } else {
+    0
+  }
   se <- sqrt(variance)
   z <- stats::qnorm((1 - conf_level) / 2, lower.tail = FALSE)
-  tibble::tibble(tau = tau, estimate = estimate, std_error = se, conf_low = max(0, estimate - z * se), conf_high = min(tau, estimate + z * se), n = length(t), n_risk = sum(t >= tau), events_before_tau = sum(e[t < tau]), conf_level = conf_level)
+  tibble::tibble(
+    tau = tau,
+    estimate = estimate,
+    std_error = se,
+    conf_low = max(0, estimate - z * se),
+    conf_high = min(tau, estimate + z * se),
+    n = length(t),
+    n_risk = sum(t >= tau),
+    events_before_tau = sum(e[t < tau]),
+    conf_level = conf_level
+  )
 }

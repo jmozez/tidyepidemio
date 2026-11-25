@@ -18,7 +18,10 @@ test_that("weights reproduce weighted glm coefficients", {
   expect_equal(z$estimate, unname(exp(coef(g)["e"])))
   expect_true(z$weighted)
   gr <- glm(k ~ e + age + offset(log(t)), quasipoisson, d, weights = w)
-  expect_equal(epi_adjusted_rate_ratio(d, k, t, e, age, weights = w)$estimate, unname(exp(coef(gr)["e"])))
+  expect_equal(
+    epi_adjusted_rate_ratio(d, k, t, e, age, weights = w)$estimate,
+    unname(exp(coef(gr)["e"]))
+  )
   expect_error(epi_adjusted_odds_ratio(transform(d, w = -w), e, y, weights = w), "non-negative")
 })
 
@@ -38,7 +41,10 @@ test_that("robust rate-ratio errors widen under overdispersion", {
   set.seed(3)
   d <- data.frame(e = rep(0:1, 200), t = 1)
   d$k <- rnbinom(400, mu = exp(1 + .3 * d$e), size = 0.7)
-  expect_gt(se_of(epi_adjusted_rate_ratio(d, k, t, e, robust = "HC0")), 1.5 * se_of(epi_adjusted_rate_ratio(d, k, t, e)))
+  expect_gt(
+    se_of(epi_adjusted_rate_ratio(d, k, t, e, robust = "HC0")),
+    1.5 * se_of(epi_adjusted_rate_ratio(d, k, t, e))
+  )
 })
 
 test_that("modifier returns level-specific effects and an interaction test", {
@@ -56,7 +62,10 @@ test_that("modifier returns level-specific effects and an interaction test", {
 test_that("nonlinear terms use natural splines", {
   d <- make_adjusted_data()
   g <- glm(y ~ e + splines::ns(age, df = 3), binomial, d)
-  expect_equal(epi_adjusted_odds_ratio(d, e, y, age, nonlinear = age)$estimate, unname(exp(coef(g)["e"])))
+  expect_equal(
+    epi_adjusted_odds_ratio(d, e, y, age, nonlinear = age)$estimate,
+    unname(exp(coef(g)["e"]))
+  )
   expect_error(epi_adjusted_odds_ratio(d, e, y, nonlinear = age), "also be selected")
   rr <- epi_adjusted_risk_ratio(d, e, y, age, nonlinear = age)
   expect_equal(rr$se_type, "HC0")

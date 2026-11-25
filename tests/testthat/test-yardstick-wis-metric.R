@@ -1,14 +1,26 @@
 test_that("WIS factory composes with numeric metric sets", {
-  d <- data.frame(y = c(1, 2, 3, 4), med = c(1, 3, 2, 4), lo = c(0, 1, 0, 2), hi = c(2, 4, 4, 6), g = c(1, 1, 2, 2))
+  d <- data.frame(
+    y = c(1, 2, 3, 4),
+    med = c(1, 3, 2, 4),
+    lo = c(0, 1, 0, 2),
+    hi = c(2, 4, 4, 6),
+    g = c(1, 1, 2, 2)
+  )
   m <- wis_metric(d, lo, hi, alpha = .1)
-  expect_equal(m(d, truth = y, estimate = med)$.estimate, wis(d, y, med, lo, hi, alpha = .1)$.estimate)
+  expect_equal(
+    m(d, truth = y, estimate = med)$.estimate,
+    wis(d, y, med, lo, hi, alpha = 0.1)$.estimate
+  )
   set <- yardstick::metric_set(yardstick::rmse, m)
   z <- set(d, truth = y, estimate = med)
   expect_equal(z$.metric, c("rmse", "wis"))
   expect_equal(z$.estimate[2], wis(d, y, med, lo, hi)$.estimate)
   z <- set(dplyr::group_by(d, g), truth = y, estimate = med)
   expect_equal(nrow(z), 4)
-  expect_equal(z$.estimate[z$.metric == "wis"], wis(dplyr::group_by(d, g), y, med, lo, hi)$.estimate)
+  expect_equal(
+    z$.estimate[z$.metric == "wis"],
+    wis(dplyr::group_by(d, g), y, med, lo, hi)$.estimate
+  )
   expect_error(wis_metric(d, lo, c(lo, hi)), "equal non-zero")
   expect_error(wis_metric(d, lo, hi, alpha = 2), "alpha")
 })

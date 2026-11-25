@@ -1,0 +1,8 @@
+linters: linters_with_defaults(
+    line_length_linter(120),
+    indentation_linter = NULL,
+    object_usage_linter = NULL,
+    object_name_linter(styles = c("snake_case", "symbols"), regexes = c(matrix_notation = "^[A-Z]$"))
+  )
+exclusions: list("data-raw", "R/RcppExports.R", "tests/testthat/helper-reference-scans.R")
+encoding: "UTF-8"

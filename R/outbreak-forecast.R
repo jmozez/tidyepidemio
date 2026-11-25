@@ -32,7 +32,17 @@
 #' set.seed(1)
 #' epi_renewal_forecast(d, cases, weights = 1, horizon = 3, rt = 1.2, nsim = 100)
 #' @export
-epi_renewal_forecast <- function(.data, cases, weights, horizon = 7L, rt = NULL, rt_shape = NULL, rt_rate = NULL, nsim = 1000L, conf_level = 0.95) {
+epi_renewal_forecast <- function(
+  .data,
+  cases,
+  weights,
+  horizon = 7L,
+  rt = NULL,
+  rt_shape = NULL,
+  rt_rate = NULL,
+  nsim = 1000L,
+  conf_level = 0.95
+) {
   check_data(.data)
   y <- column(.data, rlang::enquo(cases), "cases")
   check_nonnegative(y, "cases")
@@ -40,14 +50,29 @@ epi_renewal_forecast <- function(.data, cases, weights, horizon = 7L, rt = NULL,
   check_window(horizon, "horizon")
   check_window(nsim, "nsim")
   check_probability(conf_level, "conf_level")
-  if (any(y != floor(y)) || !length(weights) || abs(sum(weights) - 1) > 1e-8 || length(y) < length(weights)) cli::cli_abort("Use integer incidence, at least one observation per lag and generation weights summing to one.")
-  if (nsim < 2 || as.double(nsim) * horizon > 10000000 || as.double(nsim) * length(weights) > 10000000) cli::cli_abort("Use at least 2 simulations and at most 10 million simulated horizon or history cells.")
+  if (any(y != floor(y)) ||
+    !length(weights) ||
+    abs(sum(weights) - 1) > 1e-08 ||
+    length(y) < length(weights)) {
+    cli::cli_abort(
+      "Use integer incidence, at least one observation per lag and generation weights summing to one."
+    )
+  }
+  if (nsim < 2 || as.double(nsim) * horizon > 1e+07 || as.double(nsim) * length(weights) > 1e+07) {
+    cli::cli_abort(
+      "Use at least 2 simulations and at most 10 million simulated horizon or history cells."
+    )
+  }
   if (!is.null(rt)) {
-    if (!is.null(rt_shape) || !is.null(rt_rate)) cli::cli_abort("Specify either {.arg rt} or both gamma parameters, not both.")
+    if (!is.null(rt_shape) || !is.null(rt_rate)) {
+      cli::cli_abort("Specify either {.arg rt} or both gamma parameters, not both.")
+    }
     check_scalar(rt, "rt", inclusive = TRUE)
     rr <- rep(rt, nsim)
   } else {
-    if (is.null(rt_shape) || is.null(rt_rate)) cli::cli_abort("Provide {.arg rt} or both {.arg rt_shape} and {.arg rt_rate}.")
+    if (is.null(rt_shape) || is.null(rt_rate)) {
+      cli::cli_abort("Provide {.arg rt} or both {.arg rt_shape} and {.arg rt_rate}.")
+    }
     check_scalar(rt_shape, "rt_shape")
     check_scalar(rt_rate, "rt_rate")
     rr <- stats::rgamma(nsim, shape = rt_shape, rate = rt_rate)
@@ -57,12 +82,27 @@ epi_renewal_forecast <- function(.data, cases, weights, horizon = 7L, rt = NULL,
   sims <- matrix(0, nrow = nsim, ncol = horizon)
   for (i in seq_len(horizon)) {
     lam <- as.vector(history[, k:1L, drop = FALSE] %*% weights) * rr
-    if (any(!is.finite(lam)) || any(lam < 0)) cli::cli_abort("The simulation produced non-finite expected incidence; check the model inputs and horizon.")
+    if (any(!is.finite(lam)) || any(lam < 0)) {
+      cli::cli_abort(
+        "The simulation produced non-finite expected incidence; check the model inputs and horizon."
+      )
+    }
     draw <- stats::rpois(nsim, lam)
-    if (any(!is.finite(draw))) cli::cli_abort("The simulation produced non-finite incidence; check the model inputs and horizon.")
+    if (any(!is.finite(draw))) {
+      cli::cli_abort(
+        "The simulation produced non-finite incidence; check the model inputs and horizon."
+      )
+    }
     sims[, i] <- draw
     if (k == 1L) history[, 1L] <- draw else history <- cbind(history[, 2:k, drop = FALSE], draw)
   }
   alpha <- 1 - conf_level
-  tibble::tibble(step = seq_len(horizon), mean = colMeans(sims), median = apply(sims, 2, stats::quantile, probs = .5, type = 1, names = FALSE), lower = apply(sims, 2, stats::quantile, probs = alpha / 2, type = 1, names = FALSE), upper = apply(sims, 2, stats::quantile, probs = 1 - alpha / 2, type = 1, names = FALSE), simulations = as.integer(nsim))
+  tibble::tibble(
+    step = seq_len(horizon),
+    mean = colMeans(sims),
+    median = apply(sims, 2, stats::quantile, probs = 0.5, type = 1, names = FALSE),
+    lower = apply(sims, 2, stats::quantile, probs = alpha / 2, type = 1, names = FALSE),
+    upper = apply(sims, 2, stats::quantile, probs = 1 - alpha / 2, type = 1, names = FALSE),
+    simulations = as.integer(nsim)
+  )
 }

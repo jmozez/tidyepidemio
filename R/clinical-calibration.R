@@ -29,7 +29,9 @@ epi_calibration <- function(.data, truth, estimate, bins = 10L, conf_level = 0.9
   if (bins > 1000) cli::cli_abort("{.arg bins} must not exceed 1000.")
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
   p <- column(.data, rlang::enquo(estimate), "estimate")
-  if (!length(y) || !is.numeric(p) || anyNA(p) || any(!is.finite(p)) || any(p < 0 | p > 1)) cli::cli_abort("Predictions must be finite probabilities in [0,1], with at least one record.")
+  if (!length(y) || !is.numeric(p) || anyNA(p) || any(!is.finite(p)) || any(p < 0 | p > 1)) {
+    cli::cli_abort("Predictions must be finite probabilities in [0,1], with at least one record.")
+  }
   bin <- pmin(floor(p * bins) + 1, bins)
   nr <- tabulate(bin, nbins = bins)
   predicted <- observed <- low <- high <- rep(NA_real_, bins)
@@ -45,5 +47,14 @@ epi_calibration <- function(.data, truth, estimate, bins = 10L, conf_level = 0.9
     low[i] <- max(0, center - half)
     high[i] <- min(1, center + half)
   }
-  tibble::tibble(bin = seq_len(bins), lower = (seq_len(bins) - 1) / bins, upper = seq_len(bins) / bins, n = nr, mean_predicted = predicted, observed_risk = observed, conf_low = low, conf_high = high)
+  tibble::tibble(
+    bin = seq_len(bins),
+    lower = (seq_len(bins) - 1) / bins,
+    upper = seq_len(bins) / bins,
+    n = nr,
+    mean_predicted = predicted,
+    observed_risk = observed,
+    conf_low = low,
+    conf_high = high
+  )
 }

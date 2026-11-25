@@ -28,12 +28,27 @@ epi_spatial_blocks <- function(.data, x, y, size, origin_x = 0, origin_y = 0) {
   a <- column(.data, rlang::enquo(x), "x")
   b <- column(.data, rlang::enquo(y), "y")
   check_scalar(size, "size")
-  for (v in list(origin_x, origin_y)) if (!is.numeric(v) || length(v) != 1L || is.na(v) || !is.finite(v)) cli::cli_abort("Grid origins must be finite numeric scalars.")
-  if (!is.numeric(a) || !is.numeric(b) || anyNA(a) || anyNA(b) || any(!is.finite(a)) || any(!is.finite(b))) cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
-  if (any(c("block_x", "block_y", "block_id") %in% names(.data))) cli::cli_abort("Output block columns already exist; rename them before creating blocks.")
+  for (v in list(origin_x, origin_y)) {
+    if (!is.numeric(v) || length(v) != 1L || is.na(v) || !is.finite(v)) {
+      cli::cli_abort("Grid origins must be finite numeric scalars.")
+    }
+  }
+  if (!is.numeric(a) ||
+    !is.numeric(b) ||
+    anyNA(a) ||
+    anyNA(b) ||
+    any(!is.finite(a)) ||
+    any(!is.finite(b))) {
+    cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+  }
+  if (any(c("block_x", "block_y", "block_id") %in% names(.data))) {
+    cli::cli_abort("Output block columns already exist; rename them before creating blocks.")
+  }
   ix <- floor((a - origin_x) / size)
   iy <- floor((b - origin_y) / size)
-  if (any(!is.finite(ix)) || any(!is.finite(iy)) || any(abs(ix) > 1e9) || any(abs(iy) > 1e9)) cli::cli_abort("Block indices exceed the supported range; adjust grid origin or size.")
+  if (any(!is.finite(ix)) || any(!is.finite(iy)) || any(abs(ix) > 1e+09) || any(abs(iy) > 1e+09)) {
+    cli::cli_abort("Block indices exceed the supported range; adjust grid origin or size.")
+  }
   out <- tibble::as_tibble(.data)
   out$block_x <- as.integer(ix)
   out$block_y <- as.integer(iy)

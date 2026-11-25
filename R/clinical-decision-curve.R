@@ -30,8 +30,20 @@ epi_decision_curve <- function(.data, truth, estimate, thresholds = seq(.05, .95
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
   p <- column(.data, rlang::enquo(estimate), "estimate")
   wq <- rlang::enquo(case_weights)
-  if (!length(y) || !is.numeric(p) || anyNA(p) || any(!is.finite(p)) || any(p < 0 | p > 1)) cli::cli_abort("Predictions must be finite probabilities in [0,1], with at least one record.")
-  if (!is.numeric(thresholds) || !length(thresholds) || length(thresholds) > 1000 || anyNA(thresholds) || any(!is.finite(thresholds)) || any(thresholds <= 0 | thresholds >= 1) || anyDuplicated(thresholds)) cli::cli_abort("{.arg thresholds} must contain at most 1000 distinct probabilities strictly between zero and one.")
+  if (!length(y) || !is.numeric(p) || anyNA(p) || any(!is.finite(p)) || any(p < 0 | p > 1)) {
+    cli::cli_abort("Predictions must be finite probabilities in [0,1], with at least one record.")
+  }
+  if (!is.numeric(thresholds) ||
+    !length(thresholds) ||
+    length(thresholds) > 1000 ||
+    anyNA(thresholds) ||
+    any(!is.finite(thresholds)) ||
+    any(thresholds <= 0 | thresholds >= 1) ||
+    anyDuplicated(thresholds)) {
+    cli::cli_abort(
+      "{.arg thresholds} must contain at most 1000 distinct probabilities strictly between zero and one."
+    )
+  }
   w <- if (rlang::quo_is_null(wq)) rep(1, length(y)) else column(.data, wq, "case_weights")
   check_nonnegative(w, "case_weights")
   if (max(w) <= 0) cli::cli_abort("Case weights must have a positive total.")
@@ -43,5 +55,9 @@ epi_decision_curve <- function(.data, truth, estimate, thresholds = seq(.05, .95
     model <- (sum(w[positive & y == 1]) - sum(w[positive & y == 0]) * t / (1 - t)) / total
     c(model, prevalence - (1 - prevalence) * t / (1 - t), 0)
   }, numeric(3))
-  tibble::tibble(threshold = rep(thresholds, each = 3), strategy = rep(c("model", "treat_all", "treat_none"), times = length(thresholds)), net_benefit = as.vector(values))
+  tibble::tibble(
+    threshold = rep(thresholds, each = 3),
+    strategy = rep(c("model", "treat_all", "treat_none"), times = length(thresholds)),
+    net_benefit = as.vector(values)
+  )
 }

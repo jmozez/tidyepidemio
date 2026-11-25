@@ -1,6 +1,10 @@
 check_data <- function(x) {
   if (!is.data.frame(x)) cli::cli_abort("{.arg .data} must be a data frame.")
-  if (inherits(x, "grouped_df")) cli::cli_abort("Grouped data are not supported. Split groups explicitly or use {.fn dplyr::group_modify}.")
+  if (inherits(x, "grouped_df")) {
+    cli::cli_abort(
+      "Grouped data are not supported. Split groups explicitly or use {.fn dplyr::group_modify}."
+    )
+  }
   invisible(x)
 }
 check_binary <- function(x, name) {
@@ -11,13 +15,17 @@ check_binary <- function(x, name) {
 }
 check_nonnegative <- function(x, name, positive = FALSE) {
   if (!is.numeric(x) || anyNA(x) || any(!is.finite(x)) || any(x < 0) || (positive && any(x <= 0))) {
-    cli::cli_abort("{.arg {name}} must contain finite {if (positive) 'positive' else 'non-negative'} numbers without missing values.")
+    cli::cli_abort(
+      "{.arg {name}} must contain finite {if (positive) 'positive' else 'non-negative'} numbers without missing values."
+    )
   }
   invisible(x)
 }
 check_scalar <- function(x, name, min = 0, inclusive = FALSE) {
   if (!is.numeric(x) || length(x) != 1L || is.na(x) || !is.finite(x) || if (inclusive) x < min else x <= min) {
-    cli::cli_abort("{.arg {name}} must be a finite number {if (inclusive) 'at least' else 'greater than'} {min}.")
+    cli::cli_abort(
+      "{.arg {name}} must be a finite number {if (inclusive) 'at least' else 'greater than'} {min}."
+    )
   }
   invisible(x)
 }

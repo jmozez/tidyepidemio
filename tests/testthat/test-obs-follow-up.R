@@ -1,5 +1,9 @@
 test_that("follow-up handles administrative censoring and event boundary", {
-  d <- data.frame(start = as.Date("2024-01-01") + c(0, 1, 1), end = as.Date("2024-01-01") + c(5, 7, 10), event = c(1, 1, 1))
+  d <- data.frame(
+    start = as.Date("2024-01-01") + c(0, 1, 1),
+    end = as.Date("2024-01-01") + c(5, 7, 10),
+    event = c(1, 1, 1)
+  )
   z <- epi_follow_up(d, start, end, event, censor_at = as.Date("2024-01-08"))
   expect_equal(z$follow_up, c(5, 6, 6))
   expect_equal(z$event_observed, c(1, 1, 0))

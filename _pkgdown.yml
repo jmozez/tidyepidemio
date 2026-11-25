@@ -2,11 +2,59 @@ url: https://jmozez.github.io/tidyepidemio/
 
 template:
   bootstrap: 5
+  light-switch: true
+  bslib:
+    primary: "#B03A2E"
+    secondary: "#0E2A47"
+    base_font: {google: "Inter"}
+    heading_font: {google: "Inter"}
+    code_font: {google: "JetBrains Mono"}
+    line-height-base: 1.65
+    headings-font-weight: 700
+    navbar-bg: "#0E2A47"
+    border-radius: 0.5rem
+
+figures:
+  bg: white
+  dev.args:
+    bg: white
+
+repo:
+  url:
+    home: https://github.com/jmozez/tidyepidemio/
+    source: https://github.com/jmozez/tidyepidemio/blob/main/
+    issue: https://github.com/jmozez/tidyepidemio/issues/
+
+navbar:
+  structure:
+    left: [intro, articles, reference, news]
+    right: [search, github, lightswitch]
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - tidyepidemio
+  - title: Worked analyses on real data
+    navbar: Worked analyses
+    contents:
+      - articles/covid-outbreak
+      - articles/cluster-detection
+      - articles/cohort-and-clinical
 
 home:
   title: "tidyepidemio: Tidy Tools for Epidemiologic Analysis"
 
 reference:
+  - title: Datasets
+    desc: Real, published epidemiological data used in the examples and articles.
+    contents:
+      - nz_covid_2020
+      - ny_covid_counties_2020
+      - flu_boarding_school_1978
+      - british_doctors
+      - nc_sids
+
   - title: Epidemiological data classes
     contents:
       - epi_linelist

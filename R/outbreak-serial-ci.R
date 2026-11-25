@@ -21,11 +21,28 @@ epi_serial_interval_ci <- function(.data, infector, infectee, conf_level = 0.95)
   check_probability(conf_level, "conf_level")
   a <- column(.data, rlang::enquo(infector), "infector")
   b <- column(.data, rlang::enquo(infectee), "infectee")
-  if (!inherits(a, "Date") || !inherits(b, "Date") || length(a) < 2 || anyNA(a) || anyNA(b) || any(!is.finite(as.numeric(a))) || any(!is.finite(as.numeric(b))) || any(as.numeric(a) != floor(as.numeric(a))) || any(as.numeric(b) != floor(as.numeric(b)))) cli::cli_abort("At least two pairs of finite, non-missing, whole-day Date values are required.")
+  if (!inherits(a, "Date") ||
+    !inherits(b, "Date") ||
+    length(a) < 2 ||
+    anyNA(a) ||
+    anyNA(b) ||
+    any(!is.finite(as.numeric(a))) ||
+    any(!is.finite(as.numeric(b))) ||
+    any(as.numeric(a) != floor(as.numeric(a))) ||
+    any(as.numeric(b) != floor(as.numeric(b)))) {
+    cli::cli_abort("At least two pairs of finite, non-missing, whole-day Date values are required.")
+  }
   d <- as.numeric(b - a)
   n <- length(d)
   mn <- mean(d)
   sd <- stats::sd(d)
   half <- stats::qt((1 + conf_level) / 2, df = n - 1) * sd / sqrt(n)
-  tibble::tibble(n = n, mean_days = mn, sd_days = sd, conf_low = mn - half, conf_high = mn + half, conf_level = conf_level)
+  tibble::tibble(
+    n = n,
+    mean_days = mn,
+    sd_days = sd,
+    conf_low = mn - half,
+    conf_high = mn + half,
+    conf_level = conf_level
+  )
 }

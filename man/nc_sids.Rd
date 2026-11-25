@@ -24,6 +24,7 @@ kilometres. The standard benchmark for disease-cluster detection.
 }
 \examples{
 epi_spatial_scan(nc_sids, x_km, y_km, sids_1974, births_1974,
-  radii = c(30, 60), nsim = 99)
+  radii = c(30, 60), nsim = 99
+)
 }
 \keyword{datasets}

@@ -37,10 +37,14 @@ epi_cumulative_incidence <- function(.data, time, status, cause = 1L, strata = N
   check_nonnegative(t, "time")
   check_nonnegative(s, "status")
   check_window(cause, "cause")
-  if (!length(t) || any(s != floor(s))) cli::cli_abort("At least one record and non-negative integer status codes are required.")
+  if (!length(t) || any(s != floor(s))) {
+    cli::cli_abort("At least one record and non-negative integer status codes are required.")
+  }
   sq <- rlang::enquo(strata)
   g <- if (rlang::quo_is_null(sq)) rep("All", length(t)) else column(.data, sq, "strata")
-  if (anyNA(g) || !(is.character(g) || is.factor(g) || is.numeric(g) || is.logical(g))) cli::cli_abort("{.arg strata} must be a non-missing atomic grouping variable.")
+  if (anyNA(g) || !(is.character(g) || is.factor(g) || is.numeric(g) || is.logical(g))) {
+    cli::cli_abort("{.arg strata} must be a non-missing atomic grouping variable.")
+  }
   g <- as.character(g)
   ids <- unique(g)
   en <- survival_entry(.data, rlang::enquo(entry), t)
@@ -52,7 +56,15 @@ epi_cumulative_incidence <- function(.data, time, status, cause = 1L, strata = N
     bin <- match(tt, times)
     ee <- if (is.null(en)) rep(0, length(tt)) else en[idx]
     nr <- vapply(times, function(u) sum(tt >= u & (is.null(en) | ee < u)), numeric(1))
-    counts <- rowsum(cbind(target = as.numeric(ss == cause), comp = as.numeric(ss > 0 & ss != cause), censor = as.numeric(ss == 0)), group = bin, reorder = TRUE)
+    counts <- rowsum(
+      cbind(
+        target = as.numeric(ss == cause),
+        comp = as.numeric(ss > 0 & ss != cause),
+        censor = as.numeric(ss == 0)
+      ),
+      group = bin,
+      reorder = TRUE
+    )
     target <- unname(counts[, "target"])
     comp <- unname(counts[, "comp"])
     censor <- unname(counts[, "censor"])
@@ -60,7 +72,18 @@ epi_cumulative_incidence <- function(.data, time, status, cause = 1L, strata = N
     surv <- cumprod(1 - (target + comp) / nr_safe)
     inc <- cumsum(c(1, utils::head(surv, -1)) * target / nr_safe)
     ci <- cif_limits(tt, ss, if (is.null(en)) NULL else ee, cause, times, conf_level)
-    tibble::tibble(strata = id, time = times, n_risk = nr, n_target = target, n_competing = comp, n_censor = censor, event_free_survival = surv, cumulative_incidence = inc, conf_low = ci$lower, conf_high = ci$upper)
+    tibble::tibble(
+      strata = id,
+      time = times,
+      n_risk = nr,
+      n_target = target,
+      n_competing = comp,
+      n_censor = censor,
+      event_free_survival = surv,
+      cumulative_incidence = inc,
+      conf_low = ci$lower,
+      conf_high = ci$upper
+    )
   })
   dplyr::bind_rows(pieces)
 }
@@ -71,7 +94,11 @@ cif_limits <- function(tt, ss, ee, cause, times, conf_level) {
   }
   st <- factor(ss, levels = c(0, sort(unique(ss[ss > 0]))))
   fr <- data.frame(tt = tt, st = st, ee = if (is.null(ee)) 0 else ee, id = seq_along(tt))
-  fit <- if (is.null(ee)) survival::survfit(survival::Surv(tt, st) ~ 1, data = fr, conf.int = conf_level) else survival::survfit(survival::Surv(ee, tt, st) ~ 1, data = fr, id = id, conf.int = conf_level)
+  fit <- if (is.null(ee)) {
+    survival::survfit(survival::Surv(tt, st) ~ 1, data = fr, conf.int = conf_level)
+  } else {
+    survival::survfit(survival::Surv(ee, tt, st) ~ 1, data = fr, id = id, conf.int = conf_level)
+  }
   col <- match(as.character(cause), fit$states)
   if (is.na(col)) {
     return(none)

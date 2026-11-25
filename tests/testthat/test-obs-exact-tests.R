@@ -10,7 +10,12 @@ test_that("Fisher test agrees with stats conditional odds ratio and confidence i
 test_that("Mantel-Haenszel inference matches reference test", {
   d <- data.frame(e = rep(c(0, 0, 1, 1), 2), y = rep(c(0, 1, 0, 1), 2), s = rep(1:2, each = 4))
   z <- epi_mantel_haenszel_test(d, e, y, s)
-  ref <- mantelhaen.test(factor(d$e, levels = c(1, 0)), factor(d$y, levels = c(1, 0)), factor(d$s), correct = FALSE)
+  ref <- mantelhaen.test(
+    factor(d$e, levels = c(1, 0)),
+    factor(d$y, levels = c(1, 0)),
+    factor(d$s),
+    correct = FALSE
+  )
   expect_equal(z$estimate, unname(ref$estimate))
   expect_equal(c(z$conf_low, z$conf_high), as.numeric(ref$conf.int))
   expect_equal(z$p_value, ref$p.value)

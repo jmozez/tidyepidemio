@@ -17,14 +17,28 @@ epi_rolling_origin <- function(.data, initial = 5, assess = 1, cumulative = TRUE
   check_data(.data)
   check_window(initial, "initial")
   check_window(assess, "assess")
-  if (!is.logical(cumulative) || length(cumulative) != 1L || is.na(cumulative)) cli::cli_abort("{.arg cumulative} must be TRUE or FALSE.")
-  for (x in list(skip = skip, lag = lag)) if (length(x) != 1L || !is.numeric(x) || is.na(x) || !is.finite(x) || x < 0 || x != floor(x)) cli::cli_abort("{.arg skip} and {.arg lag} must be non-negative integers.")
+  if (!is.logical(cumulative) || length(cumulative) != 1L || is.na(cumulative)) {
+    cli::cli_abort("{.arg cumulative} must be TRUE or FALSE.")
+  }
+  for (x in list(skip = skip, lag = lag)) {
+    if (length(x) != 1L || !is.numeric(x) || is.na(x) || !is.finite(x) || x < 0 || x != floor(x)) {
+      cli::cli_abort("{.arg skip} and {.arg lag} must be non-negative integers.")
+    }
+  }
   n <- nrow(.data)
-  if (initial + lag + assess > n) cli::cli_abort("Not enough rows for the initial window, lag and assessment window.")
+  if (initial + lag + assess > n) {
+    cli::cli_abort("Not enough rows for the initial window, lag and assessment window.")
+  }
   stops <- seq.int(initial, n - lag - assess, by = skip + 1)
   splits <- lapply(stops, function(stop) {
     start <- if (cumulative) 1 else stop - initial + 1
-    rsample::make_splits(list(analysis = seq.int(start, stop), assessment = seq.int(stop + lag + 1, stop + lag + assess)), data = .data)
+    rsample::make_splits(
+      list(
+        analysis = seq.int(start, stop),
+        assessment = seq.int(stop + lag + 1, stop + lag + assess)
+      ),
+      data = .data
+    )
   })
   rsample::manual_rset(splits, ids = paste0("Slice", seq_along(splits)))
 }
@@ -53,7 +67,15 @@ epi_spatial_cv <- function(.data, block, v = 5L, x = NULL, y = NULL, buffer = 0)
   b <- column(.data, rlang::enquo(block), "block")
   if (anyNA(b)) cli::cli_abort("{.arg block} must not contain missing values.")
   ids <- unique(b)
-  if (length(v) != 1 || !is.numeric(v) || is.na(v) || !is.finite(v) || v < 2 || v != floor(v) || v > length(ids)) cli::cli_abort("{.arg v} must be an integer between 2 and the number of blocks.")
+  if (length(v) != 1 ||
+    !is.numeric(v) ||
+    is.na(v) ||
+    !is.finite(v) ||
+    v < 2 ||
+    v != floor(v) ||
+    v > length(ids)) {
+    cli::cli_abort("{.arg v} must be an integer between 2 and the number of blocks.")
+  }
   assignment <- sample(rep(seq_len(v), length.out = length(ids)))
   f <- assignment[match(b, ids)]
   check_scalar(buffer, "buffer", inclusive = TRUE)
@@ -61,19 +83,36 @@ epi_spatial_cv <- function(.data, block, v = 5L, x = NULL, y = NULL, buffer = 0)
   yq <- rlang::enquo(y)
   xnull <- rlang::quo_is_null(xq)
   ynull <- rlang::quo_is_null(yq)
-  if (xor(xnull, ynull) || (buffer > 0 && (xnull || ynull))) cli::cli_abort("Both {.arg x} and {.arg y} are required for spatial buffering.")
+  if (xor(xnull, ynull) || (buffer > 0 && (xnull || ynull))) {
+    cli::cli_abort("Both {.arg x} and {.arg y} are required for spatial buffering.")
+  }
   if (!xnull) {
     xx <- column(.data, xq, "x")
     yy <- column(.data, yq, "y")
-    if (!is.numeric(xx) || !is.numeric(yy) || anyNA(xx) || anyNA(yy) || any(!is.finite(xx)) || any(!is.finite(yy))) cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+    if (!is.numeric(xx) ||
+      !is.numeric(yy) ||
+      anyNA(xx) ||
+      anyNA(yy) ||
+      any(!is.finite(xx)) ||
+      any(!is.finite(yy))) {
+      cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+    }
   }
   splits <- lapply(seq_len(v), function(i) {
     assessment <- which(f == i)
     analysis <- which(f != i)
     if (buffer > 0) {
-      keep <- vapply(analysis, function(j) all(sqrt((xx[j] - xx[assessment])^2 + (yy[j] - yy[assessment])^2) > buffer), logical(1))
+      keep <- vapply(
+        analysis,
+        function(j) all(sqrt((xx[j] - xx[assessment])^2 + (yy[j] - yy[assessment])^2) > buffer),
+        logical(1)
+      )
       analysis <- analysis[keep]
-      if (!length(analysis)) cli::cli_abort("Buffer removed every analysis row in fold {i}; reduce {.arg buffer} or change the blocks.")
+      if (!length(analysis)) {
+        cli::cli_abort(
+          "Buffer removed every analysis row in fold {i}; reduce {.arg buffer} or change the blocks."
+        )
+      }
     }
     rsample::make_splits(list(analysis = analysis, assessment = assessment), data = .data)
   })

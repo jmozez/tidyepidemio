@@ -23,5 +23,17 @@ epi_diagnostic <- function(.data, test, truth) {
   tn <- sum(t == 0 & y == 0)
   sens <- ratio_safe(tp, tp + fn)
   spec <- ratio_safe(tn, tn + fp)
-  tibble::tibble(tp = tp, fp = fp, fn = fn, tn = tn, sensitivity = sens, specificity = spec, ppv = ratio_safe(tp, tp + fp), npv = ratio_safe(tn, tn + fn), lr_positive = ratio_safe(sens, 1 - spec), lr_negative = ratio_safe(1 - sens, spec), youden = sens + spec - 1)
+  tibble::tibble(
+    tp = tp,
+    fp = fp,
+    fn = fn,
+    tn = tn,
+    sensitivity = sens,
+    specificity = spec,
+    ppv = ratio_safe(tp, tp + fp),
+    npv = ratio_safe(tn, tn + fn),
+    lr_positive = ratio_safe(sens, 1 - spec),
+    lr_negative = ratio_safe(1 - sens, spec),
+    youden = sens + spec - 1
+  )
 }

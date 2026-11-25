@@ -24,28 +24,58 @@ epi_epicurve <- function(.data, onset, group = NULL, interval = c("day", "week")
   check_data(.data)
   interval <- match.arg(interval)
   date <- column(.data, rlang::enquo(onset), "onset")
-  if (!inherits(date, "Date") || !length(date) || anyNA(date) || any(!is.finite(as.numeric(date))) || any(as.numeric(date) != floor(as.numeric(date)))) cli::cli_abort("{.arg onset} must contain at least one non-missing, finite whole-day Date.")
+  if (!inherits(date, "Date") ||
+    !length(date) ||
+    anyNA(date) ||
+    any(!is.finite(as.numeric(date))) ||
+    any(as.numeric(date) != floor(as.numeric(date)))) {
+    cli::cli_abort("{.arg onset} must contain at least one non-missing, finite whole-day Date.")
+  }
   gq <- rlang::enquo(group)
   g <- if (rlang::quo_is_null(gq)) rep("All", length(date)) else column(.data, gq, "group")
-  if (anyNA(g) || !(is.character(g) || is.factor(g) || is.numeric(g) || is.logical(g)) || (is.numeric(g) && any(!is.finite(g)))) cli::cli_abort("{.arg group} must be a complete character, factor, logical or finite numeric column.")
+  if (anyNA(g) ||
+    !(is.character(g) || is.factor(g) || is.numeric(g) || is.logical(g)) ||
+    (is.numeric(g) && any(!is.finite(g)))) {
+    cli::cli_abort(
+      "{.arg group} must be a complete character, factor, logical or finite numeric column."
+    )
+  }
   date_bound <- function(x, name, default) {
     if (is.null(x)) {
       return(default)
     }
-    if (!inherits(x, "Date") || length(x) != 1L || is.na(x) || !is.finite(as.numeric(x)) || as.numeric(x) != floor(as.numeric(x))) cli::cli_abort("{.arg {name}} must be a single finite whole-day Date.")
+    if (!inherits(x, "Date") ||
+      length(x) != 1L ||
+      is.na(x) ||
+      !is.finite(as.numeric(x)) ||
+      as.numeric(x) != floor(as.numeric(x))) {
+      cli::cli_abort("{.arg {name}} must be a single finite whole-day Date.")
+    }
     x
   }
   start <- date_bound(start, "start", min(date))
   end <- date_bound(end, "end", max(date))
-  if (start > min(date) || end < max(date) || start > end) cli::cli_abort("Date bounds must enclose every observed onset date.")
-  bin_date <- function(x) if (interval == "day") x else as.Date(floor((as.numeric(x) - 4) / 7) * 7 + 4, origin = "1970-01-01")
+  if (start > min(date) || end < max(date) || start > end) {
+    cli::cli_abort("Date bounds must enclose every observed onset date.")
+  }
+  bin_date <- function(
+    x
+  ) {
+    if (interval == "day") {
+      x
+    } else {
+      as.Date(floor((as.numeric(x) - 4) / 7) * 7 + 4, origin = "1970-01-01")
+    }
+  }
   date <- bin_date(date)
   start <- bin_date(start)
   end <- bin_date(end)
   by <- if (interval == "day") 1 else 7
   bins_n <- as.numeric(end - start) / by + 1
   groups <- unique(as.character(g))
-  if (!is.finite(bins_n) || bins_n * length(groups) > 1000000) cli::cli_abort("At most one million group-date bins are supported.")
+  if (!is.finite(bins_n) || bins_n * length(groups) > 1e+06) {
+    cli::cli_abort("At most one million group-date bins are supported.")
+  }
   dates <- seq(start, end, by = paste(by, "days"))
   g <- as.character(g)
   pieces <- lapply(groups, function(id) {

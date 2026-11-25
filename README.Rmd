@@ -144,9 +144,10 @@ knitr::kable(rr[c("model", "estimate", "conf_low", "conf_high", "events", "se_ty
              digits = 2, col.names = c("Model", "Rate ratio", "Lower 95%", "Upper 95%", "Deaths", "SE"))
 ```
 
-Age confounds the crude association: smokers in the cohort were younger.
-After adjustment, smokers have about 43% higher coronary mortality, the
-classic textbook result.
+Age confounds the crude association: smokers in this cohort were older on
+average, so the crude rate ratio (1.72) overstates the effect. After
+adjustment, smokers have about 43% higher coronary mortality, the classic
+textbook result.
 
 ### Finding disease clusters: SIDS in North Carolina
 
@@ -174,7 +175,8 @@ ggplot(nc_sids, aes(x_km, y_km)) +
        x = "Easting (km)", y = "Northing (km)")
 ```
 
-The scan recovers the well-known south-eastern cluster around Robeson County.
+The most likely cluster covers Robeson, Bladen and Columbus counties in the
+south-east of the state, the excess long noted in this benchmark dataset.
 
 ### Space-time clusters: COVID-19 across New York State
 
@@ -198,6 +200,9 @@ ggplot(trend, aes(week, rate, colour = area)) +
   labs(title = "Weekly COVID-19 cases per 100,000, spring 2020", x = NULL, y = "Rate per 100,000") +
   theme(legend.position = "top")
 ```
+
+The cluster is the five boroughs of New York City plus Nassau County,
+whose weekly rate peaked at over twice that of the rest of the state.
 
 ### Competing risks: progression of MGUS
 

@@ -10,5 +10,8 @@ test_that("gamma Rt uses only complete prior lags and the specified prior", {
   z <- epi_rt_gamma(d, cases, 1, window = 1, imported = imports)
   expect_equal(z$infectiousness[2], 2)
   expect_equal(z$rt_mean[2], 2 / 3)
-  expect_error(epi_rt_gamma(data.frame(cases = c(0, 1)), cases, 1, window = 1), "infectiousness is zero")
+  expect_error(
+    epi_rt_gamma(data.frame(cases = c(0, 1)), cases, 1, window = 1),
+    "infectiousness is zero"
+  )
 })

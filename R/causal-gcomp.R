@@ -53,24 +53,51 @@ epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, co
   e <- check_binary(.data[[en]], "exposure")
   y <- check_binary(.data[[yn]], "outcome")
   n <- length(y)
-  if (n < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) cli::cli_abort("At least four observations and both exposure and outcome levels are required.")
+  if (n < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) {
+    cli::cli_abort("At least four observations and both exposure and outcome levels are required.")
+  }
   cols <- names(tidyselect::eval_select(aq, .data, allow_rename = FALSE))
-  if (any(cols %in% c(en, yn))) cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
+  if (any(cols %in% c(en, yn))) {
+    cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
+  }
   for (nm in cols) {
     v <- .data[[nm]]
-    if (anyNA(v) || !(is.numeric(v) || is.factor(v) || is.logical(v)) || (is.numeric(v) && any(!is.finite(v))) || length(unique(v)) < 2) cli::cli_abort("Adjustment column {.field {nm}} must be complete, numeric, factor or logical, and have at least two observed values.")
+    if (anyNA(v) ||
+      !(is.numeric(v) || is.factor(v) || is.logical(v)) ||
+      (is.numeric(v) && any(!is.finite(v))) ||
+      length(unique(v)) < 2) {
+      cli::cli_abort(
+        "Adjustment column {.field {nm}} must be complete, numeric, factor or logical, and have at least two observed values." # nolint: line_length_linter.
+      )
+    }
   }
-  if (!is.numeric(bootstrap) || length(bootstrap) != 1 || is.na(bootstrap) || !is.finite(bootstrap) || bootstrap != floor(bootstrap) || !(bootstrap == 0 || (bootstrap >= 100 && bootstrap <= 2000))) cli::cli_abort("{.arg bootstrap} must be 0 or an integer from 100 to 2000.")
-  if (as.double(n) * bootstrap > 5000000) cli::cli_abort("At most 5 million resampled records are supported.")
+  if (!is.numeric(bootstrap) ||
+    length(bootstrap) != 1 ||
+    is.na(bootstrap) ||
+    !is.finite(bootstrap) ||
+    bootstrap != floor(bootstrap) ||
+    !(bootstrap == 0 || (bootstrap >= 100 && bootstrap <= 2000))) {
+    cli::cli_abort("{.arg bootstrap} must be 0 or an integer from 100 to 2000.")
+  }
+  if (as.double(n) * bootstrap > 5e+06) {
+    cli::cli_abort("At most 5 million resampled records are supported.")
+  }
   dat <- data.frame(.outcome = y, .exposure = e)
   for (j in seq_along(cols)) dat[[paste0(".cov", j)]] <- .data[[cols[j]]]
   covs <- if (length(cols)) paste0(".cov", seq_along(cols)) else character()
   form <- stats::reformulate(c(".exposure", covs), response = ".outcome")
   compute <- function(d) {
-    if (length(unique(d$.exposure)) < 2 || length(unique(d$.outcome)) < 2) stop("Missing exposure or outcome level")
+    if (length(unique(d$.exposure)) < 2 || length(unique(d$.outcome)) < 2) {
+      stop("Missing exposure or outcome level")
+    }
     fit <- stats::glm(form, data = d, family = stats::binomial())
-    if (!fit$converged || fit$rank < length(stats::coef(fit)) || anyNA(stats::coef(fit))) stop("Rank-deficient or non-convergent model")
-    if (abs(stats::coef(fit)[".exposure"]) > 15 || any(stats::fitted(fit) < 1e-8 | stats::fitted(fit) > 1 - 1e-8)) warning("Possible separation or extreme fitted probabilities")
+    if (!fit$converged || fit$rank < length(stats::coef(fit)) || anyNA(stats::coef(fit))) {
+      stop("Rank-deficient or non-convergent model")
+    }
+    if (abs(stats::coef(fit)[".exposure"]) > 15 ||
+      any(stats::fitted(fit) < 1e-08 | stats::fitted(fit) > 1 - 1e-08)) {
+      warning("Possible separation or extreme fitted probabilities")
+    }
     d0 <- d
     d1 <- d
     d0$.exposure <- 0
@@ -84,22 +111,38 @@ epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, co
     cli::cli_warn("Outcome model warning: {conditionMessage(w)}")
     invokeRestart("muffleWarning")
   }), error = function(err) cli::cli_abort("Unable to fit the outcome model: {conditionMessage(err)}"))
-  if (is.na(observed[4])) cli::cli_warn("The unexposed standardized risk is zero; the risk ratio is undefined.")
+  if (is.na(observed[4])) {
+    cli::cli_warn("The unexposed standardized risk is zero; the risk ratio is undefined.")
+  }
   low <- high <- rep(NA_real_, 4)
   successful <- 0L
   if (bootstrap > 0) {
     boot <- matrix(NA_real_, nrow = bootstrap, ncol = 4)
     for (i in seq_len(bootstrap)) {
       # Warnings such as numerical separation invalidate this replicate.
-      value <- tryCatch(withCallingHandlers(compute(dat[sample.int(n, n, replace = TRUE), , drop = FALSE]), warning = function(w) stop(conditionMessage(w))), error = function(e) rep(NA_real_, 4))
+      value <- tryCatch(
+        withCallingHandlers(
+          compute(dat[sample.int(n, n, replace = TRUE), , drop = FALSE]),
+          warning = function(w) stop(conditionMessage(w))
+        ),
+        error = function(e) rep(NA_real_, 4)
+      )
       if (all(is.finite(value))) {
         boot[i, ] <- value
         successful <- successful + 1L
       }
     }
     failed <- bootstrap - successful
-    if (failed > 0.1 * bootstrap) cli::cli_abort("{failed} of {bootstrap} bootstrap fits failed or warned; intervals are not reported. Inspect overlap and sparsity.")
-    if (failed > 0) cli::cli_warn("{failed} of {bootstrap} bootstrap fits failed or warned and were omitted; intervals may be biased.")
+    if (failed > 0.1 * bootstrap) {
+      cli::cli_abort(
+        "{failed} of {bootstrap} bootstrap fits failed or warned; intervals are not reported. Inspect overlap and sparsity." # nolint: line_length_linter.
+      )
+    }
+    if (failed > 0) {
+      cli::cli_warn(
+        "{failed} of {bootstrap} bootstrap fits failed or warned and were omitted; intervals may be biased."
+      )
+    }
     ok <- stats::complete.cases(boot)
     alpha <- 1 - conf_level
     low <- apply(boot[ok, , drop = FALSE], 2, stats::quantile, probs = alpha / 2, names = FALSE)
@@ -109,5 +152,13 @@ epi_gcomp <- function(.data, exposure, outcome, adjust = c(), bootstrap = 0L, co
       high[4] <- NA_real_
     }
   }
-  tibble::tibble(measure = c("risk_unexposed", "risk_exposed", "risk_difference", "risk_ratio"), estimate = unname(observed), conf_low = low, conf_high = high, n = n, bootstrap = as.integer(bootstrap), bootstrap_success = successful)
+  tibble::tibble(
+    measure = c("risk_unexposed", "risk_exposed", "risk_difference", "risk_ratio"),
+    estimate = unname(observed),
+    conf_low = low,
+    conf_high = high,
+    n = n,
+    bootstrap = as.integer(bootstrap),
+    bootstrap_success = successful
+  )
 }

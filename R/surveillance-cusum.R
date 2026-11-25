@@ -32,7 +32,9 @@ epi_cusum <- function(.data, cases, baseline, relative_risk = 2, threshold = 5, 
   check_scalar(threshold, "threshold")
   check_scalar(initial, "initial", inclusive = TRUE)
   if (any(count != floor(count))) cli::cli_abort("{.arg cases} must contain integer counts.")
-  if (any(c("cusum", "alert") %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
+  if (any(c("cusum", "alert") %in% names(.data))) {
+    cli::cli_abort("Output columns already exist; rename them before analysis.")
+  }
   value <- numeric(length(count))
   last <- initial
   for (i in seq_along(count)) {

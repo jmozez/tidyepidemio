@@ -34,7 +34,9 @@ epi_kaplan_meier <- function(.data, time, event, strata = NULL, conf_level = 0.9
   if (!length(t)) cli::cli_abort("{.arg .data} must contain at least one record.")
   sq <- rlang::enquo(strata)
   s <- if (rlang::quo_is_null(sq)) rep("All", length(t)) else column(.data, sq, "strata")
-  if (anyNA(s) || !(is.character(s) || is.factor(s) || is.numeric(s) || is.logical(s))) cli::cli_abort("{.arg strata} must be a non-missing atomic grouping variable.")
+  if (anyNA(s) || !(is.character(s) || is.factor(s) || is.numeric(s) || is.logical(s))) {
+    cli::cli_abort("{.arg strata} must be a non-missing atomic grouping variable.")
+  }
   s <- as.character(s)
   ids <- unique(s)
   en <- survival_entry(.data, rlang::enquo(entry), t)
@@ -42,8 +44,22 @@ epi_kaplan_meier <- function(.data, time, event, strata = NULL, conf_level = 0.9
     idx <- which(s == id)
     frame <- data.frame(t = t[idx], event = e[idx])
     if (!is.null(en)) frame$en <- en[idx]
-    fit <- survival::survfit(if (is.null(en)) survival::Surv(t, event) ~ 1 else survival::Surv(en, t, event) ~ 1, data = frame, conf.type = "log-log", conf.int = conf_level)
-    tibble::tibble(strata = id, time = fit$time, n_risk = fit$n.risk, n_event = fit$n.event, n_censor = fit$n.censor, estimate = fit$surv, conf_low = fit$lower, conf_high = fit$upper)
+    fit <- survival::survfit(
+      if (is.null(en)) survival::Surv(t, event) ~ 1 else survival::Surv(en, t, event) ~ 1,
+      data = frame,
+      conf.type = "log-log",
+      conf.int = conf_level
+    )
+    tibble::tibble(
+      strata = id,
+      time = fit$time,
+      n_risk = fit$n.risk,
+      n_event = fit$n.event,
+      n_censor = fit$n.censor,
+      estimate = fit$surv,
+      conf_low = fit$lower,
+      conf_high = fit$upper
+    )
   })
   dplyr::bind_rows(pieces)
 }
@@ -53,6 +69,8 @@ survival_entry <- function(.data, q, time) {
   }
   en <- column(.data, q, "entry")
   check_nonnegative(en, "entry")
-  if (any(en >= time)) cli::cli_abort("{.arg entry} must be strictly less than the exit time for every row.")
+  if (any(en >= time)) {
+    cli::cli_abort("{.arg entry} must be strictly less than the exit time for every row.")
+  }
   en
 }

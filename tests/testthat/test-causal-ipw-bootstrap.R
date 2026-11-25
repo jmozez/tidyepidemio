@@ -4,7 +4,10 @@ test_that("IPW estimates match independent weight and risk calculations", {
   z <- epi_ipw(d, e, y, adjust = age)
   weighted <- epi_propensity_weights(d, e, adjust = age)
   ref <- epi_weighted_effect(weighted, e, y, ipw)
-  expect_equal(z$estimate, c(ref$risk_unexposed, ref$risk_exposed, ref$risk_difference, ref$risk_ratio))
+  expect_equal(
+    z$estimate,
+    c(ref$risk_unexposed, ref$risk_exposed, ref$risk_difference, ref$risk_ratio)
+  )
   expect_equal(z$ess_exposed[1], ref$ess_exposed)
   expect_true(all(is.na(z$conf_low)))
   z2 <- epi_ipw(d, e, y, adjust = age, stabilized = FALSE)

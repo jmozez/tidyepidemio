@@ -37,16 +37,33 @@ epi_paired_diagnostic <- function(.data, test1, test2, truth, conf_level = 0.95)
   a <- check_binary(column(.data, rlang::enquo(test1), "test1"), "test1")
   b <- check_binary(column(.data, rlang::enquo(test2), "test2"), "test2")
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
-  if (!length(y) || length(unique(y)) != 2L) cli::cli_abort("Both reference outcome levels must be present.")
+  if (!length(y) || length(unique(y)) != 2L) {
+    cli::cli_abort("Both reference outcome levels must be present.")
+  }
   one <- function(group, metric) {
     x <- if (group == 1) a[y == group] else 1 - a[y == group]
     z <- if (group == 1) b[y == group] else 1 - b[y == group]
     only1 <- sum(x == 1 & z == 0)
     only2 <- sum(x == 0 & z == 1)
     discordant <- only1 + only2
-    p <- if (discordant == 0) 1 else stats::binom.test(only1, discordant, p = .5, alternative = "two.sided")$p.value
+    p <- if (discordant == 0) {
+      1
+    } else {
+      stats::binom.test(only1, discordant, p = 0.5, alternative = "two.sided")$p.value
+    }
     lim <- tango_paired_ci(only1, only2, length(x), conf_level)
-    tibble::tibble(metric = metric, n = length(x), test1 = mean(x), test2 = mean(z), difference = mean(x) - mean(z), conf_low = lim[1], conf_high = lim[2], test1_only_correct = only1, test2_only_correct = only2, p_value = p)
+    tibble::tibble(
+      metric = metric,
+      n = length(x),
+      test1 = mean(x),
+      test2 = mean(z),
+      difference = mean(x) - mean(z),
+      conf_low = lim[1],
+      conf_high = lim[2],
+      test1_only_correct = only1,
+      test2_only_correct = only2,
+      p_value = p
+    )
   }
   dplyr::bind_rows(one(1, "sensitivity"), one(0, "specificity"))
 }

@@ -21,7 +21,13 @@ test_that("RMST handles time zero, terminal events and censoring", {
 })
 
 test_that("RMST handles confidence levels close to one", {
-  z <- epi_rmst(data.frame(t = c(1, 2), e = c(0, 0)), t, e, tau = 2, conf_level = 1 - .Machine$double.eps / 2)
+  z <- epi_rmst(
+    data.frame(t = c(1, 2), e = c(0, 0)),
+    t,
+    e,
+    tau = 2,
+    conf_level = 1 - .Machine$double.eps / 2
+  )
   expect_true(is.finite(z$conf_low))
   expect_true(is.finite(z$conf_high))
 })

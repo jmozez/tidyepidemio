@@ -42,10 +42,21 @@ epi_adjusted_risk_ratio <- function(.data, exposure, outcome, adjust = c(), clus
   if (identical(en, yn)) cli::cli_abort("Exposure and outcome must be distinct columns.")
   e <- check_binary(.data[[en]], "exposure")
   y <- check_binary(.data[[yn]], "outcome")
-  if (length(y) < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) cli::cli_abort("Both exposure and outcome levels and at least four records are required.")
+  if (length(y) < 4 || length(unique(e)) < 2 || length(unique(y)) < 2) {
+    cli::cli_abort("Both exposure and outcome levels and at least four records are required.")
+  }
   selected <- names(tidyselect::eval_select(rlang::enquo(adjust), .data, allow_rename = FALSE))
-  if (any(selected %in% c(en, yn))) cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
-  over_one <- function(fit, mu) if (any(mu > 1 + 1e-8)) cli::cli_warn("Some fitted risks exceed one; inspect the log risk model and its predictions.")
+  if (any(selected %in% c(en, yn))) {
+    cli::cli_abort("Adjustment columns must exclude exposure and outcome.")
+  }
+  over_one <- function(
+    fit,
+    mu
+  ) {
+    if (any(mu > 1 + 1e-08)) {
+      cli::cli_warn("Some fitted risks exceed one; inspect the log risk model and its predictions.")
+    }
+  }
   adjusted_glm(.data, y, e, selected, c(en, yn), stats::poisson(link = "log"), "adjusted_risk_ratio", conf_level,
     rlang::enquo(weights), rlang::enquo(cluster), rlang::enquo(modifier), rlang::enquo(nonlinear), robust,
     extra = list(n = length(y)), check_fit = over_one, keep_clusters = TRUE

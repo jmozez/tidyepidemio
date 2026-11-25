@@ -23,5 +23,8 @@ test_that("Kaplan-Meier supports delayed entry", {
   expect_equal(km$estimate, ref$surv)
   expect_equal(km$n_risk, ref$n.risk)
   expect_equal(km$conf_low, ref$lower)
-  expect_error(epi_kaplan_meier(transform(d, entry = time + 1), time, ev, entry = entry), "strictly less")
+  expect_error(
+    epi_kaplan_meier(transform(d, entry = time + 1), time, ev, entry = entry),
+    "strictly less"
+  )
 })

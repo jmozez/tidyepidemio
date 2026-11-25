@@ -40,18 +40,49 @@ epi_spatial_scan <- function(.data, x, y, cases, population, radii, max_fraction
   b <- column(.data, rlang::enquo(y), "y")
   count <- column(.data, rlang::enquo(cases), "cases")
   pop <- column(.data, rlang::enquo(population), "population")
-  if (!is.numeric(a) || !is.numeric(b) || anyNA(a) || anyNA(b) || any(!is.finite(a)) || any(!is.finite(b))) cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+  if (!is.numeric(a) ||
+    !is.numeric(b) ||
+    anyNA(a) ||
+    anyNA(b) ||
+    any(!is.finite(a)) ||
+    any(!is.finite(b))) {
+    cli::cli_abort("Coordinates must be finite numeric projected coordinates.")
+  }
   check_nonnegative(count, "cases")
   check_nonnegative(pop, "population", positive = TRUE)
   check_nonnegative(radii, "radii", positive = TRUE)
   check_probability(max_fraction, "max_fraction")
-  if (length(count) < 2 || any(count != floor(count)) || sum(count) == 0) cli::cli_abort("At least two locations and a positive total of integer cases are required.")
-  if (!is.finite(sum(pop)) || !is.finite(sum(count)) || sum(count) > .Machine$integer.max) cli::cli_abort("Total population must be finite and total cases must not exceed the integer limit.")
-  if (!length(radii) || anyDuplicated(radii)) cli::cli_abort("{.arg radii} must be a non-empty vector of distinct radii.")
-  if (length(nsim) != 1 || !is.numeric(nsim) || is.na(nsim) || !is.finite(nsim) || nsim < 0 || nsim != floor(nsim) || nsim > 100000) cli::cli_abort("{.arg nsim} must be an integer between 0 and 100000.")
+  if (length(count) < 2 || any(count != floor(count)) || sum(count) == 0) {
+    cli::cli_abort("At least two locations and a positive total of integer cases are required.")
+  }
+  if (!is.finite(sum(pop)) || !is.finite(sum(count)) || sum(count) > .Machine$integer.max) {
+    cli::cli_abort(
+      "Total population must be finite and total cases must not exceed the integer limit."
+    )
+  }
+  if (!length(radii) || anyDuplicated(radii)) {
+    cli::cli_abort("{.arg radii} must be a non-empty vector of distinct radii.")
+  }
+  if (length(nsim) != 1 ||
+    !is.numeric(nsim) ||
+    is.na(nsim) ||
+    !is.finite(nsim) ||
+    nsim < 0 ||
+    nsim != floor(nsim) ||
+    nsim > 1e+05) {
+    cli::cli_abort("{.arg nsim} must be an integer between 0 and 100000.")
+  }
   n <- length(count)
-  if (n > 5000 || as.double(n) * length(radii) > 200000) cli::cli_abort("At most 5000 locations and 200000 candidate circles are supported.")
-  cand <- scan_candidates_cpp(as.double(a), as.double(b), as.double(pop), as.double(sort(radii)), max_fraction)
+  if (n > 5000 || as.double(n) * length(radii) > 2e+05) {
+    cli::cli_abort("At most 5000 locations and 200000 candidate circles are supported.")
+  }
+  cand <- scan_candidates_cpp(
+    as.double(a),
+    as.double(b),
+    as.double(pop),
+    as.double(sort(radii)),
+    max_fraction
+  )
   m <- length(cand$center)
   if (!m) cli::cli_abort("No eligible circles. Adjust {.arg radii} or {.arg max_fraction}.")
   total <- sum(count)
@@ -68,7 +99,19 @@ epi_spatial_scan <- function(.data, x, y, cases, population, radii, max_fraction
     maxima <- scan_simulate_max(cand, expected, 1L, n, 1L, total, pop, nsim)
     p <- (sum(maxima >= scan_res$score[best] - 1e-12) + 1) / (nsim + 1)
   }
-  tibble::tibble(center_x = a[cand$center[best]], center_y = b[cand$center[best]], radius = cand$radius[best], observed = obs, expected = expected[best], population = inside_pop, relative_risk = rr, log_likelihood_ratio = scan_res$score[best], p_value = p, simulations = as.integer(nsim), candidates = m)
+  tibble::tibble(
+    center_x = a[cand$center[best]],
+    center_y = b[cand$center[best]],
+    radius = cand$radius[best],
+    observed = obs,
+    expected = expected[best],
+    population = inside_pop,
+    relative_risk = rr,
+    log_likelihood_ratio = scan_res$score[best],
+    p_value = p,
+    simulations = as.integer(nsim),
+    candidates = m
+  )
 }
 
 # Draw multinomial null datasets in batches (the same random stream as one
@@ -82,7 +125,19 @@ scan_simulate_max <- function(cand, expected, windows, n, n_times, total, pop, n
     b <- min(batch, nsim - done)
     sims <- stats::rmultinom(b, size = total, prob = prob)
     storage.mode(sims) <- "double"
-    out <- c(out, scan_sim_max_cpp(cand$ptr, cand$idx, expected, as.integer(windows), as.integer(n), as.integer(n_times), sims, total))
+    out <- c(
+      out,
+      scan_sim_max_cpp(
+        cand$ptr,
+        cand$idx,
+        expected,
+        as.integer(windows),
+        as.integer(n),
+        as.integer(n_times),
+        sims,
+        total
+      )
+    )
     done <- done + b
   }
   out

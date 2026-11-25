@@ -25,16 +25,76 @@
 #' d$time <- 1
 #' epi_rate_ratio(d, exposure, outcome, time)
 #' @export
-epi_risk_ratio <- function(.data, exposure, outcome, conf_level = 0.95, correction = 0) assoc(.data, rlang::enquo(exposure), rlang::enquo(outcome), type = "risk_ratio", conf_level = conf_level, correction = correction)
+epi_risk_ratio <- function(
+  .data,
+  exposure,
+  outcome,
+  conf_level = 0.95,
+  correction = 0
+) {
+  assoc(
+    .data,
+    rlang::enquo(exposure),
+    rlang::enquo(outcome),
+    type = "risk_ratio",
+    conf_level = conf_level,
+    correction = correction
+  )
+}
 #' @rdname epi_risk_ratio
 #' @export
-epi_odds_ratio <- function(.data, exposure, outcome, conf_level = 0.95, correction = 0) assoc(.data, rlang::enquo(exposure), rlang::enquo(outcome), type = "odds_ratio", conf_level = conf_level, correction = correction)
+epi_odds_ratio <- function(
+  .data,
+  exposure,
+  outcome,
+  conf_level = 0.95,
+  correction = 0
+) {
+  assoc(
+    .data,
+    rlang::enquo(exposure),
+    rlang::enquo(outcome),
+    type = "odds_ratio",
+    conf_level = conf_level,
+    correction = correction
+  )
+}
 #' @rdname epi_risk_ratio
 #' @export
-epi_attributable_risk <- function(.data, exposure, outcome, conf_level = 0.95, correction = 0) assoc(.data, rlang::enquo(exposure), rlang::enquo(outcome), type = "risk_difference", conf_level = conf_level, correction = correction)
+epi_attributable_risk <- function(
+  .data,
+  exposure,
+  outcome,
+  conf_level = 0.95,
+  correction = 0
+) {
+  assoc(
+    .data,
+    rlang::enquo(exposure),
+    rlang::enquo(outcome),
+    type = "risk_difference",
+    conf_level = conf_level,
+    correction = correction
+  )
+}
 #' @rdname epi_risk_ratio
 #' @export
-epi_rate_ratio <- function(.data, exposure, outcome, time, conf_level = 0.95) assoc(.data, rlang::enquo(exposure), rlang::enquo(outcome), rlang::enquo(time), "rate_ratio", conf_level)
+epi_rate_ratio <- function(
+  .data,
+  exposure,
+  outcome,
+  time,
+  conf_level = 0.95
+) {
+  assoc(
+    .data,
+    rlang::enquo(exposure),
+    rlang::enquo(outcome),
+    rlang::enquo(time),
+    "rate_ratio",
+    conf_level
+  )
+}
 assoc <- function(data, eq, oq, tq = NULL, type, conf_level, correction = 0) {
   check_data(data)
   check_scalar(conf_level, "conf_level")
@@ -90,6 +150,22 @@ assoc <- function(data, eq, oq, tq = NULL, type, conf_level, correction = 0) {
     lo <- exp(log(estimate) - z * se)
     hi <- exp(log(estimate) + z * se)
   }
-  if (is.na(estimate) || is.na(lo)) cli::cli_warn("Estimate or interval is undefined with these zero counts; returning {.val NA} where needed.")
-  new_epi_result(tibble::tibble(measure = type, estimate = estimate, conf_low = lo, conf_high = hi, exposed_events = raw[["a"]], exposed_total = raw[["n1"]], unexposed_events = raw[["c"]], unexposed_total = raw[["n0"]], correction = applied))
+  if (is.na(estimate) || is.na(lo)) {
+    cli::cli_warn(
+      "Estimate or interval is undefined with these zero counts; returning {.val NA} where needed."
+    )
+  }
+  new_epi_result(
+    tibble::tibble(
+      measure = type,
+      estimate = estimate,
+      conf_low = lo,
+      conf_high = hi,
+      exposed_events = raw[["a"]],
+      exposed_total = raw[["n1"]],
+      unexposed_events = raw[["c"]],
+      unexposed_total = raw[["n0"]],
+      correction = applied
+    )
+  )
 }

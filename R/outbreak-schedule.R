@@ -29,18 +29,32 @@ epi_simulate_schedule <- function(.data, initial, dt = 1, model = c("sir", "seir
   check_data(initial)
   model <- match.arg(model)
   check_scalar(dt, "dt")
-  if (!is.logical(stochastic) || length(stochastic) != 1L || is.na(stochastic)) cli::cli_abort("{.arg stochastic} must be TRUE or FALSE.")
+  if (!is.logical(stochastic) || length(stochastic) != 1L || is.na(stochastic)) {
+    cli::cli_abort("{.arg stochastic} must be TRUE or FALSE.")
+  }
   comp <- if (model == "sir") c("S", "I", "R") else c("S", "E", "I", "R")
   rate <- if (model == "sir") c("beta", "gamma") else c("beta", "gamma", "sigma")
-  if (nrow(initial) != 1L || !all(comp %in% names(initial))) cli::cli_abort("{.arg initial} must be one row with compartment columns {paste(comp,collapse=', ')}.")
-  if (!nrow(.data) || !all(rate %in% names(.data))) cli::cli_abort("The non-empty schedule must contain numeric rate columns {paste(rate,collapse=', ')}.")
+  if (nrow(initial) != 1L || !all(comp %in% names(initial))) {
+    cli::cli_abort(
+      "{.arg initial} must be one row with compartment columns {paste(comp,collapse=', ')}."
+    )
+  }
+  if (!nrow(.data) || !all(rate %in% names(.data))) {
+    cli::cli_abort(
+      "The non-empty schedule must contain numeric rate columns {paste(rate,collapse=', ')}."
+    )
+  }
   if (nrow(.data) > 1000000) cli::cli_abort("At most one million schedule steps are supported.")
   for (nm in comp) check_nonnegative(initial[[nm]], nm)
   for (nm in rate) check_nonnegative(.data[[nm]], nm)
   state <- unlist(initial[1, comp], use.names = TRUE)
   N <- sum(state)
-  if (!is.finite(N) || N <= 0) cli::cli_abort("Initial population must have a finite positive total.")
-  if (stochastic && any(state != floor(state))) cli::cli_abort("Stochastic compartment counts must be integers.")
+  if (!is.finite(N) || N <= 0) {
+    cli::cli_abort("Initial population must have a finite positive total.")
+  }
+  if (stochastic && any(state != floor(state))) {
+    cli::cli_abort("Stochastic compartment counts must be integers.")
+  }
   steps <- nrow(.data)
   mat <- matrix(0, steps + 1L, length(comp), dimnames = list(NULL, comp))
   mat[1, ] <- state

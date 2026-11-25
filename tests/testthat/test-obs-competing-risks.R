@@ -23,7 +23,10 @@ test_that("cumulative incidence supports delayed entry and matches survfit", {
   expect_equal(ci$n_risk, f$n.risk[m, 1])
   expect_equal(ci$conf_low, f$lower[m, 2])
   expect_equal(ci$conf_high, f$upper[m, 2])
-  expect_error(epi_cumulative_incidence(transform(d, entry = time), time, status, entry = entry), "strictly less")
+  expect_error(
+    epi_cumulative_incidence(transform(d, entry = time), time, status, entry = entry),
+    "strictly less"
+  )
 })
 test_that("cumulative incidence limits are NA when the cause never occurs", {
   z <- epi_cumulative_incidence(data.frame(time = 1:3, status = c(0, 2, 0)), time, status, cause = 1)

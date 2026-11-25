@@ -10,6 +10,9 @@ test_that("Poisson scan finds elevated cluster and calibrates maxima", {
   set.seed(10)
   expect_equal(epi_spatial_scan(d, x, y, cases, pop, c(.1, 1), nsim = 99)$p_value, z$p_value)
   expect_true(is.na(epi_spatial_scan(d, x, y, cases, pop, .1, nsim = 0)$p_value))
-  expect_error(epi_spatial_scan(transform(d, cases = 0), x, y, cases, pop, .1, nsim = 0), "positive total")
+  expect_error(
+    epi_spatial_scan(transform(d, cases = 0), x, y, cases, pop, 0.1, nsim = 0),
+    "positive total"
+  )
   expect_error(epi_spatial_scan(d, x, y, cases, pop, 100, nsim = 0), "No eligible")
 })

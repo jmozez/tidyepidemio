@@ -25,7 +25,10 @@ test_that("number needed reports benefit, harm and equal risks", {
   expect_error(epi_number_needed(data.frame(t = 1, y = 0), t, y), "Both treatment groups")
 })
 test_that("number needed does not overflow on large group sizes", {
-  d <- data.frame(t = rep(0:1, each = 50000), y = c(rep(1, 25000), rep(0, 25000), rep(1, 12500), rep(0, 37500)))
+  d <- data.frame(
+    t = rep(0:1, each = 50000),
+    y = c(rep(1, 25000), rep(0, 25000), rep(1, 12500), rep(0, 37500))
+  )
   z <- epi_number_needed(d, t, y)
   expect_equal(z$number_needed, 4)
   expect_equal(z$absolute_risk_reduction, .25)
