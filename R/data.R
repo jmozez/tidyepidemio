@@ -17,7 +17,8 @@
 #'   real time. *Lancet Infectious Diseases* 20(5):533-534.
 #'   Build script: `data-raw/nz_covid_2020.R`.
 #' @examples
-#' pre <- subset(nz_covid_2020, date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28") & cases > 0)
+#' pre <- subset(nz_covid_2020, cases > 0 &
+#'   date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28"))
 #' pre$day <- as.numeric(pre$date - min(pre$date))
 #' epi_doubling_time(pre, day, cases)
 "nz_covid_2020"

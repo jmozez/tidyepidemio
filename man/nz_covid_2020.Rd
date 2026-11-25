@@ -29,7 +29,8 @@ lockdown from 26 March. Daily counts are differences of the cumulative
 series (negative corrections set to zero).
 }
 \examples{
-pre <- subset(nz_covid_2020, date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28") & cases > 0)
+pre <- subset(nz_covid_2020, cases > 0 &
+  date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28"))
 pre$day <- as.numeric(pre$date - min(pre$date))
 epi_doubling_time(pre, day, cases)
 }
