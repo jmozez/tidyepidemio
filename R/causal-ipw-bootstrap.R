@@ -39,7 +39,7 @@
 #' d$y <- as.integer(d$rep <= 1 + d$e + (d$age %% 2))
 #' epi_ipw(d, e, y, adjust = age)
 #' @export
-epi_ipw <- function(.data, exposure, outcome, adjust = c(), stabilized = TRUE, bootstrap = 0L, conf_level = 0.95) {
+epi_ipw <- function(.data, exposure, outcome, adjust = c(), stabilized = TRUE, bootstrap = 0L, conf_level = 0.95) tep_tag("causal", {
   check_data(.data)
   check_probability(conf_level, "conf_level")
   if (!is.logical(stabilized) || length(stabilized) != 1 || is.na(stabilized)) {
@@ -190,4 +190,4 @@ epi_ipw <- function(.data, exposure, outcome, adjust = c(), stabilized = TRUE, b
     bootstrap = as.integer(bootstrap),
     bootstrap_success = successful
   )
-}
+})

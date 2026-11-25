@@ -12,7 +12,7 @@
 #' d <- data.frame(test = c(1, 1, 0, 0), truth = c(1, 0, 1, 0))
 #' epi_diagnostic(d, test, truth)
 #' @export
-epi_diagnostic <- function(.data, test, truth) {
+epi_diagnostic <- function(.data, test, truth) tep_tag("diagnostic", {
   check_data(.data)
   t <- check_binary(column(.data, rlang::enquo(test), "test"), "test")
   y <- check_binary(column(.data, rlang::enquo(truth), "truth"), "truth")
@@ -36,4 +36,4 @@ epi_diagnostic <- function(.data, test, truth) {
     lr_negative = ratio_safe(1 - sens, spec),
     youden = sens + spec - 1
   )
-}
+})
