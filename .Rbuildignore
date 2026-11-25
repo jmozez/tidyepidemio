@@ -9,6 +9,7 @@
 ^\.lintr$
 ^_archive$
 ^_pkgdown\.yml$
+^cran-comments\.md$
 ^data-raw$
 ^docs$
 ^pkgdown$

@@ -29,6 +29,8 @@ lockdown from 26 March. Daily counts are differences of the cumulative
 series (negative corrections set to zero).
 }
 \examples{
-epi_growth_rate(transform(nz_covid_2020[10:30, ], day = seq_len(21)), day, cases)
+pre <- subset(nz_covid_2020, date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28") & cases > 0)
+pre$day <- as.numeric(pre$date - min(pre$date))
+epi_doubling_time(pre, day, cases)
 }
 \keyword{datasets}

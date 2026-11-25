@@ -17,7 +17,9 @@
 #'   real time. *Lancet Infectious Diseases* 20(5):533-534.
 #'   Build script: `data-raw/nz_covid_2020.R`.
 #' @examples
-#' epi_growth_rate(transform(nz_covid_2020[10:30, ], day = seq_len(21)), day, cases)
+#' pre <- subset(nz_covid_2020, date >= as.Date("2020-03-15") & date <= as.Date("2020-03-28") & cases > 0)
+#' pre$day <- as.numeric(pre$date - min(pre$date))
+#' epi_doubling_time(pre, day, cases)
 "nz_covid_2020"
 
 #' Weekly COVID-19 cases in New York State counties, spring 2020
