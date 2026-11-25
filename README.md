@@ -6,96 +6,322 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml)
+[![Tests and
+coverage](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml)
+[![Lint](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml)
+[![pkgdown](https://github.com/jmozez/tidyepidemio/actions/workflows/pkgdown.yaml/badge.svg)](https://jmozez.github.io/tidyepidemio/)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmozez/tidyepidemio/blob/main/LICENSE.md)
+[![C++
+kernels](https://img.shields.io/badge/speed-Rcpp%20kernels-B03A2E)](#speed)
 <!-- badges: end -->
+
+**Descriptive, analytic and infectious-disease epidemiology in one tidy
+workflow: data frames in, tibbles out.**
 
 Documentation: <https://jmozez.github.io/tidyepidemio/>
 
-An early-stage R package for transparent, data-first epidemiological
-analysis. This is a **prototype**, not a comprehensive or clinically
-validated toolkit. Review the assumptions below, and validate methods
-for the intended application. A clean local `R CMD check` is not CRAN
-acceptance or evidence of clinical validity.
+Epidemiology in R is spread across many packages, each with its own
+input format and output object: epitools and Epi for 2x2 tables,
+survival and cmprsk for time-to-event data, EpiEstim for R<sub>t</sub>,
+surveillance for outbreak detection, SaTScan (outside R) for cluster
+detection. tidyepidemio puts the core methods behind one consistent
+interface. Every function takes a data frame and unquoted column names
+and returns a tibble, so results go straight into dplyr, ggplot2 and
+reports. The slow inner loops run in compiled C++, and results are
+checked against established reference implementations (see
+[Validation](#validation)).
+
+- **Measures of association**: risk, odds and rate ratios,
+  Mantel-Haenszel with Breslow-Day, adjusted logistic, modified-Poisson
+  and Poisson models with weights, robust and cluster errors, effect
+  modification and splines.
+- **Survival and competing risks**: Kaplan-Meier, cumulative incidence
+  with delayed entry and Aalen-Johansen intervals, Cox models, RMST.
+- **Clinical epidemiology**: diagnostic accuracy, ROC and AUC,
+  calibration, decision curves.
+- **Infectious disease dynamics**: epidemic curves, growth rate,
+  R<sub>t</sub>, SIR/SEIR fitting and simulation, nowcasting and
+  forecasting.
+- **Surveillance and clusters**: seasonal and moving-window screens,
+  CUSUM, and Kulldorff-type spatial and space-time scan statistics.
 
 ## Installation
-
-Install the development version from GitHub:
 
 ``` r
 # install.packages("remotes")
 remotes::install_github("jmozez/tidyepidemio")
 ```
 
-## Examples
+## A tour with real data
+
+Every example below runs on real, published data shipped with the
+package or with R. See `?nz_covid_2020`, `?ny_covid_counties_2020`,
+`?flu_boarding_school_1978`, `?british_doctors` and `?nc_sids` for
+sources and licences.
+
+### COVID-19 in New Zealand: from epidemic curve to R<sub>t</sub>
+
+New Zealand recorded 1,530 confirmed cases in its first wave and
+eliminated community transmission after a strict lockdown from 26 March
+2020. Early cases were travellers, so any case with no cases in the
+previous 14 days is treated as imported. With a gamma generation
+interval (mean about 5 days), `epi_rt_gamma()` gives a posterior for the
+time-varying reproduction number.
 
 ``` r
-library(tidyepidemio)
-d <- data.frame(exposure = c(0,0,0,0,1,1,1,1),
-                outcome = c(0,0,0,1,0,1,1,1))
-effect <- d |> epi_risk_ratio(exposure, outcome)
-generics::tidy(effect)
-ggplot2::autoplot(effect)
+w <- dgamma(1:14, shape = 2.3, rate = 0.45)
+w <- w / sum(w)
+nz <- nz_covid_2020
+recent <- stats::filter(c(rep(0, 14), nz$cases), rep(1, 14), sides = 1)
+nz$imported <- ifelse(recent[14 + seq_len(nrow(nz)) - 1] == 0, nz$cases, 0L)
+nz$local <- nz$cases - nz$imported
 
-sample <- expand.grid(e=0:1, age=20:24, replicate=1:6)
-sample$y <- as.integer(sample$replicate <= 1 + sample$e + (sample$age %% 2))
-epi_gcomp(sample, e, y, adjust=age)
-weighted <- epi_propensity_weights(sample, e, adjust=age)
-epi_balance(weighted, e, age, weights=ipw)
-epi_weighted_effect(weighted, e, y, ipw)
-epi_ipw(sample, e, y, adjust=age) # set bootstrap=100 or more for intervals
+rt <- epi_rt_gamma(nz, local, weights = w, window = 7, imported = imported)
 
-predictions <- data.frame(y=c(0,0,1,0,1,0,1,1),
-                          p=c(.1,.2,.3,.4,.5,.6,.7,.8))
-epi_calibration(predictions, y, p, bins=4)
-epi_calibration_summary(predictions, y, p)
-epi_decision_curve(predictions, y, p, thresholds=c(.25,.5,.75))
-epi_plot_roc(epi_roc_curve(predictions, y, p))
-set.seed(17)
-epi_auc_ci(predictions, y, p, bootstrap=100)
-predictions$test_a <- as.integer(predictions$p >= .4)
-predictions$test_b <- as.integer(predictions$p >= .5)
-epi_paired_diagnostic(predictions, test_a, test_b, y)
-
-cohort <- data.frame(entry=as.Date("2024-01-01") + c(0, 1),
-                     exit=as.Date("2024-01-01") + c(5, 10), event=c(1, 1))
-epi_follow_up(cohort, entry, exit, event, censor_at=as.Date("2024-01-08"))
-survival_data <- data.frame(t=c(1,2,3,4,5,6), e=c(1,0,1,0,1,0))
-epi_rmst(survival_data, t, e, tau=5)
-
-sim <- epi_simulate(data.frame(S=999,I=1,R=0), beta=.3, gamma=.1, steps=30)
-series <- data.frame(time=1:6, cases=c(1,2,4,8,16,32))
-spec <- epi_renewal() |> parsnip::set_engine("tidyepidemio", weights=1)
-fit <- parsnip::fit(spec, cases ~ time, data=series)
-predict(fit, new_data=data.frame(time=7:8))
-generics::tidy(fit$fit)
-# A direct data-first alternative returns an epi_model rather than a parsnip fit:
-direct_fit <- epi_fit_renewal(series, time, cases, weights=1)
-predict(direct_fit, newdata=data.frame(time=7:8))
-
-series |> epi_surveillance(cases, window=3)
-training <- data.frame(t=1:40, cases=rep(c(4,6,8,6),10))
-new <- data.frame(t=41:42, cases=c(20,5))
-epi_seasonal_surveillance(new, t, cases, training=training, period=4)
-series |> epi_rt_gamma(cases, weights=1, window=3)
-set.seed(1)
-backtest <- epi_renewal_backtest(series, time, cases, weights=1,
-                                 initial=3, horizon=2, nsim=100)
-wis(backtest, observed, forecast_median, forecast_low, forecast_high, alpha=.05)
-epi_temporal_features(series[4:6, ], cases, time=time,
-                      history=series[1:3, ], window=2)
-reported <- data.frame(onset=as.Date("2024-01-01")+0:2, reports=c(10,8,3))
-epi_nowcast(reported, onset, reports, as_of=as.Date("2024-01-03"),
-            delay_prob=c(.5,.3,.2))
-set.seed(1)
-series |> epi_renewal_forecast(cases, weights=1, rt=1.1, horizon=3)
-
-rates <- data.frame(beta=c(.3,.3,.1,.1), gamma=.1)
-epi_simulate_schedule(rates, initial=data.frame(S=999,I=1,R=0))
-
-locations <- data.frame(x=c(0,1,10,11), y=0,
-                        cases=c(8,7,1,1), pop=100)
-set.seed(1)
-epi_spatial_scan(locations, x, y, cases, pop, radii=c(.1,1), nsim=99)
+lockdown <- as.Date("2020-03-26")
+p1 <- ggplot(nz, aes(date, cases)) +
+  geom_col(fill = navy, width = 1) +
+  geom_vline(xintercept = lockdown, linetype = 2, colour = red) +
+  labs(title = "Daily confirmed COVID-19 cases, New Zealand 2020", x = NULL, y = "Cases")
+p2 <- ggplot(subset(rt, !is.na(rt_mean) & date <= as.Date("2020-05-10")), aes(date, rt_mean)) +
+  geom_ribbon(aes(ymin = rt_low, ymax = rt_high), fill = red, alpha = 0.2) +
+  geom_line(colour = red, linewidth = 1) +
+  geom_hline(yintercept = 1, linetype = 2) +
+  geom_vline(xintercept = lockdown, linetype = 2, colour = red) +
+  labs(title = "Effective reproduction number (7-day window, 95% CrI)", x = NULL, y = expression(R[t]))
+p1
 ```
+
+<img src="man/figures/README-nz-rt-1.png" alt="" width="100%" />
+
+``` r
+p2
+```
+
+<img src="man/figures/README-nz-rt-2.png" alt="" width="100%" />
+
+R<sub>t</sub> fell below 1 about two weeks after the lockdown began, in
+line with published estimates for New Zealand.
+
+### Fitting an SIR model: the 1978 boarding-school influenza outbreak
+
+``` r
+flu <- transform(flu_boarding_school_1978, day = 0:13)
+fit <- epi_fit_compartmental(flu, day, in_bed, population = 763, gamma = 0.5)
+generics::tidy(fit)
+#> # A tibble: 2 × 3
+#>   term  estimate fixed
+#>   <chr>    <dbl> <lgl>
+#> 1 beta      2.49 FALSE
+#> 2 gamma     0.5  TRUE
+
+ggplot(generics::augment(fit), aes(day)) +
+  geom_point(aes(y = in_bed), colour = navy, size = 2.5) +
+  geom_line(aes(y = .fitted), colour = red, linewidth = 1) +
+  labs(title = "SIR fit to 763 boarding-school pupils, January 1978",
+       subtitle = sprintf("beta = %.2f per day, gamma = 0.5 per day, R0 = %.1f",
+                          generics::tidy(fit)$estimate[1], generics::tidy(fit)$estimate[1] / 0.5),
+       x = "Day", y = "Pupils confined to bed")
+```
+
+<img src="man/figures/README-flu-sir-1.png" alt="" width="100%" />
+
+### Smoking and coronary deaths: the British Doctors Study
+
+Poisson regression with log person-years as an offset, adjusting for
+age.
+
+``` r
+rr <- rbind(
+  epi_adjusted_rate_ratio(british_doctors, deaths, person_years, smoker),
+  epi_adjusted_rate_ratio(british_doctors, deaths, person_years, smoker, adjust = age_group),
+  epi_adjusted_rate_ratio(british_doctors, deaths, person_years, smoker,
+                          adjust = age_group, robust = "HC1")
+)
+rr$model <- c("Crude", "Age-adjusted", "Age-adjusted, robust SE")
+knitr::kable(rr[c("model", "estimate", "conf_low", "conf_high", "events", "se_type")],
+             digits = 2, col.names = c("Model", "Rate ratio", "Lower 95%", "Upper 95%", "Deaths", "SE"))
+```
+
+| Model                   | Rate ratio | Lower 95% | Upper 95% | Deaths | SE    |
+|:------------------------|-----------:|----------:|----------:|-------:|:------|
+| Crude                   |       1.72 |      1.39 |      2.12 |    731 | model |
+| Age-adjusted            |       1.43 |      1.15 |      1.76 |    731 | model |
+| Age-adjusted, robust SE |       1.43 |      0.99 |      2.05 |    731 | HC1   |
+
+Age confounds the crude association: smokers in the cohort were younger.
+After adjustment, smokers have about 43% higher coronary mortality, the
+classic textbook result.
+
+### Finding disease clusters: SIDS in North Carolina
+
+`epi_spatial_scan()` searches circles of several radii around every
+county centroid and tests the most likely cluster by Monte Carlo.
+
+``` r
+set.seed(2024)
+cl <- epi_spatial_scan(nc_sids, x_km, y_km, sids_1974, births_1974,
+                       radii = c(30, 60, 90), nsim = 999)
+knitr::kable(cl[c("radius", "observed", "expected", "relative_risk", "p_value")], digits = 3)
+```
+
+| radius | observed | expected | relative_risk | p_value |
+|-------:|---------:|---------:|--------------:|--------:|
+|     60 |       54 |   26.321 |         2.144 |   0.001 |
+
+``` r
+
+nc_sids$rate <- 1000 * nc_sids$sids_1974 / nc_sids$births_1974
+circle <- data.frame(t = seq(0, 2 * pi, length.out = 200))
+circle$x <- cl$center_x + cl$radius * cos(circle$t)
+circle$y <- cl$center_y + cl$radius * sin(circle$t)
+ggplot(nc_sids, aes(x_km, y_km)) +
+  geom_point(aes(size = births_1974, colour = rate), alpha = 0.85) +
+  geom_path(data = circle, aes(x, y), colour = red, linewidth = 1.1) +
+  scale_colour_gradient(low = "#F4D9D6", high = red, name = "SIDS per\n1,000 births") +
+  scale_size_area(max_size = 9, guide = "none") +
+  coord_equal() +
+  labs(title = "Most likely SIDS cluster, North Carolina 1974-78",
+       subtitle = sprintf("Relative risk %.2f, Monte Carlo p = %.3f", cl$relative_risk, cl$p_value),
+       x = "Easting (km)", y = "Northing (km)")
+```
+
+<img src="man/figures/README-sids-1.png" alt="" width="100%" />
+
+The scan recovers the well-known south-eastern cluster around Robeson
+County.
+
+### Space-time clusters: COVID-19 across New York State
+
+``` r
+set.seed(2020)
+st <- epi_spacetime_scan(ny_covid_counties_2020, x_km, y_km, week_0308:week_0531, population,
+                         radii = c(20, 50, 100), nsim = 199)
+knitr::kable(st[c("radius", "window", "observed", "expected", "relative_risk", "p_value")], digits = 3)
+```
+
+| radius | window | observed | expected | relative_risk | p_value |
+|-------:|-------:|---------:|---------:|--------------:|--------:|
+|     50 |     10 |   235666 |   143236 |         2.747 |   0.005 |
+
+``` r
+
+weeks <- grep("^week_", names(ny_covid_counties_2020), value = TRUE)
+inside <- with(ny_covid_counties_2020, sqrt((x_km - st$center_x)^2 + (y_km - st$center_y)^2) <= st$radius)
+trend <- data.frame(
+  week = as.Date(paste0("2020-", substr(weeks, 6, 7), "-", substr(weeks, 8, 9))),
+  area = rep(c("Cluster (New York City area)", "Rest of state"), each = length(weeks)),
+  rate = c(colSums(ny_covid_counties_2020[inside, weeks]) / sum(ny_covid_counties_2020$population[inside]),
+           colSums(ny_covid_counties_2020[!inside, weeks]) / sum(ny_covid_counties_2020$population[!inside])) * 1e5
+)
+ggplot(trend, aes(week, rate, colour = area)) +
+  geom_line(linewidth = 1.1) + geom_point() +
+  scale_colour_manual(values = c(red, navy), name = NULL) +
+  labs(title = "Weekly COVID-19 cases per 100,000, spring 2020", x = NULL, y = "Rate per 100,000") +
+  theme(legend.position = "top")
+```
+
+<img src="man/figures/README-ny-scan-1.png" alt="" width="100%" />
+
+### Competing risks: progression of MGUS
+
+Progression to plasma-cell malignancy competes with death in the Mayo
+Clinic MGUS cohort (`survival::mgus2`). Treating deaths as censoring
+would overstate the risk of progression.
+
+``` r
+m <- survival::mgus2
+m$etime <- ifelse(m$pstat == 0, m$futime, m$ptime) / 12
+m$event <- ifelse(m$pstat == 0, 2 * m$death, 1)
+cif <- rbind(
+  transform(epi_cumulative_incidence(m, etime, event, cause = 1), outcome = "Progression"),
+  transform(epi_cumulative_incidence(m, etime, event, cause = 2), outcome = "Death without progression")
+)
+ggplot(cif, aes(time, cumulative_incidence, colour = outcome, fill = outcome)) +
+  geom_ribbon(aes(ymin = conf_low, ymax = conf_high), alpha = 0.15, colour = NA) +
+  geom_step(linewidth = 1) +
+  scale_colour_manual(values = c(navy, red), name = NULL) +
+  scale_fill_manual(values = c(navy, red), name = NULL) +
+  labs(title = "Cumulative incidence in 1,384 patients with MGUS",
+       x = "Years since diagnosis", y = "Cumulative incidence") +
+  theme(legend.position = "top")
+```
+
+<img src="man/figures/README-mgus-1.png" alt="" width="100%" />
+
+### Diagnostic accuracy: glucose as a test for diabetes
+
+``` r
+pima <- MASS::Pima.te
+pima$diabetes <- as.integer(pima$type == "Yes")
+set.seed(1)
+auc <- epi_auc_ci(pima, diabetes, glu, bootstrap = 1000)
+roc <- epi_roc_curve(pima, diabetes, glu)
+ggplot(roc, aes(false_positive_rate, sensitivity)) +
+  geom_abline(linetype = 2, colour = "grey60") +
+  geom_step(colour = red, linewidth = 1) +
+  coord_equal() +
+  labs(title = "Plasma glucose for diabetes (Pima women)",
+       subtitle = sprintf("AUC %.3f (95%% CI %.3f-%.3f)", auc$estimate, auc$conf_low, auc$conf_high),
+       x = "1 - specificity", y = "Sensitivity")
+```
+
+<img src="man/figures/README-roc-1.png" alt="" width="60%" />
+
+## Speed
+
+The Monte Carlo scan statistics and the moving-window screen run in
+compiled C++ (Rcpp). Random numbers are still drawn by R, so results are
+identical to the original pure-R code for a given seed, a property the
+test suite checks. Median of three runs on a Windows laptop, R 4.6.2,
+optimised (`-O2`) build; reproduce with `data-raw/benchmarks.R`.
+
+``` r
+bench <- utils::read.csv("inst/benchmarks/benchmarks.csv")
+knitr::kable(transform(bench, r_seconds = round(r_seconds, 2), cpp_seconds = round(cpp_seconds, 2),
+                       speedup = paste0(speedup, "x")),
+             col.names = c("Task", "Pure R (s)", "C++ (s)", "Speed-up"))
+```
+
+| Task | Pure R (s) | C++ (s) | Speed-up |
+|:---|---:|---:|:---|
+| Spatial scan (400 locations, 3 radii, 999 simulations) | 2.45 | 0.15 | 16.3x |
+| Space-time scan (60 locations x 12 weeks, 199 simulations) | 0.20 | 0.03 | 6.7x |
+| Moving-window screen (20,000 days) | 0.19 | 0.03 | 6.3x |
+
+``` r
+bench$task <- factor(bench$task, levels = rev(bench$task))
+ggplot(bench, aes(speedup, task)) +
+  geom_col(fill = red, width = 0.6) +
+  geom_text(aes(label = paste0(speedup, "x")), hjust = -0.15, size = 3.8) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Speed-up of compiled kernels over pure R", x = "Times faster", y = NULL)
+```
+
+<img src="man/figures/README-speed-plot-1.png" alt="" width="100%" />
+
+The compiled kernels also lift the size limits. The space-time scan now
+handles, for example, 400 locations by 52 weeks with 999 simulations
+(about 7 seconds, most of it R’s random-number generation), a problem
+the pure-R version refused outright.
+
+## Validation
+
+Estimates are tested against established implementations, not only
+against hand calculations:
+
+| Method | Reference implementation |
+|----|----|
+| Mantel-Haenszel odds ratio and interval | `stats::mantelhaen.test()` |
+| Breslow-Day test (Tarone-corrected) | `DescTools::BreslowDayTest()` |
+| Sandwich (HC0, HC1, cluster) standard errors | `sandwich::vcovHC()`, `sandwich::vcovCL()` |
+| Weighted, interaction and spline models | `stats::glm()` |
+| Kaplan-Meier and cumulative incidence with delayed entry | `survival::survfit()` |
+| Paired difference score interval | `PropCIs::scoreci.mp()` |
+| Compiled scan statistics | the original pure-R implementation (bit-identical) |
 
 ## Implemented scope
 
