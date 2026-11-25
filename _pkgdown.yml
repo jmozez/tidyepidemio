@@ -3,15 +3,19 @@ url: https://jmozez.github.io/tidyepidemio/
 template:
   bootstrap: 5
   light-switch: true
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "tidyepidemio hex logo"
   bslib:
-    primary: "#B03A2E"
-    secondary: "#0E2A47"
+    primary: "#1F8A8A"
+    secondary: "#1B3F73"
     base_font: {google: "Inter"}
     heading_font: {google: "Inter"}
     code_font: {google: "JetBrains Mono"}
     line-height-base: 1.65
     headings-font-weight: 700
-    navbar-bg: "#0E2A47"
+    navbar-bg: "#1B3F73"
     border-radius: 0.5rem
 
 figures:

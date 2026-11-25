@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 600" width="520" height="600">
+  <!-- tidyepidemio hex logo, in the style of tidymapr: light field, navy rim,
+       one circular emblem in a navy-teal-green-orange gradient, R badge and
+       navy name. Every element is epidemiological:
+         epidemic curve (top)    daily cases rising, peaking and falling,
+                                 breaking out of the emblem like a peak
+         virus (top left)        the pathogen
+         globe (left)            populations and public health
+         transmission tree       cases spreading outward from the R badge
+         three waves (bottom)    successive epidemic waves over time -->
+  <defs>
+    <linearGradient id="ring" x1="70" y1="0" x2="450" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1B3F73"/>
+      <stop offset="0.4" stop-color="#1F8A8A"/>
+      <stop offset="0.72" stop-color="#7DBE45"/>
+      <stop offset="1" stop-color="#F2A31B"/>
+    </linearGradient>
+    <linearGradient id="bars" x1="196" y1="0" x2="372" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F8A8A"/>
+      <stop offset="0.55" stop-color="#7DBE45"/>
+      <stop offset="1" stop-color="#F2A31B"/>
+    </linearGradient>
+    <linearGradient id="tree" x1="270" y1="0" x2="440" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F8A8A"/>
+      <stop offset="0.5" stop-color="#7DBE45"/>
+      <stop offset="1" stop-color="#F2A31B"/>
+    </linearGradient>
+    <clipPath id="hex"><path d="M260 14 L506 156 L506 444 L260 586 L14 444 L14 156 Z"/></clipPath>
+    <clipPath id="globe"><circle cx="154" cy="256" r="58"/></clipPath>
+  </defs>
+
+  <!-- Hexagon field -->
+  <path d="M260 14 L506 156 L506 444 L260 586 L14 444 L14 156 Z" fill="#F3F3F1"/>
+
+  <g clip-path="url(#hex)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+
+    <!-- Emblem ring, open at the top where the epidemic breaks out -->
+    <path d="M92 206 A194 194 0 1 0 428 206" stroke="url(#ring)" stroke-width="15"/>
+
+    <!-- Epidemic curve: daily cases rising, peaking and falling -->
+    <g fill="url(#bars)" stroke="none">
+      <rect x="196" y="184" width="14" height="30"  rx="3"/>
+      <rect x="215" y="160" width="14" height="54"  rx="3"/>
+      <rect x="234" y="122" width="14" height="92"  rx="3"/>
+      <rect x="253" y="88"  width="14" height="126" rx="3"/>
+      <rect x="272" y="72"  width="14" height="142" rx="3"/>
+      <rect x="291" y="84"  width="14" height="130" rx="3"/>
+      <rect x="310" y="112" width="14" height="102" rx="3"/>
+      <rect x="329" y="146" width="14" height="68"  rx="3"/>
+      <rect x="348" y="174" width="14" height="40"  rx="3"/>
+      <rect x="367" y="192" width="5"  height="22"  rx="2"/>
+    </g>
+    <!-- Fitted transmission model over the curve -->
+    <path d="M190 200 C214 192 228 120 262 76 C272 64 286 62 298 74 C320 100 336 166 376 196"
+          stroke="#1B3F73" stroke-width="5"/>
+    <rect x="186" y="214" width="192" height="6" rx="3" fill="#1B3F73" stroke="none"/>
+
+    <!-- Virus: the pathogen -->
+    <g transform="translate(140 150)">
+      <g stroke="#1B3F73" stroke-width="5">
+        <line x1="0" y1="-20" x2="0" y2="-30"/><line x1="0" y1="20" x2="0" y2="30"/>
+        <line x1="-20" y1="0" x2="-30" y2="0"/><line x1="20" y1="0" x2="30" y2="0"/>
+        <line x1="14" y1="-14" x2="21" y2="-21"/><line x1="-14" y1="-14" x2="-21" y2="-21"/>
+        <line x1="14" y1="14" x2="21" y2="21"/><line x1="-14" y1="14" x2="-21" y2="21"/>
+        <circle r="18" fill="#F3F3F1"/>
+      </g>
+      <g fill="#1B3F73" stroke="none">
+        <circle cx="0" cy="-32" r="5"/><circle cx="0" cy="32" r="5"/>
+        <circle cx="-32" cy="0" r="5"/><circle cx="32" cy="0" r="5"/>
+        <circle cx="23" cy="-23" r="5"/><circle cx="-23" cy="-23" r="5"/>
+        <circle cx="23" cy="23" r="5"/><circle cx="-23" cy="23" r="5"/>
+        <circle cx="-6" cy="-4" r="3.5"/><circle cx="7" cy="-1" r="3"/><circle cx="-1" cy="8" r="3"/>
+      </g>
+    </g>
+
+    <!-- Globe: populations and public health -->
+    <g clip-path="url(#globe)" stroke="#1F8A8A" stroke-width="5">
+      <circle cx="154" cy="256" r="55"/>
+      <ellipse cx="154" cy="256" rx="24" ry="55"/>
+      <line x1="154" y1="198" x2="154" y2="314"/>
+      <path d="M100 236 Q154 248 208 236"/>
+      <path d="M100 276 Q154 288 208 276"/>
+    </g>
+
+    <!-- Transmission tree: cases spreading outward from the R badge -->
+    <g stroke="url(#tree)" stroke-width="5">
+      <path d="M262 258 L326 246"/>
+      <path d="M326 246 L372 226 L412 244"/>
+      <path d="M326 246 L364 284"/>
+      <path d="M364 284 L410 290"/>
+    </g>
+    <g stroke="#F3F3F1" stroke-width="3">
+      <circle cx="326" cy="246" r="10" fill="#3FA38A"/>
+      <circle cx="372" cy="226" r="9" fill="#7DBE45"/>
+      <circle cx="364" cy="284" r="9" fill="#8CC23F"/>
+      <circle cx="412" cy="244" r="9" fill="#F2A31B"/>
+      <circle cx="410" cy="290" r="8" fill="#F2A31B"/>
+    </g>
+
+    <!-- R badge at the centre of the emblem -->
+    <circle cx="258" cy="258" r="26" fill="#1B3F73" stroke="#F3F3F1" stroke-width="5"/>
+    <text x="258" y="270" text-anchor="middle" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+          font-weight="800" font-size="32" fill="#F3F3F1" stroke="none">R</text>
+
+    <!-- Name -->
+    <text x="260" y="364" text-anchor="middle" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+          font-weight="800" font-size="58" fill="#1B3F73" stroke="none" letter-spacing="-1.5">tidyepidemio</text>
+
+    <!-- Successive epidemic waves -->
+    <path d="M118 402 C152 384 176 384 206 400 C238 418 262 376 294 376 C326 376 346 410 402 398"
+          stroke="url(#ring)" stroke-width="12"/>
+    <path d="M140 432 C172 418 194 420 222 432 C252 446 276 414 306 414 C334 414 352 436 384 430"
+          stroke="url(#ring)" stroke-width="10"/>
+    <path d="M176 460 C202 452 222 454 246 462 C270 470 292 450 316 450 C338 450 350 462 362 460"
+          stroke="url(#ring)" stroke-width="8"/>
+  </g>
+
+  <!-- Rim drawn last so it sits over the artwork -->
+  <path d="M260 14 L506 156 L506 444 L260 586 L14 444 L14 156 Z" fill="none" stroke="#1B3F73"
+        stroke-width="18" stroke-linejoin="round"/>
+</svg>

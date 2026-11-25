@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file. -->
 
-# tidyepidemio
+# tidyepidemio <a href="https://jmozez.github.io/tidyepidemio/"><img src="man/figures/logo.png" align="right" height="139" alt="tidyepidemio website" /></a>
 
 <!-- badges: start -->
 
@@ -60,13 +60,13 @@ remotes::install_github("jmozez/tidyepidemio")
 Every example below runs on real, published data shipped with the
 package or with R. See `?nz_covid_2020`, `?ny_covid_counties_2020`,
 `?flu_boarding_school_1978`, `?british_doctors` and `?nc_sids` for
-sources and licences.
+sources and licenses.
 
 ### COVID-19 in New Zealand: from epidemic curve to R<sub>t</sub>
 
 New Zealand recorded 1,530 confirmed cases in its first wave and
 eliminated community transmission after a strict lockdown from 26 March
-2020. Early cases were travellers, so any case with no cases in the
+2020. Early cases were travelers, so any case with no cases in the
 previous 14 days is treated as imported. With a gamma generation
 interval (mean about 5 days), `epi_rt_gamma()` gives a posterior for the
 time-varying reproduction number.
@@ -152,8 +152,9 @@ knitr::kable(rr[c("model", "estimate", "conf_low", "conf_high", "events", "se_ty
 | Age-adjusted            |       1.43 |      1.15 |      1.76 |    731 | model |
 | Age-adjusted, robust SE |       1.43 |      0.99 |      2.05 |    731 | HC1   |
 
-Age confounds the crude association: smokers in the cohort were younger.
-After adjustment, smokers have about 43% higher coronary mortality, the
+Age confounds the crude association: smokers in this cohort were older
+on average, so the crude rate ratio (1.72) overstates the effect. After
+adjustment, smokers have about 43% higher coronary mortality, the
 classic textbook result.
 
 ### Finding disease clusters: SIDS in North Carolina
@@ -191,8 +192,9 @@ ggplot(nc_sids, aes(x_km, y_km)) +
 
 <img src="man/figures/README-sids-1.png" alt="" width="100%" />
 
-The scan recovers the well-known south-eastern cluster around Robeson
-County.
+The most likely cluster covers Robeson, Bladen and Columbus counties in
+the south-east of the state, the excess long noted in this benchmark
+dataset.
 
 ### Space-time clusters: COVID-19 across New York State
 
@@ -225,6 +227,9 @@ ggplot(trend, aes(week, rate, colour = area)) +
 ```
 
 <img src="man/figures/README-ny-scan-1.png" alt="" width="100%" />
+
+The cluster is the five boroughs of New York City plus Nassau County,
+whose weekly rate peaked at over twice that of the rest of the state.
 
 ### Competing risks: progression of MGUS
 
@@ -277,7 +282,7 @@ The Monte Carlo scan statistics and the moving-window screen run in
 compiled C++ (Rcpp). Random numbers are still drawn by R, so results are
 identical to the original pure-R code for a given seed, a property the
 test suite checks. Median of three runs on a Windows laptop, R 4.6.2,
-optimised (`-O2`) build; reproduce with `data-raw/benchmarks.R`.
+optimized (`-O2`) build; reproduce with `data-raw/benchmarks.R`.
 
 ``` r
 bench <- utils::read.csv("inst/benchmarks/benchmarks.csv")
@@ -447,7 +452,7 @@ diagnostic and surveillance methods (see NEWS).
   class metadata, and joins keep the left table’s metadata.
 - Longitudinal (time-varying) causal methods and fully Bayesian outbreak
   models are outside the scope of this package.
-- Tests cover documented behaviour, reference implementations and key
+- Tests cover documented behavior, reference implementations and key
   edge cases, not every data type, dependency version or platform.
 
 ## Implementation guide and workflows
