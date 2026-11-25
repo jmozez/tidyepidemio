@@ -4,7 +4,14 @@
 \alias{epi_surveillance}
 \title{Prospective Poisson surveillance threshold}
 \usage{
-epi_surveillance(.data, cases, window = 4L, alpha = 0.05)
+epi_surveillance(
+  .data,
+  cases,
+  window = 4L,
+  alpha = 0.05,
+  family = c("poisson", "negbin"),
+  adjust = "none"
+)
 }
 \arguments{
 \item{.data}{An ungrouped data frame in chronological order at regular intervals.}
@@ -14,17 +21,26 @@ epi_surveillance(.data, cases, window = 4L, alpha = 0.05)
 \item{window}{Number of preceding observations in the baseline.}
 
 \item{alpha}{Nominal upper-tail probability, strictly between zero and one.}
+
+\item{family}{Null count model: \code{"poisson"} or \code{"negbin"}.}
+
+\item{adjust}{Multiple-testing adjustment passed to \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
 }
 \value{
-Input tibble with baseline mean, threshold, and logical alert columns.
+Input tibble with baseline mean, threshold, p-value, adjusted p-value
+and logical alert columns.
 These are \code{NA} for the first \code{window} rows.
 }
 \description{
 Uses a trailing window of preceding counts to estimate a constant Poisson
 mean and flags the current count if it exceeds the \code{(1-alpha)} Poisson
 quantile. This is a simple screening rule, not a validated outbreak detection
-system: it ignores seasonality, trends, overdispersion, reporting delays,
-changes in population, and multiple testing. Flags are not outbreak diagnoses.
+system: it ignores seasonality, trends, reporting delays and changes in
+population. With \code{family = "negbin"}, a negative binomial null is used whose
+dispersion is estimated by moments from the same window (Poisson when the
+window variance does not exceed its mean); short windows give unstable
+dispersion. Each screened row gets an upper-tail p-value, and \code{adjust} applies
+\code{\link[stats:p.adjust]{stats::p.adjust()}} across all screened rows. Flags are not outbreak diagnoses.
 }
 \examples{
 d <- data.frame(day=1:6, cases=c(1,2,1,2,1,10))

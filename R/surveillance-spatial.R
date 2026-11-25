@@ -3,25 +3,38 @@
 #' Uses a trailing window of preceding counts to estimate a constant Poisson
 #' mean and flags the current count if it exceeds the `(1-alpha)` Poisson
 #' quantile. This is a simple screening rule, not a validated outbreak detection
-#' system: it ignores seasonality, trends, overdispersion, reporting delays,
-#' changes in population, and multiple testing. Flags are not outbreak diagnoses.
+#' system: it ignores seasonality, trends, reporting delays and changes in
+#' population. With `family = "negbin"`, a negative binomial null is used whose
+#' dispersion is estimated by moments from the same window (Poisson when the
+#' window variance does not exceed its mean); short windows give unstable
+#' dispersion. Each screened row gets an upper-tail p-value, and `adjust` applies
+#' [stats::p.adjust()] across all screened rows. Flags are not outbreak diagnoses.
 #' @param .data An ungrouped data frame in chronological order at regular intervals.
 #' @param cases Non-negative integer counts.
 #' @param window Number of preceding observations in the baseline.
 #' @param alpha Nominal upper-tail probability, strictly between zero and one.
-#' @return Input tibble with baseline mean, threshold, and logical alert columns.
+#' @param family Null count model: `"poisson"` or `"negbin"`.
+#' @param adjust Multiple-testing adjustment passed to [stats::p.adjust()].
+#' @return Input tibble with baseline mean, threshold, p-value, adjusted p-value
+#'   and logical alert columns.
 #'   These are `NA` for the first `window` rows.
 #' @examples
 #' d <- data.frame(day=1:6, cases=c(1,2,1,2,1,10))
 #' epi_surveillance(d, cases, window=3, alpha=0.05)
 #' @export
-epi_surveillance <- function(.data, cases, window=4L, alpha=0.05) {
+epi_surveillance <- function(.data, cases, window=4L, alpha=0.05, family=c("poisson","negbin"), adjust="none") {
+  family<-match.arg(family); adjust<-match.arg(adjust, stats::p.adjust.methods)
   check_data(.data); check_window(window,"window"); check_scalar(alpha,"alpha"); if (alpha>=1) cli::cli_abort("{.arg alpha} must be less than one.")
   y<-column(.data,rlang::enquo(cases),"cases"); check_nonnegative(y,"cases"); if (any(y!=floor(y))) cli::cli_abort("Counts must be integers.")
-  cols<-c("baseline_mean","threshold","alert"); if (any(cols %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
-  n<-length(y); mu<-cut<-rep(NA_real_,n); alert<-rep(NA,n)
-  if (n>window) for (i in seq.int(window+1,n)) {mu[i]<-mean(y[seq.int(i-window,i-1)]); cut[i]<-stats::qpois(alpha,mu[i],lower.tail=FALSE); alert[i]<-y[i]>cut[i]}
-  out<-tibble::as_tibble(.data); out$baseline_mean<-mu; out$threshold<-cut; out$alert<-alert; out
+  cols<-c("baseline_mean","threshold","p_value","p_adjusted","alert"); if (any(cols %in% names(.data))) cli::cli_abort("Output columns already exist; rename them before analysis.")
+  n<-length(y); mu<-cut<-rep(NA_real_,n); size<-rep(Inf,n)
+  if (n>window) for (i in seq.int(window+1,n)) {
+    past<-y[seq.int(i-window,i-1)]; mu[i]<-mean(past); v<-if (window>1) stats::var(past) else 0
+    if (family=="negbin" && mu[i]>0 && v>mu[i]) size[i]<-mu[i]^2/(v-mu[i])
+    cut[i]<-surveillance_quantile(alpha,mu[i],size[i])
+  }
+  tail<-surveillance_tail(y,mu,size,adjust)
+  out<-tibble::as_tibble(.data); out$baseline_mean<-mu; out$threshold<-cut; out$p_value<-tail$p; out$p_adjusted<-tail$adjusted; out$alert<-tail$adjusted<=alpha; out
 }
 #' Count neighboring locations within a distance
 #'

@@ -10,7 +10,9 @@ epi_cusum_calibrate(
   relative_risk = 2,
   alpha = 0.05,
   nsim = 999L,
-  initial = 0
+  initial = 0,
+  size = Inf,
+  n_series = 1L
 )
 }
 \arguments{
@@ -26,9 +28,14 @@ per monitoring time step.}
 \item{nsim}{Number of null trajectories; must be large enough for the rank.}
 
 \item{initial}{Non-negative CUSUM statistic at the start of each trajectory.}
+
+\item{size}{Negative binomial size (dispersion) for null counts; \code{Inf}
+(default) gives Poisson counts. Smaller values mean more overdispersion.}
+
+\item{n_series}{Number of independent series monitored together.}
 }
 \value{
-One-row tibble with \code{threshold}, \code{alpha}, \code{marginal_bound},
+One-row tibble with \code{threshold}, \code{alpha}, \code{series_alpha}, \code{marginal_bound},
 \code{simulations}, and the number of monitoring \code{steps}.
 }
 \description{
@@ -44,9 +51,13 @@ it more conservative. This is not a confidence guarantee conditional on the
 particular simulated calibration set and is not average run length control.
 }
 \details{
-Calibration is valid only if the assumed independent Poisson baseline is a
-suitable null for the entire horizon. Estimated baselines, serial dependence,
-overdispersion, multiple series and reporting changes can invalidate it.
+Calibration is valid only if the assumed independent count baseline is a
+suitable null for the entire horizon. Set \code{size} to simulate negative binomial
+null counts for overdispersed series. With \code{n_series > 1}, each series is
+calibrated at the Sidak level \code{1 - (1 - alpha)^(1 / n_series)}, which bounds
+the probability of any false alarm across that many independent series.
+Estimated baselines, serial dependence and reporting changes can still
+invalidate it.
 It does not account for later restarting, changing horizon, or retuning the
 threshold. Set a seed to reproduce the Monte Carlo result.
 }

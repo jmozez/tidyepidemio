@@ -9,3 +9,12 @@ test_that("threshold works with prospective CUSUM", {
  series<-data.frame(base=rep(2,6),cases=c(1,1,1,30,1,1)); out<-epi_cusum(series,cases,base,threshold=z$threshold)
  expect_true(any(out$alert)); expect_false(out$alert[1])
 })
+test_that("CUSUM calibration supports overdispersion and several series", {
+ d <- data.frame(base = rep(3, 20))
+ set.seed(1); a <- epi_cusum_calibrate(d, base, alpha = .1, nsim = 999)
+ set.seed(1); nb <- epi_cusum_calibrate(d, base, alpha = .1, nsim = 999, size = 1)
+ set.seed(1); multi <- epi_cusum_calibrate(d, base, alpha = .1, nsim = 999, n_series = 5)
+ expect_gt(nb$threshold, a$threshold); expect_gt(multi$threshold, a$threshold)
+ expect_equal(multi$series_alpha, 1 - .9^(1/5)); expect_equal(multi$alpha, .1)
+ expect_error(epi_cusum_calibrate(d, base, size = 0), "positive")
+})

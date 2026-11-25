@@ -12,3 +12,14 @@ test_that("simple surveillance uses stable upper-tail quantiles", {
  d<-data.frame(y=c(1,2,1,10)); z<-epi_surveillance(d,y,window=3,alpha=1e-20)
  expect_true(is.finite(z$threshold[4])); expect_equal(z$threshold[4],qpois(1e-20,4/3,lower.tail=FALSE))
 })
+test_that("moving-window screen adds p-values, adjustment and negbin null", {
+ d <- data.frame(cases = c(2, 9, 1, 8, 3, 12, 2, 30))
+ p <- epi_surveillance(d, cases, window = 4)
+ ok <- !is.na(p$threshold)
+ expect_equal(p$alert[ok], d$cases[ok] > p$threshold[ok])
+ nb <- epi_surveillance(d, cases, window = 4, family = "negbin")
+ up <- ok & d$cases > p$baseline_mean
+ expect_true(all(nb$p_value[up] >= p$p_value[up] - 1e-12))
+ b <- epi_surveillance(d, cases, window = 4, adjust = "bonferroni")
+ expect_equal(b$p_adjusted[ok], pmin(1, b$p_value[ok] * sum(ok)))
+})

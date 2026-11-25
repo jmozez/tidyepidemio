@@ -12,7 +12,9 @@ epi_seasonal_surveillance(
   period,
   harmonics = 1L,
   trend = FALSE,
-  alpha = 0.05
+  alpha = 0.05,
+  family = c("poisson", "negbin"),
+  adjust = "none"
 )
 }
 \arguments{
@@ -32,10 +34,15 @@ the same \code{time} and \code{cases} columns.}
 \item{trend}{Whether to include a linear time trend.}
 
 \item{alpha}{Nominal upper-tail probability strictly between zero and one.}
+
+\item{family}{Baseline count model: \code{"poisson"} or \code{"negbin"}.}
+
+\item{adjust}{Multiple-testing adjustment passed to \code{\link[stats:p.adjust]{stats::p.adjust()}}, such
+as \code{"none"}, \code{"holm"}, \code{"bonferroni"} or \code{"BH"}.}
 }
 \value{
-Input tibble with \code{baseline_expected}, \code{threshold} and logical
-\code{alert} columns. Counts exactly equal to the threshold are not flagged.
+Input tibble with \code{baseline_expected}, \code{threshold} (the unadjusted
+per-row quantile), \code{p_value}, \code{p_adjusted} and logical \code{alert} columns. Counts exactly equal to the threshold are not flagged.
 }
 \description{
 Fits a Poisson log-linear baseline with Fourier seasonal terms to a separate
@@ -49,9 +56,15 @@ column. Optional linear trend is centered and scaled using training time only.
 The interval threshold is conditional on the fitted mean and ignores
 parameter uncertainty. Independent Poisson counts, a correctly specified
 seasonal pattern, a stable exposure/population, and an outbreak-free training
-period are important assumptions. Overdispersion, reporting delays, holidays,
-changing population, baseline outbreaks, trend extrapolation, repeated tests
-and model selection can increase false alerts. This is a screening rule, not
+period are important assumptions. With \code{family = "negbin"} the baseline is a
+negative binomial model (\code{MASS::glm.nb()}), and thresholds and p-values use its
+estimated dispersion, which reduces false alerts from overdispersed counts.
+Each row gets an upper-tail p-value \code{P(Y >= cases)}; with \code{adjust} other than
+\code{"none"}, alerts use p-values adjusted across all screened rows by
+\code{\link[stats:p.adjust]{stats::p.adjust()}}, controlling family-wise error or false discovery rate
+for the batch. Reporting delays, holidays, changing population, baseline
+outbreaks, trend extrapolation and model selection can still increase false
+alerts. This is a screening rule, not
 a validated outbreak detection system; a flag is not an outbreak diagnosis.
 }
 \examples{
