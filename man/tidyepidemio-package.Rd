@@ -9,8 +9,21 @@
 Methods here are educational and exploratory; validate assumptions and
 suitability before using results for clinical or public health decisions.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/jmozez/tidyepidemio}
+  \item Report bugs at \url{https://github.com/jmozez/tidyepidemio/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jimmy Moses \email{jimmy.moses@pnguot.ac.pg} [copyright holder]
+
+Authors:
+\itemize{
+  \item Jimmy Moses \email{jimmy.moses@pnguot.ac.pg} [copyright holder]
+}
 
 }
 \keyword{internal}

@@ -117,26 +117,36 @@ export(step_epi_rolling)
 export(wis)
 export(wis_metric)
 export(wis_vec)
-importFrom(dplyr,dplyr_col_modify)
-importFrom(dplyr,dplyr_reconstruct)
-importFrom(dplyr,dplyr_row_slice)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_modify)
-importFrom(dplyr,relocate)
-importFrom(dplyr,rename)
-importFrom(dplyr,rename_with)
-importFrom(dplyr,select)
-importFrom(dplyr,ungroup)
-importFrom(generics,augment)
-importFrom(generics,glance)
-importFrom(generics,tidy)
+importFrom(dplyr,
+  dplyr_col_modify,
+  dplyr_reconstruct,
+  dplyr_row_slice,
+  group_by,
+  group_modify,
+  relocate,
+  rename,
+  rename_with,
+  select,
+  ungroup
+)
+importFrom(generics,
+  augment,
+  glance,
+  tidy
+)
 importFrom(ggplot2,autoplot)
-importFrom(recipes,bake)
-importFrom(recipes,prep)
-importFrom(recipes,required_pkgs)
+importFrom(recipes,
+  bake,
+  prep,
+  required_pkgs
+)
 importFrom(rlang,.data)
-importFrom(vctrs,vec_cast)
-importFrom(vctrs,vec_ptype2)
-importFrom(vctrs,vec_restore)
-importFrom(yardstick,new_numeric_metric)
-importFrom(yardstick,new_prob_metric)
+importFrom(vctrs,
+  vec_cast,
+  vec_ptype2,
+  vec_restore
+)
+importFrom(yardstick,
+  new_numeric_metric,
+  new_prob_metric
+)
