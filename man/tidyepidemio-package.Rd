@@ -13,6 +13,7 @@ suitability before using results for clinical or public health decisions.
 Useful links:
 \itemize{
   \item \url{https://github.com/jmozez/tidyepidemio}
+  \item \url{https://jmozez.github.io/tidyepidemio/}
   \item Report bugs at \url{https://github.com/jmozez/tidyepidemio/issues}
 }
 

@@ -7,11 +7,17 @@
 \alias{epi_rate_ratio}
 \title{Measures of association for individual-level binary data}
 \usage{
-epi_risk_ratio(.data, exposure, outcome, conf_level = 0.95)
+epi_risk_ratio(.data, exposure, outcome, conf_level = 0.95, correction = 0)
 
-epi_odds_ratio(.data, exposure, outcome, conf_level = 0.95)
+epi_odds_ratio(.data, exposure, outcome, conf_level = 0.95, correction = 0)
 
-epi_attributable_risk(.data, exposure, outcome, conf_level = 0.95)
+epi_attributable_risk(
+  .data,
+  exposure,
+  outcome,
+  conf_level = 0.95,
+  correction = 0
+)
 
 epi_rate_ratio(.data, exposure, outcome, time, conf_level = 0.95)
 }
@@ -24,13 +30,20 @@ epi_rate_ratio(.data, exposure, outcome, time, conf_level = 0.95)
 
 \item{conf_level}{Confidence level between zero and one.}
 
+\item{correction}{Non-negative amount added to every cell when any cell of
+the 2x2 table is zero. Ignored by \code{epi_rate_ratio()}.}
+
 \item{time}{Non-negative person-time; required for a rate ratio.}
 }
 \value{
 A one-row tibble with estimate, confidence limits and group counts.
 }
 \description{
-Exposure and outcome must be coded 0/1. No continuity correction is applied;
+Exposure and outcome must be coded 0/1. By default no continuity correction
+is applied. With \code{correction > 0} (for example the Haldane-Anscombe value 0.5),
+that amount is added to all four cells of the 2x2 table whenever any cell is
+zero; this keeps estimates and intervals finite but biases them towards the
+null, so report it. Without a correction,
 Undefined or infinite estimates are represented by \code{NA}; zero estimates are
 retained but have \code{NA} log-scale intervals. Wald intervals are approximate
 and require positive event counts (all cells for odds ratios).

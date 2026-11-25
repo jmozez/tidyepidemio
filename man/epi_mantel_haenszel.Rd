@@ -4,7 +4,7 @@
 \alias{epi_mantel_haenszel}
 \title{Mantel-Haenszel pooled odds ratio}
 \usage{
-epi_mantel_haenszel(.data, exposure, outcome, strata)
+epi_mantel_haenszel(.data, exposure, outcome, strata, conf_level = 0.95)
 }
 \arguments{
 \item{.data}{A data frame of individual records.}
@@ -14,13 +14,25 @@ epi_mantel_haenszel(.data, exposure, outcome, strata)
 \item{outcome}{Binary outcome indicator.}
 
 \item{strata}{A non-missing stratum variable.}
+
+\item{conf_level}{Confidence level between zero and one.}
 }
 \value{
-A one-row tibble with the pooled estimate and number of strata.
+A one-row tibble with the pooled estimate, confidence limits, number
+of strata, and the Breslow-Day statistic (\code{heterogeneity_statistic}),
+degrees of freedom (\code{heterogeneity_df}) and p-value (\code{heterogeneity_p_value}).
 }
 \description{
-Computes the Mantel-Haenszel common odds ratio from individual records. This
-is a point estimate only, not a test of effect heterogeneity.
+Computes the Mantel-Haenszel common odds ratio from individual records, with
+a Robins-Breslow-Greenland confidence interval and a Breslow-Day test of
+homogeneity of the stratum odds ratios (with Tarone's correction).
+}
+\details{
+The heterogeneity test compares each stratum's exposed-case count with its
+expectation under the pooled odds ratio. Strata with a zero margin carry no
+information and are excluded from the test; its degrees of freedom are the
+number of informative strata minus one. The test has low power with few or
+sparse strata, and a non-significant result does not prove homogeneity.
 }
 \examples{
 d <- data.frame(e = rep(c(0,0,1,1), 2), y = rep(c(0,1,0,1), 2), s = rep(1:2, each=4))
