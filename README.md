@@ -276,6 +276,37 @@ ggplot(roc, aes(false_positive_rate, sensitivity)) +
 
 <img src="man/figures/README-roc-1.png" alt="" width="60%" />
 
+## Statistical advice with tidyvisor
+
+With the [tidyvisor](https://tidyvisor.in4metrix.dev/) package installed,
+`tidyvisor()` advises on epidemiological data and explains the
+results of tidyepidemio, as it does for community ecology (tidydiversity) and spatial ecology
+(tidymapr). The same advice is available here through `tep_advise()` and
+`tep_interpret()`; tidyepidemio does not need tidyvisor.
+
+| Ask | You get |
+|---|---|
+| `tep_advise(data, exposure = , outcome = )` (or `cases`, `time`, `event`, `test`, `truth`) | checks of the data and the estimator to run for an outbreak, association, survival, diagnostic, surveillance or causal question, with code that uses your column names |
+| `tep_interpret(result)` | the numbers in plain sentences; *After the overall test*: what to do next, and what not to; *For the paper*: a Results sentence, the figure, the table and the Methods (STROBE, STARD) |
+
+```r
+d <- data.frame(exposure = rep(0:1, each = 40),
+                outcome = rep(c(0, 1, 0, 1), c(30, 10, 18, 22)))
+tep_interpret(epi_risk_ratio(d, exposure, outcome))
+#> ── tidyvisor: what the results show ──────────────────────────────────
+#> ── Result ──
+#> • The risk ratio is 2.2 (95% CI 1.2 to 4.03). The risk of the outcome is
+#>   120% higher in the exposed than in the unexposed.
+#> • A crude estimate: confounding is not removed.
+#> ── After the overall test ──
+#> • Check that the association is not explained by confounding: stratify
+#>   (epi_mantel_haenszel()) or adjust (epi_adjusted_risk_ratio(),
+#>   epi_adjusted_odds_ratio()) for the confounders named in advance ...
+#> ── For the paper ──
+#> • Results: 'The risk ratio for exposure was 2.2 (95% CI 1.2 to 4.03).'
+#> • ...
+```
+
 ## Speed
 
 The Monte Carlo scan statistics and the moving-window screen run in
