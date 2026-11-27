@@ -1,5 +1,25 @@
 # tidyepidemio (development version)
 
+* New tools for outbreak analytics, following current best practice:
+  - `epi_delay_dist()` fits lognormal, gamma and Weibull delay
+    distributions (incubation period, onset to report, onset to death,
+    serial interval) by maximum likelihood, correcting for double interval
+    censoring of daily data with the exact closed-form likelihood and,
+    optionally, for right truncation during an ongoing outbreak (Park et
+    al. 2024; Charniga et al. 2024). Families are ranked by AIC.
+    `epi_delay_pmf()` turns a fit into daily probabilities for
+    `epi_cfr()`, `epi_nowcast()` or `epi_rt()`.
+  - `epi_offspring()` estimates the reproduction number and the dispersion
+    `k` of secondary cases (negative binomial), with the proportion of
+    cases causing 80% of transmission (Lloyd-Smith et al. 2005; Endo et al.
+    2020). `epi_chain_size()` estimates the same from the sizes of
+    transmission chains that died out (Blumberg and Lloyd-Smith 2013).
+  - `epi_cfr()` gives the naive and the delay-adjusted case fatality ratio
+    (Nishiura et al. 2009) with likelihood-ratio intervals, overall or as
+    the estimate settles over time (`cumulative = TRUE`).
+* New dataset `nz_covid_outcomes_2020`: daily COVID-19 cases and deaths in
+  New Zealand, February to June 2020 (Johns Hopkins CSSE, CC BY 4.0).
+
 * `tep_advise()` and `tep_interpret()`: statistical advice and
   plain-language interpretation for epidemiology, which the tidyvisor
   package uses when it is installed (`tidyvisor::tidyvisor()`), alongside
