@@ -1,0 +1,215 @@
+# Changelog
+
+## tidyepidemio (development version)
+
+- New tools for outbreak analytics, following current best practice:
+
+  - [`epi_delay_dist()`](https://tidyepidemio.in4metrix.dev/reference/epi_delay_dist.md)
+    fits lognormal, gamma and Weibull delay distributions (incubation
+    period, onset to report, onset to death, serial interval) by maximum
+    likelihood, correcting for double interval censoring of daily data
+    with the exact closed-form likelihood and, optionally, for right
+    truncation during an ongoing outbreak (Park et al. 2024; Charniga et
+    al. 2024). Families are ranked by AIC.
+    [`epi_delay_pmf()`](https://tidyepidemio.in4metrix.dev/reference/epi_delay_pmf.md)
+    turns a fit into daily probabilities for
+    [`epi_cfr()`](https://tidyepidemio.in4metrix.dev/reference/epi_cfr.md),
+    [`epi_nowcast()`](https://tidyepidemio.in4metrix.dev/reference/epi_nowcast.md)
+    or
+    [`epi_rt()`](https://tidyepidemio.in4metrix.dev/reference/epi_rt.md).
+  - [`epi_offspring()`](https://tidyepidemio.in4metrix.dev/reference/epi_offspring.md)
+    estimates the reproduction number and the dispersion `k` of
+    secondary cases (negative binomial), with the proportion of cases
+    causing 80% of transmission (Lloyd-Smith et al. 2005; Endo et al.
+    2020).
+    [`epi_chain_size()`](https://tidyepidemio.in4metrix.dev/reference/epi_offspring.md)
+    estimates the same from the sizes of transmission chains that died
+    out (Blumberg and Lloyd-Smith 2013).
+  - [`epi_cfr()`](https://tidyepidemio.in4metrix.dev/reference/epi_cfr.md)
+    gives the naive and the delay-adjusted case fatality ratio (Nishiura
+    et al. 2009) with likelihood-ratio intervals, overall or as the
+    estimate settles over time (`cumulative = TRUE`).
+
+- New dataset `nz_covid_outcomes_2020`: daily COVID-19 cases and deaths
+  in New Zealand, February to June 2020 (Johns Hopkins CSSE, CC BY 4.0).
+
+- [`tep_advise()`](https://tidyepidemio.in4metrix.dev/reference/tep_advise.md)
+  and
+  [`tep_interpret()`](https://tidyepidemio.in4metrix.dev/reference/tep_advise.md):
+  statistical advice and plain-language interpretation for epidemiology,
+  which the tidyvisor package uses when it is installed
+  (`tidyvisor::tidyvisor()`), alongside tidydiversity and tidymapr.
+  tidyepidemio does not depend on tidyvisor.
+
+  - Advice for six questions (outbreak, association, survival,
+    diagnostic, surveillance, causal): checks of the data and the
+    estimator to run, with code that uses the column names of the data.
+  - Interpretations of ratios and other `epi_result` objects, and of the
+    results of
+    [`epi_rt()`](https://tidyepidemio.in4metrix.dev/reference/epi_rt.md),
+    [`epi_doubling_time()`](https://tidyepidemio.in4metrix.dev/reference/epi_growth_rate.md),
+    [`epi_diagnostic()`](https://tidyepidemio.in4metrix.dev/reference/epi_diagnostic.md),
+    [`epi_mantel_haenszel()`](https://tidyepidemio.in4metrix.dev/reference/epi_mantel_haenszel.md),
+    [`epi_surveillance()`](https://tidyepidemio.in4metrix.dev/reference/epi_surveillance.md),
+    [`epi_gcomp()`](https://tidyepidemio.in4metrix.dev/reference/epi_gcomp.md),
+    [`epi_ipw()`](https://tidyepidemio.in4metrix.dev/reference/epi_ipw.md)
+    and
+    [`epi_kaplan_meier()`](https://tidyepidemio.in4metrix.dev/reference/epi_kaplan_meier.md),
+    each ending with “After the overall test” (what to do next, and what
+    not to) and “For the paper” (a Results sentence, the figure, the
+    table and the Methods, with STROBE and STARD where they apply).
+  - These results now carry a class naming what they are (`tep_rt`,
+    `tep_growth`, `tep_survival`, …) in front of their tibble classes.
+
+## tidyepidemio 1.2.0
+
+### Association and regression
+
+- [`epi_mantel_haenszel()`](https://tidyepidemio.in4metrix.dev/reference/epi_mantel_haenszel.md)
+  now returns a Robins-Breslow-Greenland confidence interval and a
+  Breslow-Day test of odds-ratio homogeneity (Tarone-corrected).
+- [`epi_risk_ratio()`](https://tidyepidemio.in4metrix.dev/reference/epi_risk_ratio.md),
+  [`epi_odds_ratio()`](https://tidyepidemio.in4metrix.dev/reference/epi_risk_ratio.md)
+  and
+  [`epi_attributable_risk()`](https://tidyepidemio.in4metrix.dev/reference/epi_risk_ratio.md)
+  gain a `correction` argument (for example 0.5) applied when any 2x2
+  cell is zero.
+- [`epi_adjusted_odds_ratio()`](https://tidyepidemio.in4metrix.dev/reference/epi_adjusted_odds_ratio.md),
+  [`epi_adjusted_risk_ratio()`](https://tidyepidemio.in4metrix.dev/reference/epi_adjusted_risk_ratio.md)
+  and
+  [`epi_adjusted_rate_ratio()`](https://tidyepidemio.in4metrix.dev/reference/epi_adjusted_rate_ratio.md)
+  share one fitting engine and gain `weights`, HC0/HC1 and
+  cluster-robust standard errors (`robust`, `cluster`), effect
+  modification with per-level estimates and an interaction test
+  (`modifier`), and natural-spline terms (`nonlinear`). `splines` and
+  `MASS` are now imported.
+
+### Survival
+
+- [`epi_kaplan_meier()`](https://tidyepidemio.in4metrix.dev/reference/epi_kaplan_meier.md)
+  and
+  [`epi_cumulative_incidence()`](https://tidyepidemio.in4metrix.dev/reference/epi_cumulative_incidence.md)
+  accept delayed entry (`entry`) for left-truncated data.
+- [`epi_cumulative_incidence()`](https://tidyepidemio.in4metrix.dev/reference/epi_cumulative_incidence.md)
+  returns Aalen-Johansen confidence limits.
+
+### Causal inference and diagnostics
+
+- [`epi_weighted_effect()`](https://tidyepidemio.in4metrix.dev/reference/epi_weighted_effect.md)
+  gains percentile bootstrap intervals (`bootstrap`).
+- [`epi_paired_diagnostic()`](https://tidyepidemio.in4metrix.dev/reference/epi_paired_diagnostic.md)
+  returns Tango score intervals for paired differences in sensitivity
+  and specificity.
+
+### Surveillance
+
+- [`epi_surveillance()`](https://tidyepidemio.in4metrix.dev/reference/epi_surveillance.md)
+  and
+  [`epi_seasonal_surveillance()`](https://tidyepidemio.in4metrix.dev/reference/epi_seasonal_surveillance.md)
+  support negative binomial baselines (`family = "negbin"`), report
+  upper-tail p-values, and adjust alerts for multiple testing
+  (`adjust`).
+- [`epi_cusum_calibrate()`](https://tidyepidemio.in4metrix.dev/reference/epi_cusum_calibrate.md)
+  simulates overdispersed nulls (`size`) and calibrates several
+  independent series together (`n_series`).
+
+### Fixes
+
+- [`epi_rt()`](https://tidyepidemio.in4metrix.dev/reference/epi_rt.md)
+  reports its intended error when `.data` already has an `rt` column.
+
+## tidyepidemio 1.1.0
+
+- Preserve epidemiological class and metadata across supported grouped,
+  row-preserving dplyr operations, including ungrouping; reject grouped
+  binding or casting when provenance or grouping differs.
+- Added data-first
+  [`epi_fit_renewal()`](https://tidyepidemio.in4metrix.dev/reference/epi_fit_renewal.md)
+  and
+  [`epi_fit_compartmental()`](https://tidyepidemio.in4metrix.dev/reference/epi_fit_renewal.md)
+  helpers, including tidy selections and non-syntactic column names.
+- Added randomized reference and conservation tests, an unrun
+  multi-platform CI configuration, and a plan for independent
+  validation.
+
+## tidyepidemio 1.0.0
+
+- Audited the requested implementation areas and added an implementation
+  and limitations guide plus synthetic cohort, outbreak and clinical
+  workflows.
+- Added cross-module integration tests and an explicit low-level model
+  example.
+- Reject row-binding or casting plain frames with epidemiological
+  subclasses to prevent unintended provenance inheritance; validate
+  metadata names.
+- Reject grouped data in low-level epidemic model engine fits,
+  consistent with their documented single-series contract.
+
+## tidyepidemio 0.9.0
+
+- Added restricted mean survival time with Greenwood standard errors and
+  clipped Wald confidence limits; validates the chosen horizon against
+  observed follow-up.
+- Added stratified individual bootstrap percentile intervals for
+  empirical ROC AUC, and exact paired diagnostic sensitivity and
+  specificity comparisons.
+
+## tidyepidemio 0.8.0
+
+- Added cohort follow-up with optional administrative censoring, and
+  empirical ROC curves and plotting with tie-aware AUC and predictive
+  values.
+- Added propensity-weighted risks and contrasts with optional individual
+  percentile bootstrap that refits the exposure model in every
+  replicate.
+- Added explicit-history baking for supported epidemiological recipe
+  steps and a training-only seasonal Fourier Poisson surveillance
+  screen.
+- Improved upper-tail Poisson quantile calculations for very small alert
+  levels.
+
+## tidyepidemio 0.7.0
+
+- Added group-aware temporal lags and past-only rolling means with
+  explicitly supplied history and strict within-group time ordering.
+- Added expanding rolling-origin renewal forecast backtesting, with
+  uncertainty and training-only estimation at each origin.
+- Added Fisher exact and Mantel-Haenszel association tests and
+  predictive values transported to user-supplied target prevalences.
+  Uninformative stratified tests now fail explicitly rather than
+  returning NaN.
+
+## tidyepidemio 0.6.0
+
+- Added attributable fractions, descriptive number needed to treat or
+  harm, fixed-horizon Kaplan-Meier risk, binary calibration summaries
+  and tables, and decision curves.
+- Added deterministic square spatial-block assignment for spatial
+  resampling.
+- Fixed integer overflow in odds ratios and Mantel-Haenszel odds ratios
+  for large cohorts; added large-sample regression tests.
+
+## tidyepidemio 0.5.0
+
+- Added marginal logistic g-computation with optional individual
+  bootstrap, stabilized and unstabilized ATE propensity weights,
+  weighted risk contrasts, and standardized mean-difference balance
+  diagnostics.
+- Added daily and Monday-start weekly epidemic curves with explicit zero
+  filling, and a t confidence interval for the mean serial interval.
+- Documented identification assumptions, separation diagnostics,
+  bootstrap fit failures, fixed reference variance for balance, and
+  limitations of each method.
+
+## tidyepidemio 0.4.0
+
+- Added reporting-delay nowcasts, robust modified-Poisson risk ratios,
+  an SEIR parsnip engine, and a conditional Poisson prospective
+  space-time scan.
+
+## tidyepidemio 0.1.0
+
+- Introduced descriptive epidemiology, standardization, diagnostic
+  measures, survival analysis, renewal dynamics, SIR/SEIR simulation,
+  surveillance, spatial resampling and scans, recipe steps, metrics,
+  models and plots.

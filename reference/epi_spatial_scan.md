@@ -1,0 +1,91 @@
+# Circular Poisson spatial scan statistic
+
+Scans circles centered on observed locations over user-specified radii.
+Under the null, cases are conditionally multinomial with probabilities
+proportional to population (a homogeneous Poisson risk). Candidate zones
+with population fraction exceeding `max_fraction` or containing no
+population outside are excluded. Only elevated-risk zones are
+considered. Reports the maximum conditional log likelihood ratio and a
+global Monte Carlo p-value based on the maximum over the same candidates
+in each null replicate, using `(1 + number >= observed) / (nsim + 1)`.
+`nsim=0` omits the p-value.
+
+## Usage
+
+``` r
+epi_spatial_scan(
+  .data,
+  x,
+  y,
+  cases,
+  population,
+  radii,
+  max_fraction = 0.5,
+  nsim = 199L
+)
+```
+
+## Arguments
+
+- .data:
+
+  Data frame of point locations or area centroids.
+
+- x, y:
+
+  Numeric projected coordinates in the same units as radii.
+
+- cases:
+
+  Non-negative integer case counts per location.
+
+- population:
+
+  Positive population (or exposure) per location.
+
+- radii:
+
+  Positive candidate radii in coordinate units.
+
+- max_fraction:
+
+  Maximum fraction of population inside a candidate circle, strictly
+  between zero and one.
+
+- nsim:
+
+  Number of conditional Monte Carlo replicates; 0 omits testing.
+
+## Value
+
+One-row tibble with the winning center, radius, inside counts and
+exposure, expected count, inside/outside relative risk, log likelihood
+ratio and global p-value. If all scores are zero the first candidate
+wins arbitrarily. Relative risk is infinite when outside cases are zero.
+
+## Details
+
+Coordinates must be projected planar coordinates, not
+longitude/latitude. This basic spatial-only scan assumes cases and
+population belong to the same period and independent counts, with no
+confounder adjustment, temporal scan, age standardization, reporting
+bias correction or edge correction. Population is allocated to point
+locations, not polygons. Results depend on the candidate radii and
+centers; cluster selection and reported relative risk are subject to
+selection bias. A significant p-value is not proof of causation. Run
+[`set.seed()`](https://rdrr.io/r/base/Random.html) for reproducible
+simulation.
+
+## Examples
+
+``` r
+d <- data.frame(x = c(0, 1, 10, 11), y = 0, cases = c(8, 7, 1, 1), pop = 100)
+set.seed(1)
+epi_spatial_scan(d, x, y, cases, pop, radii = c(0.1, 1), nsim = 19)
+#> # A tibble: 1 × 11
+#>   center_x center_y radius observed expected population relative_risk
+#>      <dbl>    <dbl>  <dbl>    <dbl>    <dbl>      <dbl>         <dbl>
+#> 1        0        0      1       15      8.5        200           7.5
+#> # ℹ 4 more variables: log_likelihood_ratio <dbl>, p_value <dbl>,
+#> #   simulations <int>, candidates <int>
+```

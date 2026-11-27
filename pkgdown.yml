@@ -1,0 +1,12 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  articles/cluster-detection: cluster-detection.html
+  articles/cohort-and-clinical: cohort-and-clinical.html
+  articles/covid-outbreak: covid-outbreak.html
+  tidyepidemio: tidyepidemio.html
+last_built: 2026-11-27T06:41Z
+urls:
+  reference: https://tidyepidemio.in4metrix.dev/reference
+  article: https://tidyepidemio.in4metrix.dev/articles

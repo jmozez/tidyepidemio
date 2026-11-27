@@ -1,0 +1,67 @@
+# Compare paired diagnostic test sensitivity and specificity
+
+Compares two binary tests applied to the same individuals, separately
+among reference-positive and reference-negative individuals. The
+differences are test 1 minus test 2 in sensitivity and specificity. An
+exact two-sided McNemar p-value is computed using a binomial test on
+discordant pairs; if no pairs are discordant its p-value is one. Each
+p-value addresses equality of marginal test accuracy for its reference
+subgroup, not equivalence or non-inferiority. No multiplicity adjustment
+is applied to the two tests.
+
+## Usage
+
+``` r
+epi_paired_diagnostic(.data, test1, test2, truth, conf_level = 0.95)
+```
+
+## Arguments
+
+- .data:
+
+  An ungrouped data frame with one row per subject.
+
+- test1, test2:
+
+  Binary paired test results, 1 for positive.
+
+- truth:
+
+  Binary reference status, 1 for disease.
+
+- conf_level:
+
+  Confidence level strictly between zero and one.
+
+## Value
+
+Two rows, sensitivity and specificity, with paired proportions,
+differences with Tango score confidence limits, discordant counts and
+unadjusted exact two-sided p-values. Discordant counts correspond to
+test 1 only versus test 2 only being correct for the relevant subgroup.
+
+## Details
+
+The reference standard is assumed accurate, subjects are independent and
+both tests are observed on the same subjects without verification bias.
+Case and control recruitment, missingness and sample size affect
+interpretation. Confidence intervals for each difference use Tango's
+(1998) score method for paired proportions, which behaves well with few
+discordant pairs. This is not a comparison of predictive values or ROC
+AUCs and does not address clustered observations.
+
+## Examples
+
+``` r
+d <- data.frame(
+  y = rep(0:1, each = 5), a = c(0, 0, 1, 0, 1, 1, 1, 1, 0, 0),
+  b = c(0, 1, 0, 0, 1, 1, 0, 1, 1, 0)
+)
+epi_paired_diagnostic(d, a, b, y)
+#> # A tibble: 2 × 10
+#>   metric          n test1 test2 difference conf_low conf_high test1_only_correct
+#>   <chr>       <int> <dbl> <dbl>      <dbl>    <dbl>     <dbl>              <int>
+#> 1 sensitivity     5   0.6   0.6          0   -0.536     0.536                  1
+#> 2 specificity     5   0.6   0.6          0   -0.536     0.536                  1
+#> # ℹ 2 more variables: test2_only_correct <int>, p_value <dbl>
+```
