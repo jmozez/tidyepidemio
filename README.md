@@ -9,7 +9,8 @@
 [![Tests and
 coverage](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml)
 [![Lint](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml)
-[![pkgdown](https://github.com/jmozez/tidyepidemio/actions/workflows/pkgdown.yaml/badge.svg)](https://jmozez.github.io/tidyepidemio/)
+[![Website deploy](https://github.com/jmozez/tidyepidemio/actions/workflows/vercel.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/vercel.yaml)
+[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/jmozez/tidyepidemio)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![License:
