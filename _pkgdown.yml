@@ -2,22 +2,34 @@ url: https://jmozez.github.io/tidyepidemio/
 
 template:
   bootstrap: 5
-  light-switch: true
+  includes:
+    # Readers can switch the site between light and dark (light-switch
+    # below); plots keep a white background in both (extra.css).
+    # The CSP allows only the site's own scripts; static hosting cannot
+    # always send security headers, so they are set as meta tags.
+    in_header: |
+      <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'">
+      <meta name="referrer" content="strict-origin-when-cross-origin">
   opengraph:
     image:
       src: man/figures/logo.png
       alt: "tidyepidemio hex logo"
+  light-switch: true
   bslib:
     primary: "#1F8A8A"
     secondary: "#1B3F73"
     base_font: {google: "Inter"}
     heading_font: {google: "Inter"}
     code_font: {google: "JetBrains Mono"}
+    font-size-base: 1rem
     line-height-base: 1.65
     headings-font-weight: 700
+    link-color: "#1A7676"
     navbar-bg: "#1B3F73"
     border-radius: 0.5rem
 
+# Every figure, including reference-page examples, on an opaque white
+# background, so plots stay white when a reader switches the site to dark.
 figures:
   bg: white
   dev.args:
@@ -28,11 +40,40 @@ repo:
     home: https://github.com/jmozez/tidyepidemio/
     source: https://github.com/jmozez/tidyepidemio/blob/main/
     issue: https://github.com/jmozez/tidyepidemio/issues/
+  branch: main
 
 navbar:
+  bg: dark
   structure:
-    left: [intro, articles, reference, news]
-    right: [search, github, lightswitch]
+    left: [intro, articles, reference, news, ecosystem, search, github]
+    right: []
+  components:
+    github:
+      icon: fa-github
+      aria-label: Source code on GitHub
+      href: https://github.com/jmozez/tidyepidemio
+    news:
+      text: News
+      href: news/index.html
+    ecosystem:
+      text: Ecosystem
+      icon: fa-cubes
+      aria-label: Companion packages that work together with the tidyverse and tidymodels
+      menu:
+        - text: Packages that work together
+        - text: "tidydiversity: Taxonomic, phylogenetic and functional diversity"
+          icon: fa-leaf
+          href: https://tidydiversity.in4metrix.dev/
+        - text: "tidymapr: Spatial analysis, remote sensing and maps"
+          icon: fa-map
+          href: https://tidymapr.in4metrix.dev/
+        - text: "tidyvisor: Statistical advice and interpretation"
+          icon: fa-compass
+          href: https://tidyvisor.in4metrix.dev/
+        - text: "tidyepidemio: Epidemiological analysis"
+          icon: fa-virus
+          href: https://jmozez.github.io/tidyepidemio/
+
 
 articles:
   - title: Get started
@@ -48,6 +89,8 @@ articles:
 
 home:
   title: "tidyepidemio: Tidy Tools for Epidemiologic Analysis"
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
 
 reference:
   - title: Datasets
@@ -175,3 +218,8 @@ reference:
     contents:
       - tidy.epi_result
       - autoplot.epi_ts
+
+footer:
+  structure:
+    left: [developed_by]
+    right: [built_with]

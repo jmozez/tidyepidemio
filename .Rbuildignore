@@ -2,7 +2,6 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.Rproj\.user$
-^\.claude$
 ^\.git$
 ^\.github$
 ^\.gitignore$
@@ -14,3 +13,5 @@
 ^docs$
 ^pkgdown$
 ^vignettes/articles$
+^vercel\.json$
+^\.vercelignore$
