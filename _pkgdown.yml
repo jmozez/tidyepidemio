@@ -97,6 +97,7 @@ reference:
     desc: Real, published epidemiological data used in the examples and articles.
     contents:
       - nz_covid_2020
+      - nz_covid_outcomes_2020
       - ny_covid_counties_2020
       - flu_boarding_school_1978
       - british_doctors
@@ -168,6 +169,11 @@ reference:
       - epi_rt_gamma
       - epi_serial_interval
       - epi_serial_interval_ci
+      - epi_delay_dist
+      - epi_delay_pmf
+      - epi_offspring
+      - epi_chain_size
+      - epi_cfr
       - epi_simulate
       - epi_simulate_schedule
 

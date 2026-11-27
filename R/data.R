@@ -97,3 +97,27 @@
 #'   radii = c(30, 60), nsim = 99
 #' )
 "nc_sids"
+
+#' Daily COVID-19 cases and deaths in New Zealand, first wave 2020
+#'
+#' Daily confirmed COVID-19 cases and deaths in New Zealand from 26 February
+#' to 30 June 2020, the same period as [nz_covid_2020], for case fatality
+#' analyses with [epi_cfr()]. Daily counts are differences of the cumulative
+#' series (negative corrections set to zero). Deaths in this source were
+#' mostly added once a week, so use them cumulatively rather than day by day.
+#'
+#' @format A tibble with 126 rows and 3 columns:
+#' \describe{
+#'   \item{date}{Report date.}
+#'   \item{cases}{Newly confirmed cases.}
+#'   \item{deaths}{Newly reported deaths.}
+#' }
+#' @source COVID-19 Data Repository by the Center for Systems Science and
+#'   Engineering (CSSE) at Johns Hopkins University,
+#'   <https://github.com/CSSEGISandData/COVID-19>, CC BY 4.0. Dong E, Du H,
+#'   Gardner L (2020). An interactive web-based dashboard to track COVID-19 in
+#'   real time. *Lancet Infectious Diseases* 20(5):533-534.
+#'   Build script: `data-raw/nz_covid_outcomes_2020.R`.
+#' @examples
+#' colSums(nz_covid_outcomes_2020[c("cases", "deaths")])
+"nz_covid_outcomes_2020"
