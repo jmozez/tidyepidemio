@@ -19,6 +19,7 @@ cre
 Cressie
 CSSE
 CUSUM
+dev
 doi
 dplyr
 EJ
@@ -57,6 +58,7 @@ Lifecycle
 LinkingTo
 lockdown
 McNemar
+metrix
 MGUS
 miscalibration
 miscoverage
