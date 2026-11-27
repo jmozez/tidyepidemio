@@ -1,4 +1,4 @@
-url: https://jmozez.github.io/tidyepidemio/
+url: https://tidyepidemio.in4metrix.dev/
 
 template:
   bootstrap: 5
@@ -72,7 +72,7 @@ navbar:
           href: https://tidyvisor.in4metrix.dev/
         - text: "tidyepidemio: Epidemiological analysis"
           icon: fa-virus
-          href: https://jmozez.github.io/tidyepidemio/
+          href: https://tidyepidemio.in4metrix.dev/
 
 
 articles:

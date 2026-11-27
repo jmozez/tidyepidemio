@@ -12,8 +12,8 @@ suitability before using results for clinical or public health decisions.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://tidyepidemio.in4metrix.dev/}
   \item \url{https://github.com/jmozez/tidyepidemio}
-  \item \url{https://jmozez.github.io/tidyepidemio/}
   \item Report bugs at \url{https://github.com/jmozez/tidyepidemio/issues}
 }
 

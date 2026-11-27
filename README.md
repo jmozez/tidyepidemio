@@ -1,28 +1,26 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file. -->
 
-# tidyepidemio <a href="https://jmozez.github.io/tidyepidemio/"><img src="man/figures/logo.png" align="right" height="139" alt="tidyepidemio website" /></a>
+# tidyepidemio <a href="https://tidyepidemio.in4metrix.dev/"><img src="man/figures/logo.png" align="right" height="139" alt="tidyepidemio website" /></a>
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/R-CMD-check.yaml)
-[![Tests and
-coverage](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml)
+[![Tests and coverage](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/test-coverage.yaml)
 [![Lint](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/lint.yaml)
 [![Website deploy](https://github.com/jmozez/tidyepidemio/actions/workflows/vercel.yaml/badge.svg)](https://github.com/jmozez/tidyepidemio/actions/workflows/vercel.yaml)
 [![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/jmozez/tidyepidemio)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License:
-MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmozez/tidyepidemio/blob/main/LICENSE.md)
-[![C++
-kernels](https://img.shields.io/badge/speed-Rcpp%20kernels-B03A2E)](#speed)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jmozez/tidyepidemio/blob/main/LICENSE.md)
+[![C++ kernels](https://img.shields.io/badge/speed-Rcpp%20kernels-B03A2E)](#speed)
+[![Website](https://img.shields.io/badge/website-tidyepidemio.in4metrix.dev-1F8A8A)](https://tidyepidemio.in4metrix.dev)
+[![Maps with tidymapr](https://img.shields.io/badge/maps%20with-tidymapr-11376B)](https://tidymapr.in4metrix.dev)
+[![Advice with tidyvisor](https://img.shields.io/badge/advice%20with-tidyvisor-1A9E93)](https://tidyvisor.in4metrix.dev)
 <!-- badges: end -->
 
 **Descriptive, analytic and infectious-disease epidemiology in one tidy
 workflow: data frames in, tibbles out.**
 
-Documentation: <https://jmozez.github.io/tidyepidemio/>
+Documentation: <https://tidyepidemio.in4metrix.dev/>
 
 Epidemiology in R is spread across many packages, each with its own
 input format and output object: epitools and Epi for 2x2 tables,
